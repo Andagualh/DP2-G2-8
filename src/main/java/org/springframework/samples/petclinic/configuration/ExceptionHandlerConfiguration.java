@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class ExceptionHandlerConfiguration 
 {
+	@SuppressWarnings("unused")
 	@Autowired
 	private BasicErrorController errorController;
     // add any exceptions/validations/binding problems
