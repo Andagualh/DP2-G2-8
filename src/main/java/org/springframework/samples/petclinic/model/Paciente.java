@@ -3,9 +3,11 @@ package org.springframework.samples.petclinic.model;
 
 import java.time.LocalDate;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -44,4 +46,8 @@ public class Paciente extends NamedEntity {
 	@JoinColumn(name = "medico_id")
 	@NotNull
 	private Medico		medico;
+	
+	@OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL)
+	private Cita cita;
+	
 }
