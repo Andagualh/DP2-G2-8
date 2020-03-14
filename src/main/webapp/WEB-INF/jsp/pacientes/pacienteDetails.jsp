@@ -44,7 +44,7 @@
         </tr>
         
         <tr>
-            
+                <%--Must be fixed to properly work, the url is not working as intended--%>
                 <th>Medico Asignado</th>
                 <spring:url value="/medicos/{medico.id}" var="medicoUrl">
                     <spring:param name="medicoId" value="${paciente.medico.id}"/>
