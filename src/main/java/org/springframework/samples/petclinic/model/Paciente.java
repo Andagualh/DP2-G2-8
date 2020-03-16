@@ -2,6 +2,7 @@
 package org.springframework.samples.petclinic.model;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -48,6 +49,6 @@ public class Paciente extends NamedEntity {
 	private Medico		medico;
 	
 	@OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL)
-	private Cita cita;
+	private Set<Cita> cita;
 	
 }
