@@ -44,4 +44,5 @@ public class Paciente extends NamedEntity {
 	@JoinColumn(name = "medico_id")
 	@NotNull
 	private Medico		medico;
+
 }
