@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Paciente;
+import org.springframework.samples.petclinic.repository.CitaRepository;
 import org.springframework.samples.petclinic.repository.PacienteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class PacienteService {
 
 	@Autowired
-	private PacienteRepository pacienteRepo;
+	private PacienteRepository	pacienteRepo;
+	private CitaRepository		citaRepository;
 
 
 	@Transactional
@@ -35,6 +37,17 @@ public class PacienteService {
 	@Transactional
 	public void pacienteDelete(final int idPaciente) {
 		this.pacienteRepo.deleteById(idPaciente);
+	}
+
+	@Transactional
+	public void deletePacienteByMedico(final int idPaciente, final int idMedico) {
+		Paciente paciente = this.pacienteRepo.findById(idPaciente).get();
+
+		if (paciente.getMedico().getId() == idMedico) {
+			this.pacienteRepo.deleteById(idPaciente);
+		} else {
+			throw new IllegalAccessError();
+		}
 	}
 
 	@Transactional
