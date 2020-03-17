@@ -61,7 +61,3 @@ INSERT INTO visits(id,pet_id,visit_date,description) VALUES (1, 7, '2013-01-01',
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (2, 8, '2013-01-02', 'rabies shot');
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (3, 8, '2013-01-03', 'neutered');
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (4, 7, '2013-01-04', 'spayed');
-
-INSERT INTO medico(id,name,dni,activo,apellidos,domicilio,n_telefono,nombre) VALUES (1, 'Pico', '14144343J', true ,'Palas', 'Reina Mercedes, 3', '12345678', 'Pico');
-
-INSERT INTO paciente(id,name,dni,apellidos,domicilio,email,f_alta,f_nacimiento,n_telefono,nombre,medico_id) VALUES (1, 'Paco','17373737Q', 'Pala', 'Reina Mercedes', 'paco@gmail.com', '2020-06-01', '1997-01-01', '666666666', 'Paco', '1');
