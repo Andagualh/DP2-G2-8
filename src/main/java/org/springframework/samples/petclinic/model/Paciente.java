@@ -1,4 +1,3 @@
-
 package org.springframework.samples.petclinic.model;
 
 import java.time.LocalDate;
@@ -44,5 +43,4 @@ public class Paciente extends NamedEntity {
 	@JoinColumn(name = "medico_id")
 	@NotNull
 	private Medico		medico;
-
 }
