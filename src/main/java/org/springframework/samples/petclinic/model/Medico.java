@@ -1,6 +1,9 @@
 package org.springframework.samples.petclinic.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 import org.hibernate.validator.constraints.Length;
 
@@ -23,4 +26,8 @@ public class Medico extends NamedEntity {
 	private String	domicilio;
 
 	private boolean	activo;
+
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "username", referencedColumnName = "username")
+	private User	user;
 }

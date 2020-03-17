@@ -1,0 +1,57 @@
+
+package org.springframework.samples.petclinic.service;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.petclinic.model.Paciente;
+import org.springframework.samples.petclinic.repository.CitaRepository;
+import org.springframework.samples.petclinic.repository.PacienteRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class PacienteService {
+
+	@Autowired
+	private PacienteRepository	pacienteRepo;
+	private CitaRepository		citaRepository;
+
+
+	@Transactional
+	public Optional<Paciente> existsPacienteById(final int id) {
+		return this.pacienteRepo.findById(id);
+	}
+
+	@Transactional
+	public Paciente findPacienteById(final int id) {
+		return this.pacienteRepo.findById(id).get();
+	}
+
+	@Transactional
+	public int pacienteCreate(final Paciente paciente) {
+		System.out.println("paciente: " + paciente);
+		return this.pacienteRepo.save(paciente).getId();
+	}
+
+	@Transactional
+	public void pacienteDelete(final int idPaciente) {
+		this.pacienteRepo.deleteById(idPaciente);
+	}
+
+	@Transactional
+	public void deletePacienteByMedico(final int idPaciente, final int idMedico) {
+		Paciente paciente = this.pacienteRepo.findById(idPaciente).get();
+
+		if (paciente.getMedico().getId() == idMedico) {
+			this.pacienteRepo.deleteById(idPaciente);
+		} else {
+			throw new IllegalAccessError();
+		}
+	}
+
+	@Transactional
+	public int pacienteCount() {
+		return (int) this.pacienteRepo.count();
+	}
+}
