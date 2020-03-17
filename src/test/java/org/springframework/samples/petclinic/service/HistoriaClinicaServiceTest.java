@@ -19,7 +19,7 @@ public class HistoriaClinicaServiceTest {
 	@Test
 	public void testCountWithInitialData() {
 		int count = historiaService.historiaClinicaCount();
-		assertEquals(count,1);
+		assertEquals(count,0);
 	}
 
 }
