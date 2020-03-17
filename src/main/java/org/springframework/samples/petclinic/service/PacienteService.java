@@ -1,9 +1,12 @@
 
 package org.springframework.samples.petclinic.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.repository.CitaRepository;
 import org.springframework.samples.petclinic.repository.PacienteRepository;
@@ -15,8 +18,14 @@ public class PacienteService {
 
 	@Autowired
 	private PacienteRepository	pacienteRepo;
+	@Autowired
 	private CitaRepository		citaRepository;
 
+
+	@Autowired
+	public PacienteService(PacienteRepository pacienteRepo){
+		this.pacienteRepo = pacienteRepo;
+	}
 
 	@Transactional
 	public Optional<Paciente> existsPacienteById(final int id) {
@@ -53,5 +62,10 @@ public class PacienteService {
 	@Transactional
 	public int pacienteCount() {
 		return (int) this.pacienteRepo.count();
+	}
+
+	@Transactional(readOnly = true)
+	public Collection<Paciente> findPacienteByMedicoId(int id) throws DataAccessException{
+		return pacienteRepo.findPacientesByMedicoId(id);
 	}
 }
