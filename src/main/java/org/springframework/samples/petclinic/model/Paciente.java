@@ -2,10 +2,12 @@
 package org.springframework.samples.petclinic.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -20,29 +22,34 @@ import lombok.Data;
 public class Paciente extends NamedEntity {
 
 	@NotBlank
-	private String		nombre;
+	private String			nombre;
 
-	private String		apellidos;
+	private String			apellidos;
 
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
-	private LocalDate	f_nacimiento;
+	private LocalDate		f_nacimiento;
 
 	@Length(min = 9, max = 9)
-	private String		DNI;
+	private String			DNI;
 
-	private Integer		n_telefono;
+	private Integer			n_telefono;
 
-	private String		domicilio;
+	private String			domicilio;
 
 	@Email
-	private String		email;
+	private String			email;
 
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
-	private LocalDate	f_alta;
+	private LocalDate		f_alta;
 
 	@ManyToOne
 	@JoinColumn(name = "medico_id")
 	@NotNull
-	private Medico		medico;
+	private Medico			medico;
+
+	@OneToMany(mappedBy = "paciente")
+	@JoinColumn(name = "cita_id")
+	@NotNull
+	private ArrayList<Cita>	citas;
 
 }
