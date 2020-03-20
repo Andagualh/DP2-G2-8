@@ -1,4 +1,3 @@
-
 package org.springframework.samples.petclinic.model;
 
 import javax.persistence.CascadeType;
