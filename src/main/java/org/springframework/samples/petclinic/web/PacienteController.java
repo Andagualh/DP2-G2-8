@@ -14,12 +14,14 @@ import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -49,6 +51,22 @@ public class PacienteController {
 		return mav;
 	}
 
+	//	@GetMapping(value = "/pacientes/findbymedico/{medicoId}")
+	//	public String initFindMedForm(final Map<String, Object> model, @PathVariable("medicoId") final int medicoId) {
+	//
+	//		Collection<Paciente> results = this.pacienteService.findPacienteByMedicoId(medicoId);
+	//		if (results.isEmpty()) {
+	//			//Falta la página de error
+	//			return "redirect:/pacientes/";
+	//		}
+	//
+	//		else {
+	//			model.put("selections", results);
+	//
+	//			return "pacientes/pacientesList";
+	//		}
+	//	}
+
 	@GetMapping(value = "/paciente/save/{pacienteId}")
 	public String savePaciente(@Valid final Paciente paciente, final BindingResult result, final ModelMap modelMap) {
 		String view = "/pacientes";
@@ -77,6 +95,24 @@ public class PacienteController {
 		}
 
 		return view;
+	}
+
+	@GetMapping(value = "/pacientes/{pacienteId}/edit")
+	public String initUpdatePacientesForm(@PathVariable("pacientesId") final int pacientesId, final Model model) {
+		Paciente paciente = this.pacienteService.findPacienteById(pacientesId).get();
+		model.addAttribute(paciente);
+		return "pacientes/createOrUpdateOwnerForm";
+	}
+
+	@PostMapping(value = "/pacientes/{pacienteId}/edit")
+	public String processUpdatePacienteForm(@Valid final Paciente paciente, final BindingResult result, @PathVariable("pacienteId") final int pacienteId) {
+		if (result.hasErrors()) {
+			return "pacientes/createOrUpdateOwnerForm";
+		} else {
+			paciente.setId(pacienteId);
+			this.pacienteService.savePacienteByMedico(paciente, 1);
+			return "redirect:/pacientes/{pacienteId}";
+		}
 	}
 
 }

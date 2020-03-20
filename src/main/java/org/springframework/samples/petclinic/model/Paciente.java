@@ -20,7 +20,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "pacientes")
+@Table(name = "paciente")
 public class Paciente extends NamedEntity {
 
 	@NotBlank
