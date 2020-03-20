@@ -2,7 +2,6 @@
 package org.springframework.samples.petclinic.service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Paciente;
+import org.springframework.samples.petclinic.repository.CitaRepository;
 import org.springframework.samples.petclinic.repository.PacienteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,7 @@ public class PacienteService {
 
 
 	@Autowired
-	public PacienteService(PacienteRepository pacienteRepo){
+	public PacienteService(final PacienteRepository pacienteRepo) {
 		this.pacienteRepo = pacienteRepo;
 	}
 
@@ -47,6 +47,11 @@ public class PacienteService {
 	@Transactional
 	public void pacienteDelete(final int idPaciente) {
 		this.pacienteRepo.deleteById(idPaciente);
+	}
+
+	@Transactional
+	public void savePaciente(final Paciente paciente) {
+		this.pacienteRepo.save(paciente);
 	}
 
 	@Transactional
@@ -83,7 +88,7 @@ public class PacienteService {
 	}
 
 	@Transactional(readOnly = true)
-	public Collection<Paciente> findPacienteByMedicoId(int id) throws DataAccessException{
-		return pacienteRepo.findPacientesByMedicoId(id);
+	public Collection<Paciente> findPacienteByMedicoId(final int id) throws DataAccessException {
+		return this.pacienteRepo.findPacientesByMedicoId(id);
 	}
 }
