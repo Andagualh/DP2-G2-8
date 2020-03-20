@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.repository.PacienteRepository;
@@ -23,8 +24,8 @@ public class PacienteService {
 		return this.pacienteRepo.findById(id);
 	}
 
-	@Transactional
-	public Optional<Paciente> findPacienteById(final int id) {
+	@Transactional(readOnly = true)
+	public Optional<Paciente> findPacienteById(final int id) throws DataAccessException {
 		return this.pacienteRepo.findById(id);
 	}
 

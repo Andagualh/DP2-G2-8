@@ -5,6 +5,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.Length;
 
@@ -12,6 +13,7 @@ import lombok.Data;
 
 @Data
 @Entity
+@Table(name = "medicos")
 public class Medico extends NamedEntity {
 
 	private String	nombre;

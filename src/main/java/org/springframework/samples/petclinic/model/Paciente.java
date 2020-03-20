@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -19,6 +20,7 @@ import lombok.Data;
 
 @Data
 @Entity
+@Table(name = "pacientes")
 public class Paciente extends NamedEntity {
 
 	@NotBlank
@@ -48,7 +50,6 @@ public class Paciente extends NamedEntity {
 	private Medico				medico;
 
 	@OneToMany(mappedBy = "paciente")
-	@NotNull
 	private Collection<Cita>	citas;
 
 }
