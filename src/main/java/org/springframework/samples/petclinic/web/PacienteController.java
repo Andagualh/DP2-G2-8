@@ -1,10 +1,7 @@
 
 package org.springframework.samples.petclinic.web;
 
-import java.util.Optional;
-
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Paciente;
@@ -12,7 +9,6 @@ import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -64,19 +60,19 @@ public class PacienteController {
 		return view;
 	}
 
-	@GetMapping(value = "/paciente/delete/{pacienteId}")
-	public String borrarPaciente(@PathParam("pacienteId") final int pacienteId, final ModelMap modelMap) {
-		String view = "/pacientes";
-		Optional<Paciente> paciente = this.pacienteService.findPacienteById(pacienteId);
-		String id = SecurityContextHolder.getContext().getAuthentication().getName();
-		if (paciente.isPresent()) {
-			this.pacienteService.deletePacienteByMedico(pacienteId, 1);
-			modelMap.addAttribute("message", "Paciente borrado exitosamiente");
-		} else {
-			modelMap.addAttribute("message", "Paciente no encontrado");
-		}
-
-		return view;
-	}
+	//	@GetMapping(value = "/paciente/delete/{pacienteId}")
+	//	public String borrarPaciente(@PathParam("pacienteId") final int pacienteId, final ModelMap modelMap) {
+	//		String view = "/pacientes";
+	//		Optional<Paciente> paciente = this.pacienteService.findPacienteById(pacienteId);
+	//		String id = SecurityContextHolder.getContext().getAuthentication().getName();
+	//		if (paciente.isPresent()) {
+	//			this.pacienteService.deletePacienteByMedico(pacienteId, 1);
+	//			modelMap.addAttribute("message", "Paciente borrado exitosamiente");
+	//		} else {
+	//			modelMap.addAttribute("message", "Paciente no encontrado");
+	//		}
+	//
+	//		return view;
+	//	}
 
 }
