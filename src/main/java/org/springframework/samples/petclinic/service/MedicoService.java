@@ -1,6 +1,9 @@
 
 package org.springframework.samples.petclinic.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.repository.MedicoRepository;
@@ -17,6 +20,13 @@ public class MedicoService {
 	@Transactional
 	public int medicoCreate(final Medico medico) {
 		return this.medicoRepository.save(medico).getId();
+	}
+
+	@Transactional
+	public Collection<Medico> getMedicos() {
+		Collection<Medico> medicos = new ArrayList<Medico>();
+		this.medicoRepository.findAll().forEach(medicos::add);
+		return medicos;
 	}
 
 	@Transactional

@@ -68,6 +68,7 @@ INSERT INTO users(username,password,enabled) VALUES ('alvaro','entrar',TRUE);
 INSERT INTO authorities VALUES ('alvaro','admin');
 
 INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,activo) VALUES (1,'Alvaro','Alferez','12345678A','666666666','Ecija',true);
+INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,activo) VALUES (2,'Andres','Alhama','12345678A','666666666','Ecija',true);
 
 INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
 VALUES (1,'Marina','Alferez','1990-01-01','12345678A',777777777,'Ecija','marina@petclinic.com','2020-03-20',1);

@@ -2,6 +2,7 @@
 package org.springframework.samples.petclinic.web;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -9,6 +10,7 @@ import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.MedicoService;
@@ -103,6 +105,14 @@ public class PacienteController {
 	public String initUpdatePacientesForm(@PathVariable("pacienteId") final int pacientesId, final Model model) {
 		Paciente paciente = this.pacienteService.findPacienteById(pacientesId).get();
 		model.addAttribute(paciente);
+
+		Map<Integer, String> medicos = new LinkedHashMap<Integer, String>();
+		for (Medico medico : this.medicoService.getMedicos()) {
+			medicos.put(medico.getId(), medico.getNombre() + " " + medico.getApellidos());
+		}
+		model.addAttribute("medicos", medicos);
+		System.out.println("medicos:" + medicos);
+		model.addAttribute(this.medicoService.getMedicos());
 		return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 	}
 
