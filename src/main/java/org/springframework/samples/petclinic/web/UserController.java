@@ -15,13 +15,17 @@
  */
 package org.springframework.samples.petclinic.web;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
+import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.OwnerService;
 import org.springframework.samples.petclinic.service.VetService;
 import org.springframework.samples.petclinic.service.UserService;
@@ -39,13 +43,14 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class UserController {
 
-	private static final String VIEWS_OWNER_CREATE_FORM = "users/createOwnerForm";
-
-	private final OwnerService ownerService;
+	private static final String VIEWS_MEDICO_CREATE_FORM = "users/createMedicoForm";
 
 	@Autowired
-	public UserController(OwnerService clinicService) {
-		this.ownerService = clinicService;
+	private final MedicoService medicoService;
+
+	@Autowired
+	public UserController(MedicoService medicoService) {
+		this.medicoService = medicoService;
 	}
 
 	@InitBinder
@@ -55,19 +60,20 @@ public class UserController {
 
 	@GetMapping(value = "/users/new")
 	public String initCreationForm(Map<String, Object> model) {
-		Owner owner = new Owner();
-		model.put("owner", owner);
-		return VIEWS_OWNER_CREATE_FORM;
+		Medico medico = new Medico();
+		medico.setActivo(false);
+		model.put("medico", medico);
+		return VIEWS_MEDICO_CREATE_FORM;
 	}
 
 	@PostMapping(value = "/users/new")
-	public String processCreationForm(@Valid Owner owner, BindingResult result) {
+	public String processCreationForm(@Valid Medico medico, BindingResult result) {
 		if (result.hasErrors()) {
-			return VIEWS_OWNER_CREATE_FORM;
+			return VIEWS_MEDICO_CREATE_FORM;
 		}
-		else {
+		else{
 			//creating owner, user, and authority
-			this.ownerService.saveOwner(owner);
+			this.medicoService.saveMedico(medico);
 			return "redirect:/";
 		}
 	}

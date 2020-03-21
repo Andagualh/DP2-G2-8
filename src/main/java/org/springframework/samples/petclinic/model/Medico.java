@@ -13,9 +13,9 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "medico")
-public class Medico extends NamedEntity {
+public class Medico extends BaseEntity {
 
-	private String	nombre;
+	private String nombre;
 
 	private String	apellidos;
 
