@@ -29,6 +29,13 @@ public class CitaService {
 		return citaRepo.findAll();
 	}
 	
+	@Transactional
+	public int citaCreate(final Cita cita) {
+		System.out.println("cita: " + cita);
+		return this.citaRepo.save(cita).getId();
+	}
+	
+	
 	//No esta terminada
 	@Transactional
 	public Iterable<Cita> findAllByMedicoId(int medicoId){
