@@ -2,6 +2,7 @@
 package org.springframework.samples.petclinic.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -33,9 +34,22 @@ public class PacienteService {
 		return this.pacienteRepo.findById(id);
 	}
 
+	@Transactional
+	public Collection<Paciente> getPacientes() {
+		Collection<Paciente> pacientes = new ArrayList<Paciente>();
+		this.pacienteRepo.findAll().forEach(pacientes::add);
+		return pacientes;
+	}
+
 	@Transactional(readOnly = true)
 	public Optional<Paciente> findPacienteById(final int id) throws DataAccessException {
+		System.out.println("suputamadre");
 		return this.pacienteRepo.findById(id);
+	}
+
+	@Transactional(readOnly = true)
+	public Collection<Paciente> findPacienteByApellidos(final String apellidos) throws DataAccessException {
+		return this.pacienteRepo.findPacienteByApellidos(apellidos);
 	}
 
 	@Transactional

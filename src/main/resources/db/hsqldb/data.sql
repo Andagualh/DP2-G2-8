@@ -71,4 +71,8 @@ INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,activo) VALUES (
 INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,activo) VALUES (2,'Andres','Alhama','12345678A','666666666','Ecija',true);
 
 INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
-VALUES (1,'Marina','Alferez','1990-01-01','12345678A',777777777,'Ecija','marina@petclinic.com','2020-03-20',1);
+VALUES (1,'Marina1','Alferez','1990-01-01','12345678A',777777777,'Ecija','marina@petclinic.com','2020-03-20',1);
+INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
+VALUES (2,'Marina2','Alferez','1990-01-01','12345678A',777777777,'Ecija','marina@petclinic.com','2020-03-20',1);
+INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
+VALUES (3,'Marina3','Alferez','1990-01-01','12345678A',777777777,'Ecija','marina@petclinic.com','2020-03-20',1);

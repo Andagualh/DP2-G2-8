@@ -21,48 +21,7 @@
 			<petclinic:inputField label="Telephone" name="n_telefono" />
 			<petclinic:inputField label="Email" name="email" />
 			<petclinic:inputField label="Fecha alta" name="f_alta" />
-			<petclinic:inputField label="Fecha alta" name="medico" />
-			<petclinic:selectField label="pordefectodesplegable" name="medico" size="1" names="${medicoList}"></petclinic:selectField>t
-
-
-
-			<spring:bind path="medico">
-				<c:set var="cssGroup" value="form-group ${status.error ? 'error' : '' }" />
-				<c:set var="valid" value="${not status.error and not empty status.actualValue}" />
-				<div class="${cssGroup}">
-					<label class="col-sm-2 control-label">asdf</label>
-
-					<div class="col-sm-10">
-						<form:select class="form-control" path="medico" items="${medicoList}" size="2">
-							<form:options items="${medicoList}" itemValue="id" itemLabel="nombre" />
-						</form:select>
-						<c:if test="${valid}">
-							<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
-						</c:if>
-						<c:if test="${status.error}">
-							<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span>
-							<span class="help-inline">${status.errorMessage}</span>
-						</c:if>
-					</div>
-				</div>
-			</spring:bind>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+						
 			<spring:bind path="medico">
 				<c:set var="cssGroup" value="form-group ${status.error ? 'error' : '' }" />
 				<c:set var="valid" value="${not status.error and not empty status.actualValue}" />
@@ -70,8 +29,17 @@
 					<label class="col-sm-2 control-label">Medico</label>
 
 					<div class="col-sm-10">
-						<form:select class="form-control" path="medico" items="${medicos}">
-							<form:option selected="true" value="${paciente.medico}" />
+						<form:select  class="form-control" path="medico">
+						<c:forEach var="m" items="${medicoList}">
+						    <c:choose>
+						        <c:when test="${paciente.medico.id==m.id}">
+						            <form:option selected="true" value="${m.id}" label="${m.nombre} ${m.apellidos}"/>
+						        </c:when>
+						        <c:otherwise>
+						            <form:option value="${m.id}" label="${m.nombre} ${m.apellidos}"/>
+						        </c:otherwise>
+						    </c:choose>
+						</c:forEach>
 						</form:select>
 						<c:if test="${valid}">
 							<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
@@ -83,7 +51,6 @@
 					</div>
 				</div>
 			</spring:bind>
-
 
 			<input type="hidden" name="citas" value="${citas}" />
 		</div>

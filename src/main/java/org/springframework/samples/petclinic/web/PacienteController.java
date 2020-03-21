@@ -2,21 +2,17 @@
 package org.springframework.samples.petclinic.web;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -26,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -55,19 +52,62 @@ public class PacienteController {
 		return mav;
 	}
 
-	@GetMapping(value = "/pacientes/findbymedico/{medicoId}")
+	@GetMapping(value = "/pacientes/find")
+	public String initFindForm(final Map<String, Object> model) {
+		model.put("paciente", new Paciente());
+		return "pacientes/findPacientes";
+	}
+
+	@GetMapping(value = "/pacientes")
+	public String processFindForm(Paciente paciente, final BindingResult result, final Map<String, Object> model) {
+		if (paciente.getApellidos() == null) {
+			paciente.setApellidos("");
+		}
+
+		Collection<Paciente> results;
+
+		if (paciente.getApellidos() == "") {
+			results = this.pacienteService.getPacientes();
+		} else {
+			results = this.pacienteService.findPacienteByApellidos(paciente.getApellidos());
+
+		}
+
+		if (results.isEmpty()) {
+			result.rejectValue("apellidos", "notFound", "not found");
+			return "pacientes/findPacientes";
+		} else if (results.size() == 1) {
+			paciente = results.iterator().next();
+			return "redirect:/pacientes/" + paciente.getId();
+		} else {
+			model.put("selections", results);
+			return "pacientes/pacientesList";
+		}
+	}
+
+	@GetMapping(value = "/pacientes/findByMedico")
+	public String initFindMedForm(final Map<String, Object> model) {
+
+		Collection<Paciente> results = this.pacienteService.getPacientes();
+		if (results.isEmpty()) {
+			//Falta la página de error
+			return "redirect:/pacientes";
+		} else {
+			model.put("selections", results);
+			return "pacientes/pacientesListMedico";
+		}
+	}
+
+	@GetMapping(value = "/pacientes/findByMedico/{medicoId}")
 	public String initFindMedForm(final Map<String, Object> model, @PathVariable("medicoId") final int medicoId) {
 
 		Collection<Paciente> results = this.pacienteService.findPacienteByMedicoId(medicoId);
 		if (results.isEmpty()) {
 			//Falta la página de error
 			return "redirect:/pacientes/";
-		}
-
-		else {
+		} else {
 			model.put("selections", results);
-
-			return "pacientes/pacientesList";
+			return "pacientes/pacientesListMedico";
 		}
 	}
 
@@ -86,18 +126,19 @@ public class PacienteController {
 		return view;
 	}
 
-	@GetMapping(value = "/paciente/delete/{pacienteId}")
-	public String borrarPaciente(@PathParam("pacienteId") final int pacienteId, final ModelMap modelMap) {
+	@RequestMapping(value = "/pacientes/{pacienteId}/delete")
+	public String borrarPaciente(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 		String view = "/pacientes";
 		Optional<Paciente> paciente = this.pacienteService.findPacienteById(pacienteId);
-		String id = SecurityContextHolder.getContext().getAuthentication().getName();
+		//String id = SecurityContextHolder.getContext().getAuthentication().getName();
 		if (paciente.isPresent()) {
-			this.pacienteService.deletePacienteByMedico(pacienteId, 1);
+			//this.pacienteService.deletePacienteByMedico(pacienteId, 1);
+			this.pacienteService.pacienteDelete(pacienteId);
 			modelMap.addAttribute("message", "Paciente borrado exitosamiente");
+			view = "redirect:/pacientes";
 		} else {
 			modelMap.addAttribute("message", "Paciente no encontrado");
 		}
-
 		return view;
 	}
 
@@ -105,13 +146,6 @@ public class PacienteController {
 	public String initUpdatePacientesForm(@PathVariable("pacienteId") final int pacientesId, final Model model) {
 		Paciente paciente = this.pacienteService.findPacienteById(pacientesId).get();
 		model.addAttribute(paciente);
-
-		Map<Integer, String> medicos = new LinkedHashMap<Integer, String>();
-		for (Medico medico : this.medicoService.getMedicos()) {
-			medicos.put(medico.getId(), medico.getNombre() + " " + medico.getApellidos());
-		}
-		model.addAttribute("medicos", medicos);
-		System.out.println("medicos:" + medicos);
 		model.addAttribute(this.medicoService.getMedicos());
 		return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 	}
@@ -123,6 +157,7 @@ public class PacienteController {
 		} else {
 			paciente.setId(pacienteId);
 			this.pacienteService.savePaciente(paciente);
+			//this.pacienteService.savePacienteByMedico(paciente, idMedico);
 			return "redirect:/pacientes/{pacienteId}";
 		}
 	}
