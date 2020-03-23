@@ -41,7 +41,7 @@ public class CitaServiceTest {
 		medico.setDNI("12345678A");
 		medico.setN_telefono("123456789");
 		medico.setDomicilio("Domicilio");
-		medico.setActivo(true);
+		medico.getUser().setEnabled(true);
 
 		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
 
