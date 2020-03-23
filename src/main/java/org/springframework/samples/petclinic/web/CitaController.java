@@ -95,7 +95,7 @@ public class CitaController {
 		}
 
 		// find citas by fecha
-		Collection<Cita> results = this.citaService.findCitasByFecha(cita.getFecha().toString());
+		Collection<Cita> results = this.citaService.findCitasByFecha(cita.getFecha());
 		if (results.isEmpty()) {
 			// no owners found
 			result.rejectValue("fecha", "notFound", "not found");

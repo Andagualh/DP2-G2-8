@@ -9,6 +9,8 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import lombok.Data;
 
 @Data
@@ -16,6 +18,7 @@ import lombok.Data;
 public class Cita extends NamedEntity {
 
 	@Future
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate	fecha;
 
 	private String		lugar;

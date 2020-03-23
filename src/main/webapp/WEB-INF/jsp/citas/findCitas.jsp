@@ -19,7 +19,10 @@
             <div class="control-group" id="fecha">
                 <label class="col-sm-2 control-label">Fecha </label>
                 <div class="col-sm-10">
-                    <form:input class="form-control" path="fecha" size="30" maxlength="80"/>
+                    
+
+                    <form:input type="date" class="form-control" path="fecha" size="30" maxlength="80"/>
+                    
                     <span class="help-inline"><form:errors path="*"/></span>
                 </div>
             </div>
@@ -34,7 +37,7 @@
 
     <br/> 
     <sec:authorize access="hasAuthority('admin')">
-		<a class="btn btn-default" href='<spring:url value="/citas/new" htmlEscape="true"/>'>Añadir cita</a>
+		<a class="btn btn-default" href='<spring:url value="/citas/new" htmlEscape="true"/>'>Aï¿½adir cita</a>
 	</sec:authorize>
 	
 </petclinic:layout>

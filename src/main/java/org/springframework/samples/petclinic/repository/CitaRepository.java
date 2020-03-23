@@ -19,6 +19,6 @@ public interface CitaRepository extends CrudRepository<Cita, Integer> {
 	@Query("SELECT ALL c from Cita c where c.paciente.id =:id")
 	Collection<Cita> findCitasByPacienteId(@Param("id") int id) throws DataAccessException;
 
-	@Query("SELECT DISTINCT cita FROM Cita cita WHERE cita.fecha LIKE :fecha%")
-	Collection<Cita> findByDate(@Param("fecha") String fecha);
+	@Query("SELECT DISTINCT cita FROM Cita cita WHERE cita.fecha LIKE :fecha")
+	Collection<Cita> findByDate(@Param("fecha") LocalDate fecha);
 }

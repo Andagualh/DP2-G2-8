@@ -70,7 +70,7 @@ public class CitaService {
 	}
 	
 	@Transactional(readOnly = true)
-	public Collection<Cita> findCitasByFecha(String fecha) throws DataAccessException{
+	public Collection<Cita> findCitasByFecha(LocalDate fecha) throws DataAccessException{
 		Collection<Cita> citas = new ArrayList<>();
 		citas.addAll(citaRepo.findByDate(fecha));
 		return citas;
