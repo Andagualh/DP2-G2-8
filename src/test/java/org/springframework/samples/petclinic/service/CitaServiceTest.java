@@ -1,6 +1,5 @@
-package org.springframework.samples.petclinic.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+package org.springframework.samples.petclinic.service;
 
 import java.time.LocalDate;
 
@@ -16,20 +15,21 @@ import org.springframework.stereotype.Service;
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
 public class CitaServiceTest {
-	
+
 	@Autowired
-	private CitaService citaService;
+	private CitaService		citaService;
 	@Autowired
-	private PacienteService pacienteService;
+	private PacienteService	pacienteService;
 	@Autowired
-	private MedicoService medicoService;
-	
+	private MedicoService	medicoService;
+
+
 	@Test
 	public void testCountWithInitialData() {
-		int count = citaService.citaCount();
-		assertEquals(count,0);
+		int count = this.citaService.citaCount();
+		Assertions.assertEquals(count, 0);
 	}
-	
+
 	@Test
 	public void testCreateCita() {
 		Medico medico = new Medico();
@@ -40,7 +40,7 @@ public class CitaServiceTest {
 		medico.setDNI("12345678A");
 		medico.setN_telefono("123456789");
 		medico.setDomicilio("Domicilio");
-		medico.setActivo(true);
+		medico.getUser().setEnabled(true);
 
 		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
 

@@ -39,7 +39,7 @@ public class PacienteServiceTests {
 		medico.setDNI("12345678A");
 		medico.setN_telefono("123456789");
 		medico.setDomicilio("Domicilio");
-		medico.setActivo(true);
+		medico.getUser().setEnabled(true);
 
 		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
 
@@ -63,7 +63,7 @@ public class PacienteServiceTests {
 	}
 
 	@Test
-	public void testFindPacientesByMedicoId(){
+	public void testFindPacientesByMedicoId() {
 		Medico medico = new Medico();
 		Medico medico2 = new Medico();
 		Paciente paciente = new Paciente();
@@ -75,7 +75,7 @@ public class PacienteServiceTests {
 		medico.setDNI("12345678A");
 		medico.setN_telefono("123456789");
 		medico.setDomicilio("Domicilio");
-		medico.setActivo(true);
+		medico.getUser().setEnabled(true);
 		int idMedicoPaciente1 = this.medicoService.medicoCreate(medico);
 
 		medico2.setNombre("Medico 2");
@@ -83,7 +83,7 @@ public class PacienteServiceTests {
 		medico2.setDNI("12345678A");
 		medico2.setN_telefono("123456789");
 		medico2.setDomicilio("Domicilio");
-		medico2.setActivo(true);
+		medico.getUser().setEnabled(true);
 		int idMedicoPaciente2 = this.medicoService.medicoCreate(medico2);
 
 		paciente.setNombre("Paciente 1");
@@ -95,7 +95,7 @@ public class PacienteServiceTests {
 		paciente.setF_alta(LocalDate.now());
 		paciente.setMedico(this.medicoService.getMedicoById(idMedicoPaciente1));
 		int idPaciente1 = this.pacienteService.pacienteCreate(paciente);
-		
+
 		paciente2.setNombre("Paciente 2");
 		paciente2.setApellidos("Apellidos");
 		paciente2.setF_nacimiento(LocalDate.of(1996, 01, 12));
@@ -121,13 +121,12 @@ public class PacienteServiceTests {
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPaciente1));
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPaciente2));
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPaciente3));
-		
-		
-		for(Paciente p : this.pacienteService.findPacienteByMedicoId(idMedicoPaciente1)){
+
+		for (Paciente p : this.pacienteService.findPacienteByMedicoId(idMedicoPaciente1)) {
 			Assertions.assertEquals(p.getMedico().getId(), idMedicoPaciente1);
 		}
 
-		for(Paciente p : this.pacienteService.findPacienteByMedicoId(idMedicoPaciente2)){
+		for (Paciente p : this.pacienteService.findPacienteByMedicoId(idMedicoPaciente2)) {
 			Assertions.assertEquals(p.getMedico().getId(), idMedicoPaciente2);
 		}
 	}
@@ -143,14 +142,14 @@ public class PacienteServiceTests {
 		medico1.setDNI("12345678A");
 		medico1.setN_telefono("123456789");
 		medico1.setDomicilio("Domicilio");
-		medico1.setActivo(true);
+		medico1.getUser().setEnabled(true);
 
 		medico2.setNombre("Medico 2");
 		medico2.setApellidos("Apellidos");
 		medico2.setDNI("12345678A");
 		medico2.setN_telefono("123456789");
 		medico2.setDomicilio("Domicilio");
-		medico2.setActivo(true);
+		medico2.getUser().setEnabled(true);
 
 		int idMedico1Paciente = this.medicoService.medicoCreate(medico1);
 		int idMedico2 = this.medicoService.medicoCreate(medico2);
@@ -184,7 +183,7 @@ public class PacienteServiceTests {
 		medico.setDNI("12345678A");
 		medico.setN_telefono("123456789");
 		medico.setDomicilio("Domicilio");
-		medico.setActivo(true);
+		medico.getUser().setEnabled(true);
 
 		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
 

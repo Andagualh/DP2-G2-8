@@ -15,11 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class MedicoService {
 
 	@Autowired
-	private MedicoRepository medicoRepository;
+	private MedicoRepository	medicoRepository;
 	@Autowired
-	private UserService userService;
+	private UserService			userService;
 	@Autowired
-	private AuthoritiesService authoritiesService;
+	private AuthoritiesService	authoritiesService;
 
 
 	@Transactional
@@ -33,22 +33,27 @@ public class MedicoService {
 	}
 
 	@Transactional
-	public int pacienteCount() throws DataAccessException {
-		return (int) this.medicoRepository.count();
-	}
-
-	@Transactional
-	public void saveMedico(Medico medico) throws DataAccessException{
-		medicoRepository.save(medico);
-		userService.saveUser(medico.getUser());
-		authoritiesService.saveAuthorities(medico.getUser().getUsername(), "medico");
-		
-	}
-
-	@Transactional
 	public Collection<Medico> getMedicos() {
 		Collection<Medico> medicos = new ArrayList<Medico>();
 		this.medicoRepository.findAll().forEach(medicos::add);
 		return medicos;
+	}
+
+	@Transactional(readOnly = true)
+	public Collection<Medico> findMedicoByApellidos(final String apellidos) throws DataAccessException {
+		return this.medicoRepository.findMedicoByApellidos(apellidos);
+	}
+
+	@Transactional
+	public int medicoCount() throws DataAccessException {
+		return (int) this.medicoRepository.count();
+	}
+
+	@Transactional
+	public void saveMedico(final Medico medico) throws DataAccessException {
+		this.medicoRepository.save(medico);
+		this.userService.saveUser(medico.getUser());
+		this.authoritiesService.saveAuthorities(medico.getUser().getUsername(), "medico");
+
 	}
 }

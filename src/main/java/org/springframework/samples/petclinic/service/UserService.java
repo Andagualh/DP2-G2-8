@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.samples.petclinic.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -34,14 +38,45 @@ public class UserService {
 
 	private UserRepository userRepository;
 
+
 	@Autowired
-	public UserService(UserRepository userRepository) {
+	public UserService(final UserRepository userRepository) {
 		this.userRepository = userRepository;
 	}
 
 	@Transactional
-	public void saveUser(User user) throws DataAccessException {
-		user.setEnabled(true);
-		userRepository.save(user);
+	public void saveUser(final User user) throws DataAccessException {
+		user.setEnabled(false);
+		this.userRepository.save(user);
 	}
+
+	@Transactional
+	public Optional<User> findUserByUsername(final String userId) throws DataAccessException {
+		return this.userRepository.findById(userId);
+	}
+
+	@Transactional
+	public void acceptUser(final User user) throws DataAccessException {
+		user.setEnabled(true);
+		this.userRepository.save(user);
+	}
+
+	@Transactional
+	public void denyUser(final User user) throws DataAccessException {
+		user.setEnabled(false);
+		this.userRepository.save(user);
+	}
+
+	@Transactional
+	public Collection<User> getUsers() {
+		Collection<User> users = new ArrayList<User>();
+		this.userRepository.findAll().forEach(users::add);
+		return users;
+	}
+	@Transactional(readOnly = true)
+
+	public Collection<User> findUsersByUsername(final String username) throws DataAccessException {
+		return this.userRepository.findUsersByUsername(username);
+	}
+
 }
