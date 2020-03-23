@@ -56,4 +56,8 @@ public class MedicoService {
 		this.authoritiesService.saveAuthorities(medico.getUser().getUsername(), "medico");
 
 	}
+
+	public Medico findMedicoByUsername(final String username) {
+		return this.medicoRepository.findMedicoByUser(this.userService.findUserByUsername(username).get());
+	}
 }

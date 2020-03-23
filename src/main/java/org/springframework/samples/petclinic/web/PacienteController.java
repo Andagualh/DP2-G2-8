@@ -32,12 +32,14 @@ public class PacienteController {
 	@Autowired
 	private final PacienteService	pacienteService;
 	private final MedicoService		medicoService;
+	private final UserService		userService;
 
 
 	@Autowired
 	public PacienteController(final PacienteService pacienteService, final MedicoService medicoService, final UserService userService, final AuthoritiesService authoritiesService) {
 		this.pacienteService = pacienteService;
 		this.medicoService = medicoService;
+		this.userService = userService;
 	}
 
 	@InitBinder
@@ -49,6 +51,8 @@ public class PacienteController {
 	public ModelAndView showPaciente(@PathVariable("pacienteId") final int pacienteId) {
 		ModelAndView mav = new ModelAndView("pacientes/pacienteDetails");
 		mav.addObject(this.pacienteService.findPacienteById(pacienteId).get());
+		System.out.println("error?");
+		System.out.println("currentmedico:" + this.userService.getCurrentMedico());
 		return mav;
 	}
 

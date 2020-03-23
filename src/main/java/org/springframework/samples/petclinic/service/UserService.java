@@ -22,8 +22,11 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,12 +39,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserService {
 
-	private UserRepository userRepository;
+	private UserRepository	userRepository;
+	private MedicoService	medicoService;
 
 
 	@Autowired
-	public UserService(final UserRepository userRepository) {
+	public UserService(final UserRepository userRepository, final MedicoService medicoService) {
 		this.userRepository = userRepository;
+		this.medicoService = medicoService;
 	}
 
 	@Transactional
@@ -79,4 +84,18 @@ public class UserService {
 		return this.userRepository.findUsersByUsername(username);
 	}
 
+	@Transactional
+	public Medico getCurrentMedico() throws DataAccessException {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String username;
+
+		if (principal instanceof UserDetails) {
+			username = ((UserDetails) principal).getUsername();
+		} else {
+			username = principal.toString();
+		}
+		Medico medico = this.medicoService.findMedicoByUsername(username);
+		System.out.println("medico:" + medico);
+		return medico;
+	}
 }
