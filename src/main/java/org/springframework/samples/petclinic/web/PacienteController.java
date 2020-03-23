@@ -162,4 +162,24 @@ public class PacienteController {
 		}
 	}
 
+	@GetMapping(value = "/pacientes/new")
+	public String initCreationForm(final Map<String, Object> model) {
+		Paciente paciente = new Paciente();
+		model.put("paciente", paciente);
+		model.put("medicoList", this.medicoService.getMedicos());
+		return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
+	}
+
+	@PostMapping(value = "/pacientes/new")
+	public String processCreationForm(@Valid final Paciente paciente, final BindingResult result) {
+		if (result.hasErrors()) {
+			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
+		} else {
+			//creating owner, user and authorities
+			this.pacienteService.savePaciente(paciente);
+
+			return "redirect:/pacientes/" + paciente.getId();
+		}
+	}
+
 }

@@ -43,7 +43,7 @@
 					<span>Listar Pacientes Personales</span>
 				</petclinic:menuItem></li>
 				
-				<li><petclinic:menuItem active="${name eq 'pacientes'}" url="/pacientes/crearpaciente"
+				<li><petclinic:menuItem active="${name eq 'pacientes'}" url="/pacientes/new"
 					title="crear paciente">
 					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 					<span>Crear Paciente</span>
