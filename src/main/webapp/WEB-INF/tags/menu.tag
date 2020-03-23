@@ -27,18 +27,60 @@
 					<span class="glyphicon glyphicon-home" aria-hidden="true"></span>
 					<span>Home</span>
 				</petclinic:menuItem>
-
-				<petclinic:menuItem active="${name eq 'owners'}" url="/owners/find"
-					title="find owners">
+				
+				<li><a href="#" class="dropdown-toggle hvr-bounce-to-bottom" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Pacientes<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+						
+							<li><petclinic:menuItem active="${name eq 'pacientes'}" url="/pacientes/listar"
+					title="listar pacientes">
 					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-					<span>Find owners</span>
-				</petclinic:menuItem>
-
-				<petclinic:menuItem active="${name eq 'vets'}" url="/vets"
-					title="veterinarians">
-					<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
-					<span>Veterinarians</span>
-				</petclinic:menuItem>
+					<span>Listar Pacientes</span>
+				</petclinic:menuItem></li>
+				
+				<li><petclinic:menuItem active="${name eq 'pacientes'}" url="/pacientes/listarpersonales"
+					title="listar pacientes personales">
+					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+					<span>Listar Pacientes Personales</span>
+				</petclinic:menuItem></li>
+				
+				<li><petclinic:menuItem active="${name eq 'pacientes'}" url="/pacientes/crearpaciente"
+					title="crear paciente">
+					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+					<span>Crear Paciente</span>
+				</petclinic:menuItem></li>
+				
+				<li><petclinic:menuItem active="${name eq 'pacientes'}" url="/pacientes/buscarpaciente"
+					title="buscar paciente">
+					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+					<span>Buscar Paciente</span>
+				</petclinic:menuItem></li>
+							
+						</ul></li>
+						
+				<li><a href="#" class="dropdown-toggle hvr-bounce-to-bottom" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Citas<span class="caret"></span></a>
+						<ul class="dropdown-menu">
+						
+							<li><petclinic:menuItem active="${name eq 'citas'}" url="/citas/listar"
+					title="listar citas">
+					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+					<span>Listar Citas</span>
+				</petclinic:menuItem></li>
+				
+				<li><petclinic:menuItem active="${name eq 'citas'}" url="/citas/listarpersonales"
+					title="listar citas personales">
+					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+					<span>Listar Citas Personales</span>
+				</petclinic:menuItem></li>
+				
+				<li><petclinic:menuItem active="${name eq 'citas'}" url="/citas/listarfecha"
+					title="listar citas por fecha">
+					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+					<span>Listar Citas por Fecha</span>
+				</petclinic:menuItem></li>
+							
+						</ul></li>
+						
+						
 
 				<petclinic:menuItem active="${name eq 'error'}" url="/oups"
 					title="trigger a RuntimeException to see how it is handled">
