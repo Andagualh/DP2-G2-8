@@ -1,12 +1,14 @@
 
 package org.springframework.samples.petclinic.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.repository.CitaRepository;
 import org.springframework.samples.petclinic.repository.PacienteRepository;
@@ -23,7 +25,7 @@ public class PacienteService {
 
 
 	@Autowired
-	public PacienteService(PacienteRepository pacienteRepo){
+	public PacienteService(final PacienteRepository pacienteRepo) {
 		this.pacienteRepo = pacienteRepo;
 	}
 
@@ -33,8 +35,21 @@ public class PacienteService {
 	}
 
 	@Transactional
-	public Paciente findPacienteById(final int id) {
-		return this.pacienteRepo.findById(id).get();
+	public Collection<Paciente> getPacientes() {
+		Collection<Paciente> pacientes = new ArrayList<Paciente>();
+		this.pacienteRepo.findAll().forEach(pacientes::add);
+		return pacientes;
+	}
+
+	@Transactional(readOnly = true)
+	public Optional<Paciente> findPacienteById(final int id) throws DataAccessException {
+		System.out.println("suputamadre");
+		return this.pacienteRepo.findById(id);
+	}
+
+	@Transactional(readOnly = true)
+	public Collection<Paciente> findPacienteByApellidos(final String apellidos) throws DataAccessException {
+		return this.pacienteRepo.findPacienteByApellidos(apellidos);
 	}
 
 	@Transactional
@@ -49,11 +64,33 @@ public class PacienteService {
 	}
 
 	@Transactional
+	public void savePaciente(final Paciente paciente) {
+		this.pacienteRepo.save(paciente);
+	}
+
+	@Transactional
+	public void savePacienteByMedico(final Paciente paciente, final int idMedico) {
+		if (paciente.getMedico().getId() == idMedico) {
+			this.pacienteRepo.save(paciente);
+		} else {
+			throw new IllegalAccessError();
+		}
+	}
+
+	@Transactional
 	public void deletePacienteByMedico(final int idPaciente, final int idMedico) {
 		Paciente paciente = this.pacienteRepo.findById(idPaciente).get();
+		LocalDate ultimaCita = paciente.getCitas().stream().map(Cita::getFecha).max(LocalDate::compareTo).get();
+		LocalDate hoy = LocalDate.now();
+		boolean puedeBorrarse = hoy.compareTo(ultimaCita) > 6 || hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() >= hoy.getDayOfYear();
 
+		//Falta historia clinica
 		if (paciente.getMedico().getId() == idMedico) {
-			this.pacienteRepo.deleteById(idPaciente);
+			if (paciente.getCitas().isEmpty()) {
+				this.pacienteRepo.deleteById(idPaciente);
+			} else if (puedeBorrarse) {
+				this.pacienteRepo.deleteById(idPaciente);
+			}
 		} else {
 			throw new IllegalAccessError();
 		}
@@ -65,7 +102,7 @@ public class PacienteService {
 	}
 
 	@Transactional(readOnly = true)
-	public Collection<Paciente> findPacienteByMedicoId(int id) throws DataAccessException{
-		return pacienteRepo.findPacientesByMedicoId(id);
+	public Collection<Paciente> findPacienteByMedicoId(final int id) throws DataAccessException {
+		return this.pacienteRepo.findPacientesByMedicoId(id);
 	}
 }

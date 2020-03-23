@@ -1,3 +1,4 @@
+
 package org.springframework.samples.petclinic.web;
 
 import java.time.LocalDate;
@@ -21,12 +22,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/citas")
 public class CitaController {
-	
+
 	@Autowired
-	private CitaService citaService;
+	private CitaService		citaService;
 	@Autowired
-	private PacienteService pacienteService;
-	
+	private PacienteService	pacienteService;
+
+
 	//Esto muestra todas las citas pero deberia mostrar solo las del medico.
 	@GetMapping()
 	public String listadoCitas(ModelMap modelMap) {
@@ -67,10 +69,9 @@ public class CitaController {
 		if(cita.isPresent()) {
 			citaService.delete(cita.get());
 			modelMap.addAttribute("message", "Cita successfully deleted");
-		}else {
+		} else {
 			modelMap.addAttribute("message", "Cita not found");
 		}
 		return view;
 	}
-
 }

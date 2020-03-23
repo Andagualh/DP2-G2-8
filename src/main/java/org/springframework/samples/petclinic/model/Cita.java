@@ -24,4 +24,5 @@ public class Cita extends NamedEntity {
 	@JoinColumn(name = "paciente_id")
 	@NotNull
 	private Paciente	paciente;
+
 }

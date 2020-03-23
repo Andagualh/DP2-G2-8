@@ -7,15 +7,13 @@
 
 <petclinic:layout pageName="pacientes">
     <h2>Pacientes</h2>
-
-    <table id="pacientesTable" class="table table-striped">
+    <table id="ownersTable" class="table table-striped">
         <thead>
         <tr>
-            <th style="width: 150px;">Name</th>
-            <th style="width: 200px;">Address</th>
-            <th>City</th>
-            <th style="width: 120px">Telephone</th>
-            <th>Citas</th>
+            <th style="width: 150px;">Nombre</th>
+            <th>DNI</th>
+            <th style="width: 120px">Fecha de Alta</th>
+            <th style="width: 150px;">Medico</th>
         </tr>
         </thead>
         <tbody>
@@ -28,20 +26,18 @@
                     <a href="${fn:escapeXml(pacienteUrl)}"><c:out value="${paciente.nombre} ${paciente.apellidos}"/></a>
                 </td>
                 <td>
-                    <c:out value="${paciente.domicilio}"/>
+                    <c:out value="${paciente.DNI}"/>
                 </td>
                 <td>
-                    <c:out value="${paciente.domicilio}"/>
+                    <c:out value="${paciente.f_alta}"/>
                 </td>
                 <td>
-                    <c:out value="${paciente.n_telefono}"/>
+                    <spring:url value="/medicos/{medicoId}" var="medicoUrl">
+                        <spring:param name="medicoId" value="${paciente.medico.id}"/>
+                    </spring:url>
+                    <a href="${fn:escapeXml(medicoUrl)}"><c:out value="${paciente.medico.nombre} ${paciente.medico.apellidos}"/></a>
                 </td>
-                <td>
-                    <c:forEach var="cita" items="${paciente.citas}">
-                        <c:out value="${cita.fecha} "/>
-                    </c:forEach>
-                </td>
-                                
+                
             </tr>
         </c:forEach>
         </tbody>

@@ -55,7 +55,7 @@ public class PacienteServiceTests {
 		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
 		int count = this.pacienteService.pacienteCount();
 		Assertions.assertEquals(count, 1);
-		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado));
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
 
 		this.pacienteService.deletePacienteByMedico(idPacienteCreado, idMedicoPaciente);
 		System.out.println("resultado: " + this.pacienteService.existsPacienteById(idPacienteCreado));
@@ -167,7 +167,7 @@ public class PacienteServiceTests {
 		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
 		int count = this.pacienteService.pacienteCount();
 		Assertions.assertEquals(count, 1);
-		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado));
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
 
 		Assertions.assertThrows(IllegalAccessError.class, () -> {
 			this.pacienteService.deletePacienteByMedico(idPacienteCreado, idMedico2);
@@ -200,7 +200,7 @@ public class PacienteServiceTests {
 		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
 		int count = this.pacienteService.pacienteCount();
 		Assertions.assertEquals(count, 1);
-		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado));
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
 
 		this.pacienteService.pacienteDelete(idPacienteCreado);
 		System.out.println("resultado: " + this.pacienteService.existsPacienteById(idPacienteCreado));
