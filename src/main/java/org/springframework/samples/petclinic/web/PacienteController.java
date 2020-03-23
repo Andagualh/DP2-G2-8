@@ -131,6 +131,7 @@ public class PacienteController {
 		String view = "/pacientes";
 		Optional<Paciente> paciente = this.pacienteService.findPacienteById(pacienteId);
 		//String id = SecurityContextHolder.getContext().getAuthentication().getName();
+		System.out.println("intentaborrar");
 		if (paciente.isPresent()) {
 			//this.pacienteService.deletePacienteByMedico(pacienteId, 1);
 			this.pacienteService.pacienteDelete(pacienteId);

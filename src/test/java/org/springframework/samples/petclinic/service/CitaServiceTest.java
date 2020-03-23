@@ -1,6 +1,5 @@
-package org.springframework.samples.petclinic.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+package org.springframework.samples.petclinic.service;
 
 import java.time.LocalDate;
 
@@ -16,23 +15,24 @@ import org.springframework.stereotype.Service;
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
 public class CitaServiceTest {
-	
+
 	@Autowired
-	private CitaService citaService;
+	private CitaService		citaService;
 	@Autowired
-	private PacienteService pacienteService;
+	private PacienteService	pacienteService;
 	@Autowired
-	private MedicoService medicoService;
-	
+	private MedicoService	medicoService;
+
+
 	@Test
 	public void testCountWithInitialData() {
-		int count = citaService.citaCount();
-		assertEquals(count,3);
+		int count = this.citaService.citaCount();
+		Assertions.assertEquals(count, 3);
 	}
-	
+
 	@Test
 	public void testCreateCita() {
-		
+
 		Medico medico = new Medico();
 		Paciente paciente = new Paciente();
 
@@ -55,24 +55,24 @@ public class CitaServiceTest {
 		paciente.setMedico(this.medicoService.getMedicoById(idMedicoPaciente));
 
 		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
-		
+
 		Cita cita = new Cita();
-		
-		cita.setPaciente(pacienteService.findPacienteById(idPacienteCreado));
+
+		cita.setPaciente(this.pacienteService.findPacienteById(idPacienteCreado).get());
 		cita.setFecha(LocalDate.of(2020, 05, 26));
 		cita.setLugar("Consulta 2");
-		
-		citaService.save(cita);
-		
+
+		this.citaService.save(cita);
+
 		int countCitas = this.citaService.citaCount();
-		
+
 		Assertions.assertEquals(countCitas, 4);
 
 	}
-	
+
 	@Test
 	public void testDeleteCita() {
-		
+
 		Medico medico = new Medico();
 		Paciente paciente = new Paciente();
 
@@ -95,21 +95,20 @@ public class CitaServiceTest {
 		paciente.setMedico(this.medicoService.getMedicoById(idMedicoPaciente));
 
 		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
-		
+
 		Cita cita = new Cita();
-		
-		cita.setPaciente(pacienteService.findPacienteById(idPacienteCreado));
+
+		cita.setPaciente(this.pacienteService.findPacienteById(idPacienteCreado).get());
 		cita.setFecha(LocalDate.of(2020, 05, 26));
 		cita.setLugar("Consulta 2");
-		
-		citaService.save(cita);
-		
+
+		this.citaService.save(cita);
+
 		Assertions.assertEquals(this.citaService.citaCount(), 4);
-		
-		citaService.delete(citaService.findCitaById(1).get());
-		
+
+		this.citaService.delete(this.citaService.findCitaById(1).get());
+
 		Assertions.assertEquals(this.citaService.citaCount(), 3);
-		
 
 	}
 
