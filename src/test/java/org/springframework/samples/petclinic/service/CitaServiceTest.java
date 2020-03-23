@@ -1,8 +1,10 @@
 package org.springframework.samples.petclinic.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
+import java.util.Collection;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
@@ -12,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Medico;
+import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +31,7 @@ public class CitaServiceTest {
 	@Test
 	public void testCountWithInitialData() {
 		int count = citaService.citaCount();
-		assertEquals(count,0);
+		assertEquals(count,1);
 	}
 	
 	@Test
@@ -56,7 +59,7 @@ public class CitaServiceTest {
 
 		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
 		int count = this.pacienteService.pacienteCount();
-		Assertions.assertEquals(count, 1);
+		Assertions.assertEquals(count, 2);
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado));
 
 		this.pacienteService.deletePacienteByMedico(idPacienteCreado, idMedicoPaciente);
@@ -123,7 +126,7 @@ public class CitaServiceTest {
 		int idPaciente3 = this.pacienteService.pacienteCreate(paciente3);
 		
 		int count = this.pacienteService.pacienteCount();
-		Assertions.assertEquals(count, 3);
+		Assertions.assertEquals(count, 4);
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado));
 		
 		
@@ -143,7 +146,7 @@ public class CitaServiceTest {
 		int idCitaCreada3 = this.citaService.citaCreate(cita3);
 		
 		int countCita = this.citaService.citaCount();
-		Assertions.assertEquals(countCita, 3);
+		Assertions.assertEquals(countCita, 4);
 		Assertions.assertNotNull(this.citaService.findCitasByMedicoId(idMedicoPaciente));
 		Assertions.assertNotNull(cita.getPaciente().getId());
 		Assertions.assertNotNull(cita2.getPaciente().getId());
@@ -160,6 +163,15 @@ public class CitaServiceTest {
 			Assertions.assertEquals(pacienteActual2.getMedico().getId(), idMedicoPaciente2);
 		}
 		
+	}
+	
+	@Test
+	void shouldFindCitasByDate() {
+		Collection<Cita> citas = this.citaService.findCitasByFecha(LocalDate.of(2020, 8, 8));
+		assertThat(citas.size()).isEqualTo(1);
+
+		citas = this.citaService.findCitasByFecha(LocalDate.of(2030, 1, 1));
+		assertThat(citas.isEmpty()).isTrue();
 	}
 
 }

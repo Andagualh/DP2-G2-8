@@ -1,6 +1,7 @@
 
 package org.springframework.samples.petclinic.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -65,6 +66,13 @@ public class CitaService {
 		for (Paciente p: pacientes ) {
 			citas.addAll(citaRepo.findCitasByPacienteId(p.getId()));
 		}
+		return citas;
+	}
+	
+	@Transactional(readOnly = true)
+	public Collection<Cita> findCitasByFecha(String fecha) throws DataAccessException{
+		Collection<Cita> citas = new ArrayList<>();
+		citas.addAll(citaRepo.findByDate(fecha));
 		return citas;
 	}
 	

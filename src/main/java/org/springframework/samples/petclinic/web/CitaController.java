@@ -1,6 +1,8 @@
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -8,6 +10,7 @@ import javax.websocket.server.PathParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Cita;
+import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.service.CitaService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.stereotype.Controller;
@@ -74,6 +77,40 @@ public class CitaController {
 			modelMap.addAttribute("message", "Cita not found");
 		}
 		return view;
+	}
+	
+	@GetMapping(value = "/find")
+	public String initFindForm(Map<String, Object> model) {
+		model.put("cita", new Cita());
+		return "citas/findCitas";
+	}
+
+	
+	@GetMapping()
+	public String processFindForm(Cita cita, BindingResult result, Map<String, Object> model) {
+
+		// allow parameterless GET request for /citas to return all records
+		if (cita.getFecha() == null) {
+			cita.setFecha(LocalDate.now()); // empty string signifies broadest possible search
+		}
+
+		// find citas by fecha
+		Collection<Cita> results = this.citaService.findCitasByFecha(cita.getFecha().toString());
+		if (results.isEmpty()) {
+			// no owners found
+			result.rejectValue("fecha", "notFound", "not found");
+			return "citas/findCitas";
+		}
+		else if (results.size() == 1) {
+			// 1 cita found
+			cita = results.iterator().next();
+			return "redirect:/citas/" + cita.getId();
+		}
+		else {
+			// multiple citas found
+			model.put("selections", results);
+			return "citas/listCitas";
+		}
 	}
 
 }
