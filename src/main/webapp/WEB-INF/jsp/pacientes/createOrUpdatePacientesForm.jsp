@@ -66,5 +66,14 @@
 				</c:choose>
 			</div>
 		</div>
+			<div class="form-group">
+			<div class="col-sm-offset-2 col-sm-10">
+					
+					<form action="pacientes/${paciente.id}/historiaclinica/new" method="get">
+						<button class="btn btn-default" type="submit">Historia Clinica</button>
+					</form>
+					
+			</div>
+		</div>
 	</form:form>
 </petclinic:layout>
