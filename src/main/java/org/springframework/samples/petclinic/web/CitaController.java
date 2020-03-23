@@ -1,6 +1,7 @@
 
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -8,6 +9,7 @@ import javax.websocket.server.PathParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Cita;
+import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.service.CitaService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.stereotype.Controller;
@@ -29,46 +31,47 @@ public class CitaController {
 
 	//Esto muestra todas las citas pero deberia mostrar solo las del medico.
 	@GetMapping()
-	public String listadoCitas(final ModelMap modelMap) {
-		String vista = "citas/listCitas";
-		Iterable<Cita> citas = this.citaService.findAll();
+	public String listadoCitas(ModelMap modelMap) {
+		String vista = "citas/citasList";
+		Iterable<Cita> citas = citaService.findAll();
+		System.out.println(citas);
 		modelMap.addAttribute("citas", citas);
 		return vista;
 	}
-
-	@GetMapping(path = "/new/{pacienteId}")
-	public String crearCita(final int pacienteId, final ModelMap modelMap) {
-		String view = "citas/editCita";
+	
+	@GetMapping(path="/new/{pacienteId}")
+	public String crearCita(Integer pacienteId, ModelMap modelMap) {
+		String view = "citas/createOrUpdateCitaForm";
 		Cita cita = new Cita();
-		cita.setPaciente(this.pacienteService.findPacienteById(pacienteId).get());
-		modelMap.addAttribute("cita", new Cita());
+		Paciente paciente = pacienteService.findPacienteById(pacienteId);
+		cita.setPaciente(paciente);
+		modelMap.addAttribute("cita",cita);
 		return view;
 	}
-
-	@PostMapping(path = "/save")
-	public String salvarEvento(@Valid final Cita cita, final BindingResult result, final ModelMap modelMap) {
-		String view = "citas/listCitas";
-		if (result.hasErrors()) {
+	
+	@PostMapping(path="/save")
+	public String salvarCita(@Valid Cita cita,BindingResult result, ModelMap modelMap) {
+		String view ="citas/createOrUpdateCitaForm";
+		if(result.hasErrors()) {
 			modelMap.addAttribute("cita", cita);
-			return "citas/editCita";
-		} else {
-			this.citaService.save(cita);
-			modelMap.addAttribute("messsage", "Cita successfully created");
+			return "citas/createOrUpdateCitaForm";
+		}else {
+			citaService.save(cita);
+			modelMap.addAttribute("messsage","Cita successfully created");
 		}
 		return view;
 	}
-
-	@GetMapping(path = "/delete/{citaId}")
-	public String borrarCita(@PathParam("citaId") final int citaId, final ModelMap modelMap) {
-		String view = "citas/listCitas";
-		Optional<Cita> cita = this.citaService.findCitaById(citaId);
-		if (cita.isPresent()) {
-			this.citaService.delete(cita.get());
+	
+	@GetMapping(path="/delete/{citaId}")
+	public String borrarCita(@PathParam("citaId") Integer citaId,ModelMap modelMap) {
+		String view = "citas/citasList";
+		Optional<Cita> cita = citaService.findCitaById(citaId);
+		if(cita.isPresent()) {
+			citaService.delete(cita.get());
 			modelMap.addAttribute("message", "Cita successfully deleted");
 		} else {
 			modelMap.addAttribute("message", "Cita not found");
 		}
 		return view;
 	}
-
 }
