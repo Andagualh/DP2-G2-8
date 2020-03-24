@@ -38,7 +38,7 @@ public class CitaController {
 		System.out.println(citas);
 		modelMap.addAttribute("citas", citas);
 		return vista;
-
+	}
 	
 	
 	//CUANDO ALGUIEN HAGA EL CITADETAILS POR FAVOR QUE USE ESTA URL EN EL MAPPING: "/citas/citaDetails/{citaId}" 

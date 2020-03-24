@@ -26,7 +26,7 @@ public class PacienteServiceTests {
 	@Test
 	public void testCountWithInitialData() {
 		int count = this.pacienteService.pacienteCount();
-		Assertions.assertEquals(count, 0);
+		Assertions.assertEquals(count, 3);
 	}
 
 	@Test
@@ -39,7 +39,7 @@ public class PacienteServiceTests {
 		medico.setDNI("12345678A");
 		medico.setN_telefono("123456789");
 		medico.setDomicilio("Domicilio");
-		medico.getUser().setEnabled(true);
+		
 
 		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
 
@@ -54,7 +54,7 @@ public class PacienteServiceTests {
 
 		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
 		int count = this.pacienteService.pacienteCount();
-		Assertions.assertEquals(count, 1);
+		Assertions.assertEquals(count, 4);
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
 
 		this.pacienteService.deletePacienteByMedico(idPacienteCreado, idMedicoPaciente);
@@ -75,7 +75,7 @@ public class PacienteServiceTests {
 		medico.setDNI("12345678A");
 		medico.setN_telefono("123456789");
 		medico.setDomicilio("Domicilio");
-		medico.getUser().setEnabled(true);
+		
 		int idMedicoPaciente1 = this.medicoService.medicoCreate(medico);
 
 		medico2.setNombre("Medico 2");
@@ -83,7 +83,7 @@ public class PacienteServiceTests {
 		medico2.setDNI("12345678A");
 		medico2.setN_telefono("123456789");
 		medico2.setDomicilio("Domicilio");
-		medico.getUser().setEnabled(true);
+		
 		int idMedicoPaciente2 = this.medicoService.medicoCreate(medico2);
 
 		paciente.setNombre("Paciente 1");
@@ -117,7 +117,7 @@ public class PacienteServiceTests {
 		int idPaciente3 = this.pacienteService.pacienteCreate(paciente3);
 
 		int countPaciente = this.pacienteService.pacienteCount();
-		Assertions.assertEquals(countPaciente, 3);
+		Assertions.assertEquals(countPaciente, 6);
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPaciente1));
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPaciente2));
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPaciente3));
@@ -142,14 +142,14 @@ public class PacienteServiceTests {
 		medico1.setDNI("12345678A");
 		medico1.setN_telefono("123456789");
 		medico1.setDomicilio("Domicilio");
-		medico1.getUser().setEnabled(true);
+		
 
 		medico2.setNombre("Medico 2");
 		medico2.setApellidos("Apellidos");
 		medico2.setDNI("12345678A");
 		medico2.setN_telefono("123456789");
 		medico2.setDomicilio("Domicilio");
-		medico2.getUser().setEnabled(true);
+		
 
 		int idMedico1Paciente = this.medicoService.medicoCreate(medico1);
 		int idMedico2 = this.medicoService.medicoCreate(medico2);
@@ -165,7 +165,7 @@ public class PacienteServiceTests {
 
 		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
 		int count = this.pacienteService.pacienteCount();
-		Assertions.assertEquals(count, 1);
+		Assertions.assertEquals(count, 4);
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
 
 		Assertions.assertThrows(IllegalAccessError.class, () -> {
@@ -183,7 +183,7 @@ public class PacienteServiceTests {
 		medico.setDNI("12345678A");
 		medico.setN_telefono("123456789");
 		medico.setDomicilio("Domicilio");
-		medico.getUser().setEnabled(true);
+		
 
 		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
 
@@ -198,7 +198,7 @@ public class PacienteServiceTests {
 
 		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
 		int count = this.pacienteService.pacienteCount();
-		Assertions.assertEquals(count, 1);
+		Assertions.assertEquals(count, 4);
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
 
 		this.pacienteService.pacienteDelete(idPacienteCreado);

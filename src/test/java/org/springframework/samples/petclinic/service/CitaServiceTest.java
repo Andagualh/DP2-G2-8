@@ -11,6 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.Paciente;
+import org.springframework.samples.petclinic.model.User;
 import org.springframework.stereotype.Service;
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
@@ -41,7 +42,7 @@ public class CitaServiceTest {
 		medico.setDNI("12345678A");
 		medico.setN_telefono("123456789");
 		medico.setDomicilio("Domicilio");
-		medico.getUser().setEnabled(true);
+		
 
 		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
 
@@ -75,13 +76,14 @@ public class CitaServiceTest {
 
 		Medico medico = new Medico();
 		Paciente paciente = new Paciente();
+		
 
 		medico.setNombre("Medico 1");
 		medico.setApellidos("Apellidos");
 		medico.setDNI("12345678A");
 		medico.setN_telefono("123456789");
 		medico.setDomicilio("Domicilio");
-		medico.getUser().setEnabled(true);
+		
 
 		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
 
@@ -128,7 +130,6 @@ public class CitaServiceTest {
 		medico.setDNI("12345678A");
 		medico.setN_telefono("123456789");
 		medico.setDomicilio("Domicilio");
-		medico.setActivo(true);
 		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
 		
 		medico2.setNombre("Medico 2");
@@ -136,7 +137,6 @@ public class CitaServiceTest {
 		medico2.setDNI("12345678A");
 		medico2.setN_telefono("123456789");
 		medico2.setDomicilio("Domicilio");
-		medico2.setActivo(true);
 		int idMedicoPaciente2 = this.medicoService.medicoCreate(medico2);
 
 		paciente.setNombre("Paciente 1");
@@ -171,7 +171,7 @@ public class CitaServiceTest {
 		int idPaciente3 = this.pacienteService.pacienteCreate(paciente3);
 		
 		int count = this.pacienteService.pacienteCount();
-		Assertions.assertEquals(count, 3);
+		Assertions.assertEquals(count, 6);
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado));
 		
 		
@@ -191,7 +191,7 @@ public class CitaServiceTest {
 		int idCitaCreada3 = this.citaService.citaCreate(cita3);
 		
 		int countCita = this.citaService.citaCount();
-		Assertions.assertEquals(countCita, 3);
+		Assertions.assertEquals(countCita, 6);
 		Assertions.assertNotNull(this.citaService.findCitasByMedicoId(idMedicoPaciente));
 		Assertions.assertNotNull(cita.getPaciente().getId());
 		Assertions.assertNotNull(cita2.getPaciente().getId());
@@ -199,12 +199,12 @@ public class CitaServiceTest {
 	
 		
 		for(Cita c: this.citaService.findCitasByMedicoId(idMedicoPaciente)) {
-			Paciente pacienteActual = this.pacienteService.findPacienteById(c.getPaciente().getId());
+			Paciente pacienteActual = this.pacienteService.findPacienteById(c.getPaciente().getId()).get();
 			Assertions.assertEquals(pacienteActual.getMedico().getId(), idMedicoPaciente);
 		}
 		
 		for(Cita c: this.citaService.findCitasByMedicoId(idMedicoPaciente2)) {
-			Paciente pacienteActual2 = this.pacienteService.findPacienteById(c.getPaciente().getId());
+			Paciente pacienteActual2 = this.pacienteService.findPacienteById(c.getPaciente().getId()).get();
 			Assertions.assertEquals(pacienteActual2.getMedico().getId(), idMedicoPaciente2);
 		}
 		
