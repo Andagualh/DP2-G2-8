@@ -7,11 +7,13 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <style>
 .dropbtn {
-  background-color: #4CAF50;
+  background-color: #34302d;
   color: white;
   padding: 22.2px;
   font-size: 22.2px;
   border: none;
+  font-size: 18px;
+  
 }
 
 .dropdown {
@@ -24,7 +26,7 @@
   position: absolute;
   background-color: #f1f1f1;
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px #34302d;
   z-index: 1;
 }
 
@@ -39,7 +41,7 @@
 
 .dropdown:hover .dropdown-content {display: block;}
 
-.dropdown:hover .dropbtn {background-color: #3e8e41;}
+.dropdown:hover .dropbtn {background-color: #6db33f;}
 </style>
 
 <nav class="navbar navbar-default" role="navigation">
@@ -75,7 +77,7 @@
 				</petclinic:menuItem>
 
 				<div class="dropdown">
-				  <button class="dropbtn">Clinica</button>
+				  <button class="dropbtn"><span >Clinica</span></button>
 				  <div class="dropdown-content">
 				    <a href="/pacientes">Lista pacientes</a>
 				    <a href="/pacientes/find">Buscar pacientes</a>
