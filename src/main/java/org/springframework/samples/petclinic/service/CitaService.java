@@ -1,10 +1,14 @@
 
 package org.springframework.samples.petclinic.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Cita;
+import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.repository.CitaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +29,13 @@ public class CitaService {
 		return citaRepo.findAll();
 	}
 	
+	@Transactional
+	public int citaCreate(final Cita cita) {
+		System.out.println("cita: " + cita);
+		return this.citaRepo.save(cita).getId();
+	}
+	
+	
 	//No esta terminada
 	@Transactional
 	public Iterable<Cita> findAllByMedicoId(int medicoId){
@@ -44,6 +55,17 @@ public class CitaService {
 	@Transactional
 	public Optional<Cita> findCitaById(int citaId){
 		return citaRepo.findById(citaId);
+	}
+	
+	@Transactional(readOnly = true)
+	public Collection<Cita> findCitasByMedicoId(int medicoId) throws DataAccessException{
+		Collection<Paciente> pacientes = new ArrayList<>();
+		pacientes.addAll(citaRepo.findPacientesByMedicoId(medicoId));
+		Collection<Cita> citas = new ArrayList<>();
+		for (Paciente p: pacientes ) {
+			citas.addAll(citaRepo.findCitasByPacienteId(p.getId()));
+		}
+		return citas;
 	}
 	
 

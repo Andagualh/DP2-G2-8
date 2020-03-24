@@ -62,27 +62,3 @@ INSERT INTO visits(id,pet_id,visit_date,description) VALUES (2, 8, '2013-01-02',
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (3, 8, '2013-01-03', 'neutered');
 INSERT INTO visits(id,pet_id,visit_date,description) VALUES (4, 7, '2013-01-04', 'spayed');
 
-
-/* OUR BBDD */
-
-INSERT INTO users(username,password,enabled) VALUES ('alvaro','entrar',TRUE);
-INSERT INTO authorities VALUES ('alvaro','admin');
-INSERT INTO users(username,password,enabled) VALUES ('alvaroMedico','entrar',TRUE);
-INSERT INTO authorities VALUES ('alvaroMedico','medico');
-INSERT INTO users(username,password,enabled) VALUES ('andresMedico','entrar',TRUE);
-INSERT INTO authorities VALUES ('andresMedico','medico');
-
-INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,username) VALUES (1,'Alvaro','Alferez','12345678A','666666666','Ecija','alvaroMedico');
-INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,username) VALUES (2,'Andres','Alhama','12345678A','666666666','Ecija','andresMedico');
-
-INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
-VALUES (1,'Marina1','Alferez','1990-01-01','12345678A',777777777,'Ecija','marina@petclinic.com','2020-03-20',1);
-INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
-VALUES (2,'Marina2','Alferez','1990-01-01','12345678A',777777777,'Ecija','marina@petclinic.com','2020-03-20',1);
-INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
-VALUES (3,'Marina3','Alferez','1990-01-01','12345678A',777777777,'Ecija','marina@petclinic.com','2020-03-20',1);
-
-INSERT INTO cita VALUES (1, 'nombre4','2020-03-09','Consulta 1',1);
-INSERT INTO cita VALUES (2, 'nombre5','2022-04-09','Consulta 2',1);
-INSERT INTO cita VALUES (3, 'nombre6','2023-05-09','Consulta 3',3);
-

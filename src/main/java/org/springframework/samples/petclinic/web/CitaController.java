@@ -1,6 +1,7 @@
 
 package org.springframework.samples.petclinic.web;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -36,6 +38,22 @@ public class CitaController {
 		System.out.println(citas);
 		modelMap.addAttribute("citas", citas);
 		return vista;
+
+	
+	
+	//CUANDO ALGUIEN HAGA EL CITADETAILS POR FAVOR QUE USE ESTA URL EN EL MAPPING: "/citas/citaDetails/{citaId}" 
+	
+	@GetMapping(path="/{medicoId}")
+	public String listadoCitas(ModelMap modelMap, @PathVariable("medicoId") int medicoId) {
+		String vista = "citas/listCitas";
+		Collection<Cita> citas = citaService.findCitasByMedicoId(medicoId);
+		if (citas.isEmpty()) {
+			return "redirect:/";
+		}else {
+			modelMap.put("selections", citas);
+			return vista;
+		}
+
 	}
 
 	@GetMapping(path = "/new/{pacienteId}")
