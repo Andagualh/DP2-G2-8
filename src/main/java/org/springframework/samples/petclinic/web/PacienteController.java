@@ -91,19 +91,12 @@ public class PacienteController {
 
 	@GetMapping(value = "/pacientes/findByMedico")
 	public String initFindMedForm(final Map<String, Object> model) {
-
-		Collection<Paciente> results = this.pacienteService.getPacientes();
-		if (results.isEmpty()) {
-			//Falta la página de error
-			return "redirect:/pacientes";
-		} else {
-			model.put("selections", results);
-			return "pacientes/pacientesListMedico";
+		int idMedico = this.userService.getCurrentMedico().getId();
+		return "redirect:/pacientes/findByMedico/" + idMedico;
 		}
-	}
 
 	@GetMapping(value = "/pacientes/findByMedico/{medicoId}")
-	public String initFindMedForm(final Map<String, Object> model, @PathVariable("medicoId") final int medicoId) {
+	public String processFindMedForm(final Map<String, Object> model, @PathVariable("medicoId") final int medicoId) {
 
 		Collection<Paciente> results = this.pacienteService.findPacienteByMedicoId(medicoId);
 		if (results.isEmpty()) {

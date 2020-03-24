@@ -83,6 +83,7 @@
 				    <a href="/pacientes/find">Buscar pacientes</a>
 				    <a href="/medicos">Lista de medicos</a>
 				    <a href="/citas">Citas</a>
+					<a href="/pacientes/findByMedico">Mis Paciente</a>
 				  </div>
 				</div>
 
@@ -98,7 +99,7 @@
 				</sec:authorize>
 				<sec:authorize access="isAuthenticated()">
 					<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <span
-							class="glyphicon glyphicon-user"></span>  <strong><sec:authentication property="name" /></strong> <span
+							class="glyphicon glyphicon-user"></span>ï¿½ <strong><sec:authentication property="name" /></strong> <span
 							class="glyphicon glyphicon-chevron-down"></span>
 					</a>
 						<ul class="dropdown-menu">
