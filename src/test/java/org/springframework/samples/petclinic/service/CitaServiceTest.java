@@ -1,7 +1,13 @@
 
+
 package org.springframework.samples.petclinic.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 import java.time.LocalDate;
+import java.util.Collection;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -10,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Medico;
+import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.stereotype.Service;
@@ -56,6 +63,11 @@ public class CitaServiceTest {
 		paciente.setMedico(this.medicoService.getMedicoById(idMedicoPaciente));
 
 		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
+
+		int count = this.pacienteService.pacienteCount();
+		Assertions.assertEquals(count, 4);
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado));
+
 
 		Cita cita = new Cita();
 
@@ -171,7 +183,9 @@ public class CitaServiceTest {
 		int idPaciente3 = this.pacienteService.pacienteCreate(paciente3);
 		
 		int count = this.pacienteService.pacienteCount();
+
 		Assertions.assertEquals(count, 6);
+
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado));
 		
 		
@@ -191,7 +205,9 @@ public class CitaServiceTest {
 		int idCitaCreada3 = this.citaService.citaCreate(cita3);
 		
 		int countCita = this.citaService.citaCount();
+
 		Assertions.assertEquals(countCita, 6);
+
 		Assertions.assertNotNull(this.citaService.findCitasByMedicoId(idMedicoPaciente));
 		Assertions.assertNotNull(cita.getPaciente().getId());
 		Assertions.assertNotNull(cita2.getPaciente().getId());
@@ -208,6 +224,15 @@ public class CitaServiceTest {
 			Assertions.assertEquals(pacienteActual2.getMedico().getId(), idMedicoPaciente2);
 		}
 		
+	}
+	
+	@Test
+	void shouldFindCitasByDate() {
+		Collection<Cita> citas = this.citaService.findCitasByFecha(LocalDate.of(2020, 8, 8));
+		assertThat(citas.size()).isEqualTo(1);
+
+		citas = this.citaService.findCitasByFecha(LocalDate.of(2030, 1, 1));
+		assertThat(citas.isEmpty()).isTrue();
 	}
 
 }
