@@ -228,7 +228,7 @@ public class CitaServiceTest {
 	
 	@Test
 	void shouldFindCitasByDate() {
-		Collection<Cita> citas = this.citaService.findCitasByFecha(LocalDate.of(2020, 8, 8));
+		Collection<Cita> citas = this.citaService.findCitasByFecha(LocalDate.of(2020,3,9));
 		assertThat(citas.size()).isEqualTo(1);
 
 		citas = this.citaService.findCitasByFecha(LocalDate.of(2030, 1, 1));

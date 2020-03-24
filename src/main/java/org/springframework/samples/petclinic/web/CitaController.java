@@ -16,6 +16,7 @@ import org.springframework.samples.petclinic.model.Paciente;
 
 import org.springframework.samples.petclinic.service.CitaService;
 import org.springframework.samples.petclinic.service.PacienteService;
+import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -32,26 +33,23 @@ public class CitaController {
 	private CitaService		citaService;
 	@Autowired
 	private PacienteService	pacienteService;
+	@Autowired
+	private UserService userService;
 
-
-	//Esto muestra todas las citas pero deberia mostrar solo las del medico.
-	@GetMapping()
-	public String listadoCitas(final ModelMap modelMap) {
-		String vista = "citas/citasList";
-		Iterable<Cita> citas = this.citaService.findAll();
-		System.out.println(citas);
-		modelMap.addAttribute("citas", citas);
-		return vista;
-	}
-	
-	
 	//CUANDO ALGUIEN HAGA EL CITADETAILS POR FAVOR QUE USE ESTA URL EN EL MAPPING: "/citas/citaDetails/{citaId}" 
 	
+	@GetMapping()
+	public String initList(ModelMap modelMap){
+		int idMedico = this.userService.getCurrentMedico().getId();
+		return "redirect:/citas/" + idMedico;
+	}
+
 	@GetMapping(path="/{medicoId}")
 	public String listadoCitas(ModelMap modelMap, @PathVariable("medicoId") int medicoId) {
 		String vista = "citas/listCitas";
 		Collection<Cita> citas = citaService.findCitasByMedicoId(medicoId);
 		if (citas.isEmpty()) {
+			//TODO: Si no se han encontrado citas devuelve al index, pensad en una alternativa a esto como un popup o pagina que indique no se ha encontrado
 			return "redirect:/";
 		}else {
 			modelMap.put("selections", citas);
@@ -102,8 +100,9 @@ public class CitaController {
 		return "citas/findCitas";
 	}
 
-	
-	@GetMapping()
+	//TODO: Falta el caso para una sola cita, que muestre directamente los detalles, no se ha incluido porque genera conflicto con otro método
+	//TODO: Cuando este hecho el details se incluye	
+	@GetMapping(value = "/porfecha")
 	public String processFindForm(Cita cita, BindingResult result, Map<String, Object> model) {
 
 		// allow parameterless GET request for /citas to return all records
@@ -114,14 +113,9 @@ public class CitaController {
 		// find citas by fecha
 		Collection<Cita> results = this.citaService.findCitasByFecha(cita.getFecha());
 		if (results.isEmpty()) {
-			// no owners found
+			// no citas found
 			result.rejectValue("fecha", "notFound", "not found");
 			return "citas/findCitas";
-		}
-		else if (results.size() == 1) {
-			// 1 cita found
-			cita = results.iterator().next();
-			return "redirect:/citas/" + cita.getId();
 		}
 		else {
 			// multiple citas found
