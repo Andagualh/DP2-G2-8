@@ -1,3 +1,4 @@
+
 package org.springframework.samples.petclinic.model;
 
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
 
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,13 +22,14 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "paciente")
-public class Paciente extends NamedEntity {
+public class Paciente extends BaseEntity {
 
 	@NotBlank
 	private String				nombre;
 
 	private String				apellidos;
 
+	@PastOrPresent
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
 	private LocalDate			f_nacimiento;
 

@@ -134,10 +134,9 @@ public class PacienteController {
 	public String borrarPaciente(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 		String view = "/pacientes";
 		Optional<Paciente> paciente = this.pacienteService.findPacienteById(pacienteId);
-		//String id = SecurityContextHolder.getContext().getAuthentication().getName();
 		System.out.println("intentaborrar");
 		if (paciente.isPresent()) {
-			//this.pacienteService.deletePacienteByMedico(pacienteId, 1);
+			//this.pacienteService.deletePacienteByMedico(pacienteId, this.userService.getCurrentMedico().getId());
 			this.pacienteService.pacienteDelete(pacienteId);
 			modelMap.addAttribute("message", "Paciente borrado exitosamiente");
 			view = "redirect:/pacientes";
