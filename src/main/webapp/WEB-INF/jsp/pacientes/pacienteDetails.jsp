@@ -58,11 +58,16 @@
     <spring:url value="/pacientes/{pacienteId}/edit" var="editUrl">
    		<spring:param name="pacienteId" value="${paciente.id}"/>
     </spring:url>
-    <a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Edit Paciente</a>
+    <a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Editar Paciente</a>
     
     <spring:url value="/pacientes/{pacienteId}/delete" var="deleteUrl">
    		<spring:param name="pacienteId" value="${paciente.id}"/>
     </spring:url>
-    <a href="${fn:escapeXml(deleteUrl)}" class="btn btn-default">Delete</a>
+    <a href="${fn:escapeXml(deleteUrl)}" class="btn btn-default">Borrar Paciente</a>
+    
+    <spring:url value="/citas/new/{pacienteId}" var="createCitaUrl">
+   		<spring:param name="pacienteId" value="${paciente.id}"/>
+    </spring:url>
+    <a href="${fn:escapeXml(createCitaUrl)}" class="btn btn-default">Crear Cita</a>
     
 </petclinic:layout>
