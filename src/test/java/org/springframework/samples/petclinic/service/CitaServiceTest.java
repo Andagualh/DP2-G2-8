@@ -35,24 +35,22 @@ public class CitaServiceTest {
 	@Test
 	public void testCountWithInitialData() {
 		int count = this.citaService.citaCount();
-		Assertions.assertEquals(count, 3);
+		Assertions.assertEquals(count, 6);
 	}
 
 	@Test
 	public void testCreateCita() {
 
 		Medico medico = new Medico();
-		Paciente paciente = new Paciente();
-
 		medico.setNombre("Medico 1");
 		medico.setApellidos("Apellidos");
 		medico.setDNI("12345678A");
 		medico.setN_telefono("123456789");
 		medico.setDomicilio("Domicilio");
-		
-
+	
 		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
-
+		
+		Paciente paciente = new Paciente();
 		paciente.setNombre("Paciente 1");
 		paciente.setApellidos("Apellidos");
 		paciente.setF_nacimiento(LocalDate.of(1996, 01, 12));
@@ -64,13 +62,9 @@ public class CitaServiceTest {
 
 		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
 
-		int count = this.pacienteService.pacienteCount();
-		Assertions.assertEquals(count, 4);
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado));
 
-
 		Cita cita = new Cita();
-
 		cita.setPaciente(this.pacienteService.findPacienteById(idPacienteCreado).get());
 		cita.setFecha(LocalDate.of(2020, 05, 26));
 		cita.setLugar("Consulta 2");
@@ -79,7 +73,7 @@ public class CitaServiceTest {
 
 		int countCitas = this.citaService.citaCount();
 
-		Assertions.assertEquals(countCitas, 4);
+		Assertions.assertEquals(countCitas, 7);
 
 	}
 
@@ -118,11 +112,11 @@ public class CitaServiceTest {
 
 		this.citaService.save(cita);
 
-		Assertions.assertEquals(this.citaService.citaCount(), 4);
+		Assertions.assertEquals(this.citaService.citaCount(), 7);
 
 		this.citaService.delete(this.citaService.findCitaById(1).get());
 
-		Assertions.assertEquals(this.citaService.citaCount(), 3);
+		Assertions.assertEquals(this.citaService.citaCount(), 6);
 
 	}
 	
@@ -206,7 +200,7 @@ public class CitaServiceTest {
 		
 		int countCita = this.citaService.citaCount();
 
-		Assertions.assertEquals(countCita, 6);
+		Assertions.assertEquals(countCita, 9);
 
 		Assertions.assertNotNull(this.citaService.findCitasByMedicoId(idMedicoPaciente));
 		Assertions.assertNotNull(cita.getPaciente().getId());
@@ -223,6 +217,51 @@ public class CitaServiceTest {
 			Paciente pacienteActual2 = this.pacienteService.findPacienteById(c.getPaciente().getId()).get();
 			Assertions.assertEquals(pacienteActual2.getMedico().getId(), idMedicoPaciente2);
 		}
+		
+	}
+	
+	@Test
+	public void findCitaById() {
+			
+		Medico medico = new Medico();
+		medico.setNombre("Medico 1");
+		medico.setApellidos("Apellidos");
+		medico.setDNI("12345678A");
+		medico.setN_telefono("123456789");
+		medico.setDomicilio("Domicilio");
+		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
+
+		Paciente paciente = new Paciente();
+		paciente.setNombre("Paciente 1");
+		paciente.setApellidos("Apellidos");
+		paciente.setF_nacimiento(LocalDate.of(1996, 01, 12));
+		paciente.setDNI("12345678A");
+		paciente.setDomicilio("Sevilla");
+		paciente.setEmail("paciente@email.com");
+		paciente.setF_alta(LocalDate.now());
+		paciente.setMedico(this.medicoService.getMedicoById(idMedicoPaciente));
+
+		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
+
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado));
+		
+		Cita cita = new Cita();
+		cita.setFecha(LocalDate.of(2020, 8, 8));
+		cita.setLugar("Sevilla");
+		cita.setPaciente(paciente);
+		int idCitaCreada = this.citaService.citaCreate(cita);
+		
+		Cita cita2 = new Cita();
+		cita2.setFecha(LocalDate.of(2020, 9, 8));
+		cita2.setLugar("Sevilla");
+		cita2.setPaciente(paciente);
+		int idCitaCreada2 = this.citaService.citaCreate(cita2);
+
+		Assertions.assertNotNull(citaService.findCitaById(idCitaCreada).get().getFecha());
+		Assertions.assertNotNull(citaService.findCitaById(idCitaCreada2).get().getFecha());
+	
+		Assertions.assertEquals(citaService.findCitaById(idCitaCreada).get().getFecha(),cita.getFecha());
+		Assertions.assertEquals(citaService.findCitaById(idCitaCreada2).get().getFecha(),cita2.getFecha());
 		
 	}
 	

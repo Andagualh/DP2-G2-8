@@ -36,13 +36,6 @@ public class CitaService {
 		return this.citaRepo.save(cita).getId();
 	}
 	
-	
-	//No esta terminada
-	@Transactional
-	public Iterable<Cita> findAllByMedicoId(int medicoId){
-		return citaRepo.findAll();
-	}
-	
 	@Transactional
 	public void save(Cita cita){
 		citaRepo.save(cita);
@@ -51,6 +44,11 @@ public class CitaService {
 	@Transactional
 	public void delete(Cita cita){
 		citaRepo.delete(cita);
+	}
+	
+	@Transactional
+	public void deleteById(int citaId){
+		citaRepo.deleteById(citaId);;
 	}
 	
 	@Transactional

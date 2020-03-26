@@ -82,6 +82,9 @@ INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,e
 VALUES (3,'Marina3','Alferez','1990-01-01','12345678A',777777777,'Ecija','marina@petclinic.com','2020-03-20',1);
 
 INSERT INTO cita VALUES (1, 'nombre4','2020-03-09','Consulta 1',1);
-INSERT INTO cita VALUES (2, 'nombre5','2022-04-09','Consulta 2',1);
-INSERT INTO cita VALUES (3, 'nombre6','2023-05-09','Consulta 3',3);
+INSERT INTO cita VALUES (2, 'nombre5','2022-07-09','Consulta 2',1);
+INSERT INTO cita VALUES (3, 'nombre6','2021-03-10','Consulta 3',2);
+INSERT INTO cita VALUES (4, 'nombre7','2025-04-09','Consulta 4',2);
+INSERT INTO cita VALUES (5, 'nombre8','2023-05-09','Consulta 5',3);
+INSERT INTO cita VALUES (6, 'nombre9','2023-05-09','Consulta 6',3);
 

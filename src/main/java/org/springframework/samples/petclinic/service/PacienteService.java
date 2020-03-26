@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Paciente;
-import org.springframework.samples.petclinic.repository.CitaRepository;
 import org.springframework.samples.petclinic.repository.PacienteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +19,6 @@ public class PacienteService {
 
 	@Autowired
 	private PacienteRepository	pacienteRepo;
-	@Autowired
-	private CitaRepository		citaRepository;
 
 
 	@Autowired
@@ -41,9 +38,8 @@ public class PacienteService {
 		return pacientes;
 	}
 
-	@Transactional(readOnly = true)
-	public Optional<Paciente> findPacienteById(final int id) throws DataAccessException {
-		System.out.println("suputamadre");
+	@Transactional
+	public Optional<Paciente> findPacienteById(int id){
 		return this.pacienteRepo.findById(id);
 	}
 
