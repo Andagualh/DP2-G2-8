@@ -13,6 +13,9 @@ import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -133,11 +136,14 @@ public class PacienteController {
 	@RequestMapping(value = "/pacientes/{pacienteId}/delete")
 	public String borrarPaciente(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 		String view = "/pacientes";
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Optional<Paciente> paciente = this.pacienteService.findPacienteById(pacienteId);
-		System.out.println("intentaborrar");
 		if (paciente.isPresent()) {
-			//this.pacienteService.deletePacienteByMedico(pacienteId, this.userService.getCurrentMedico().getId());
-			this.pacienteService.pacienteDelete(pacienteId);
+			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("admin"))) {
+				this.pacienteService.pacienteDelete(pacienteId);
+			} else {
+				this.pacienteService.deletePacienteByMedico(pacienteId, this.userService.getCurrentMedico().getId());
+			}
 			modelMap.addAttribute("message", "Paciente borrado exitosamiente");
 			view = "redirect:/pacientes";
 		} else {
