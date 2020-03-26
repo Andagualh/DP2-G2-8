@@ -33,11 +33,6 @@ public class PacienteServiceTests {
 	@Autowired
 	private HistoriaClinicaService	historiaClinicaService;
 
-	@Test
-	public void testCountWithInitialData() {
-		int count = this.pacienteService.pacienteCount();
-		Assertions.assertEquals(count, 3);
-	}
 
 	public Medico createDummyMedico() {
 		Medico medico = new Medico();

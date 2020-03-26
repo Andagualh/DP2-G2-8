@@ -18,7 +18,7 @@ import lombok.Data;
 @Entity
 public class Cita extends NamedEntity {
 
-	@Future
+	//@Future
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate	fecha;
 
