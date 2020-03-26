@@ -175,6 +175,11 @@ public class PacienteServiceTests {
 	}
 
 	@Test
+	public void testFindPacienteByNonExistentMedico(){
+		Assertions.assertFalse(!this.pacienteService.findPacienteByMedicoId(109209).isEmpty());
+	}
+
+	@Test
 	public void testDeletePacienteByMedico() {
 		int countPacientes = this.pacienteService.pacienteCount();
 		Medico medico = this.createDummyMedico();
