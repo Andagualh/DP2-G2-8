@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.samples.petclinic.model.Authorities;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.HistoriaClinica;
 import org.springframework.samples.petclinic.model.Medico;
@@ -36,6 +37,7 @@ public class PacienteServiceTests {
 	public Medico createDummyMedico() {
 		Medico medico = new Medico();
 		User medicoUser = new User();
+		Authorities authorities = new Authorities();
 
 		medico.setNombre("Medico 1");
 		medico.setApellidos("Apellidos");
@@ -46,6 +48,8 @@ public class PacienteServiceTests {
 		medicoUser.setPassword("medico1");
 		medicoUser.setEnabled(true);
 		medico.setUser(medicoUser);
+		authorities.setUsername(medicoUser.getUsername());
+		authorities.setAuthority("medico");
 
 		this.medicoService.medicoCreate(medico);
 
@@ -55,6 +59,7 @@ public class PacienteServiceTests {
 	public Medico createDummyMedico2() {
 		Medico medico = new Medico();
 		User medicoUser = new User();
+		Authorities authorities = new Authorities();
 
 		medico.setNombre("Medico 2");
 		medico.setApellidos("Apellidos");
@@ -65,6 +70,8 @@ public class PacienteServiceTests {
 		medicoUser.setPassword("medico2");
 		medicoUser.setEnabled(true);
 		medico.setUser(medicoUser);
+		authorities.setUsername(medicoUser.getUsername());
+		authorities.setAuthority("medico");
 
 		this.medicoService.medicoCreate(medico);
 
