@@ -12,9 +12,13 @@
 		Historia Clinica
 	</h2>
 	<form:form modelAttribute="historiaclinica" class="form-horizontal" id="add-historiaclinica-form">
+	 
 		<div class="form-group has-feedback">
+		<input type="hidden" name="id" value="${historiaclinica.id}"/>
 			<petclinic:inputField label="Description" name="descripcion" />
-			
+			<c:if test="${not historiaclinica['new']}">
+						<input type="hidden" name="paciente" value="${paciente.id}"/>
+			 </c:if>
 			
 			<c:if test="${valid}">
 							<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>

@@ -65,4 +65,9 @@
     </spring:url>
     <a href="${fn:escapeXml(deleteUrl)}" class="btn btn-default">Delete</a>
     
+    <spring:url value="/pacientes/{pacienteId}/historiaclinica" var="historiaClinicaUrl">
+   		<spring:param name="pacienteId" value="${paciente.id}"/>
+    </spring:url>
+    <a href="${fn:escapeXml(historiaClinicaUrl)}" class="btn btn-default">Historia Clinica</a>
+    
 </petclinic:layout>
