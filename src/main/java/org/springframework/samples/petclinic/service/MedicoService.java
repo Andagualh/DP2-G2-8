@@ -54,7 +54,6 @@ public class MedicoService {
 		this.medicoRepository.save(medico);
 		this.userService.saveUser(medico.getUser());
 		this.authoritiesService.saveAuthorities(medico.getUser().getUsername(), "medico");
-
 	}
 
 	public Medico findMedicoByUsername(final String username) {

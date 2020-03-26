@@ -9,8 +9,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Cita;
+import org.springframework.samples.petclinic.model.HistoriaClinica;
 import org.springframework.samples.petclinic.model.Paciente;
-import org.springframework.samples.petclinic.repository.CitaRepository;
 import org.springframework.samples.petclinic.repository.PacienteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,9 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class PacienteService {
 
 	@Autowired
-	private PacienteRepository	pacienteRepo;
+	private PacienteRepository		pacienteRepo;
 	@Autowired
-	private CitaRepository		citaRepository;
+	private CitaService				citaService;
+	@Autowired
+	private MedicoService			medicoService;
+	@Autowired
+	private HistoriaClinicaService	historiaClinicaService;
 
 
 	@Autowired
@@ -43,7 +47,6 @@ public class PacienteService {
 
 	@Transactional(readOnly = true)
 	public Optional<Paciente> findPacienteById(final int id) throws DataAccessException {
-		System.out.println("suputamadre");
 		return this.pacienteRepo.findById(id);
 	}
 
@@ -54,13 +57,7 @@ public class PacienteService {
 
 	@Transactional
 	public int pacienteCreate(final Paciente paciente) {
-		System.out.println("paciente: " + paciente);
 		return this.pacienteRepo.save(paciente).getId();
-	}
-
-	@Transactional
-	public void pacienteDelete(final int idPaciente) {
-		this.pacienteRepo.deleteById(idPaciente);
 	}
 
 	@Transactional
@@ -78,18 +75,33 @@ public class PacienteService {
 	}
 
 	@Transactional
+	public void pacienteDelete(final int idPaciente) {
+		this.pacienteRepo.deleteById(idPaciente);
+	}
+
+	@Transactional
 	public void deletePacienteByMedico(final int idPaciente, final int idMedico) {
 		Paciente paciente = this.pacienteRepo.findById(idPaciente).get();
-		LocalDate ultimaCita = paciente.getCitas().stream().map(Cita::getFecha).max(LocalDate::compareTo).get();
-		LocalDate hoy = LocalDate.now();
-		boolean puedeBorrarse = hoy.compareTo(ultimaCita) > 6 || hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() >= hoy.getDayOfYear();
+		boolean medicoEnabled = this.medicoService.getMedicoById(idMedico).getUser().isEnabled();
 
-		//Falta historia clinica
-		if (paciente.getMedico().getId() == idMedico) {
-			if (paciente.getCitas().isEmpty()) {
+		if (paciente.getMedico().getId() == idMedico && medicoEnabled) {
+			boolean puedeBorrarse = true;
+			Collection<Cita> citas = this.citaService.findAllByPaciente(paciente);
+			if (!citas.isEmpty()) {
+				LocalDate ultimaCita = citas.stream().map(Cita::getFecha).max(LocalDate::compareTo).get();
+				LocalDate hoy = LocalDate.now();
+				puedeBorrarse = hoy.compareTo(ultimaCita) >= 6 || hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() >= hoy.getDayOfYear() || ultimaCita.isAfter(hoy);
+			}
+
+			HistoriaClinica hs = this.findHistoriaClinicaByPaciente(paciente);
+
+			puedeBorrarse = puedeBorrarse && hs.getDescripcion().isEmpty();
+			if (citas.isEmpty() && hs.getDescripcion().isEmpty()) {
 				this.pacienteRepo.deleteById(idPaciente);
 			} else if (puedeBorrarse) {
 				this.pacienteRepo.deleteById(idPaciente);
+			} else {
+				throw new IllegalStateException();
 			}
 		} else {
 			throw new IllegalAccessError();
@@ -104,5 +116,10 @@ public class PacienteService {
 	@Transactional(readOnly = true)
 	public Collection<Paciente> findPacienteByMedicoId(final int id) throws DataAccessException {
 		return this.pacienteRepo.findPacientesByMedicoId(id);
+	}
+
+	@Transactional
+	public HistoriaClinica findHistoriaClinicaByPaciente(final Paciente paciente) {
+		return this.historiaClinicaService.findHistoriaClinicaByPaciente(paciente);
 	}
 }

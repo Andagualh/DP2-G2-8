@@ -71,15 +71,23 @@ INSERT INTO authorities VALUES ('alvaroMedico','medico');
 INSERT INTO users(username,password,enabled) VALUES ('andresMedico','entrar',TRUE);
 INSERT INTO authorities VALUES ('andresMedico','medico');
 
-INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,username) VALUES (1,'Alvaro','Alferez','12345678A','666666666','Ecija','alvaroMedico');
-INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,username) VALUES (2,'Andres','Alhama','12345678A','666666666','Ecija','andresMedico');
+INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,username) 
+VALUES (1,'Alvaro','Alferez','78429273D','666666666','Ecija','alvaroMedico');
+INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,username) 
+VALUES (2,'Andres','Alhama','97899162F','666666666','Ecija','andresMedico');
 
 INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
-VALUES (1,'Marina1','Alferez','1990-01-01','12345678A',777777777,'Ecija','marina@petclinic.com','2020-03-20',1);
+VALUES (1,'Maria Gracia','Castillo Castillo','1983-11-12','66100313S',605708609,'Camino Horno, 29','mariagracia_83@gmail.com','2020-03-20',1);
 INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
-VALUES (2,'Marina2','Alferez','1990-01-01','12345678A',777777777,'Ecija','marina@petclinic.com','2020-03-20',1);
+VALUES (2,'Oscar','Salas Sala','1986-6-29','53067162K',637664031,'Camino Madrid, 27, Torresandino, Burgos','oscar_86@gmail.com','2020-03-20',1);
 INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
-VALUES (3,'Marina3','Alferez','1990-01-01','12345678A',777777777,'Ecija','marina@petclinic.com','2020-03-20',1);
+VALUES (3,'Luis Manuel','Chaves Rios','1966-09-13','37149202Q',660645484,'Vía Iglesia, 91, Fonollosa, Barcelona','luismanuel_66@gmail.com','2020-03-20',1);
+INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
+VALUES (4,'Maria Soledad','Paniagua Cardenas','1930-07-28','47209793Q',713442852,'Cuesta Pedralbes, 64, Ansó, Huesca','luismanuel_66@gmail.com','2020-03-20',1);
+INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
+VALUES (5,'Christian','Ochoa Moran','1956-03-11','35162318X',701219208,'Gran Vía Iglesia, 23, Camarillas, Teruel','christian_56@gmail.com','2020-03-20',2);
+INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
+VALUES (6,'Blanca','Leal Pineda','1945-03-29','24921447G',688657684,'Ronda Iglesia, 77, Santa Fe De Mondújar, Almería','blanca_45@gmail.com','2020-03-20',2);
 
 INSERT INTO cita VALUES (1, 'nombre4','2020-03-09','Consulta 1',1);
 INSERT INTO cita VALUES (2, 'nombre5','2022-04-09','Consulta 2',1);
