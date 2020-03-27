@@ -47,9 +47,14 @@ public class HistoriaClinicaController {
 		ModelAndView mav = new ModelAndView("pacientes/historiaClinicaDetails");
 		mav.addObject(this.pacienteService.findPacienteById(pacienteId).get());
 		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
-		HistoriaClinica historiaclinica = new HistoriaClinica();
-		historiaclinica.setPaciente(paciente);
-		mav.addObject(historiaclinica);
+		HistoriaClinica historiaclinica = this.pacienteService.findHistoriaClinicaByPaciente(paciente);
+		if (this.pacienteService.findHistoriaClinicaByPaciente(paciente) == null) {
+			HistoriaClinica hc = new HistoriaClinica();
+			historiaclinica = hc;
+			System.out.println("La Historia ES NULL");
+		}
+		System.out.println(historiaclinica);
+		mav.addObject("historiaclinica", historiaclinica);
 		return mav;
 	}
 
