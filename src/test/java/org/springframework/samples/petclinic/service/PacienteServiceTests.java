@@ -41,7 +41,7 @@ public class PacienteServiceTests {
 
 		medico.setNombre("Medico 1");
 		medico.setApellidos("Apellidos");
-		medico.setDNI("12345678A");
+		medico.setDNI("12345678Z");
 		medico.setN_telefono("123456789");
 		medico.setDomicilio("Domicilio");
 		medicoUser.setUsername("medico1");
@@ -63,7 +63,7 @@ public class PacienteServiceTests {
 
 		medico.setNombre("Medico 2");
 		medico.setApellidos("Apellidos");
-		medico.setDNI("12345678A");
+		medico.setDNI("12345678Z");
 		medico.setN_telefono("123456789");
 		medico.setDomicilio("Domicilio");
 		medicoUser.setUsername("medico2");
@@ -83,7 +83,7 @@ public class PacienteServiceTests {
 		paciente.setNombre("Paciente 1");
 		paciente.setApellidos("Apellidos");
 		paciente.setF_nacimiento(LocalDate.of(1996, 01, 12));
-		paciente.setDNI("12345678A");
+		paciente.setDNI("12345678Z");
 		paciente.setDomicilio("Sevilla");
 		paciente.setEmail("paciente@email.com");
 		paciente.setF_alta(LocalDate.now());
@@ -102,7 +102,7 @@ public class PacienteServiceTests {
 		paciente.setNombre("Paciente 2");
 		paciente.setApellidos("Apellidos");
 		paciente.setF_nacimiento(LocalDate.of(1996, 01, 12));
-		paciente.setDNI("12345678A");
+		paciente.setDNI("12345678Z");
 		paciente.setDomicilio("Sevilla");
 		paciente.setEmail("paciente@email.com");
 		paciente.setF_alta(LocalDate.now());
@@ -122,7 +122,7 @@ public class PacienteServiceTests {
 		paciente.setNombre("Paciente 3");
 		paciente.setApellidos("Apellidos");
 		paciente.setF_nacimiento(LocalDate.of(1996, 01, 12));
-		paciente.setDNI("12345678A");
+		paciente.setDNI("12345678Z");
 		paciente.setDomicilio("Sevilla");
 		paciente.setEmail("paciente@email.com");
 		paciente.setF_alta(LocalDate.now());
@@ -172,6 +172,76 @@ public class PacienteServiceTests {
 		for (Paciente p : this.pacienteService.findPacienteByMedicoId(idMedicoPaciente2)) {
 			Assertions.assertEquals(p.getMedico().getId(), idMedicoPaciente2);
 		}
+	}
+
+	@Test
+	public void testUpdatePaciente() {
+		Medico medico = this.createDummyMedico();
+		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
+
+		int idMedicoPacienteCreado = medico.getId();
+		int idPacienteCreado = paciente.getId();
+
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
+		paciente.setN_telefono(123456789);
+		paciente.setDomicilio("Cordoba");
+		paciente.setEmail("email@mail.com");
+
+		this.pacienteService.savePacienteByMedico(paciente, idMedicoPacienteCreado);
+
+		Assert.assertTrue(this.pacienteService.findPacienteById(paciente.getId()).get().getN_telefono().equals(123456789));
+		Assert.assertTrue(this.pacienteService.findPacienteById(paciente.getId()).get().getDomicilio().equals("Cordoba"));
+		Assert.assertTrue(this.pacienteService.findPacienteById(paciente.getId()).get().getEmail().equals("email@mail.com"));
+	}
+
+	@Test
+	public void testUpdatePacienteWrongNumero() {
+		Medico medico = this.createDummyMedico();
+		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
+
+		int idMedicoPacienteCreado = medico.getId();
+		int idPacienteCreado = paciente.getId();
+
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
+		paciente.setN_telefono(1);
+
+		Assertions.assertThrows(IllegalArgumentException.class, () -> {
+			this.pacienteService.savePacienteByMedico(paciente, idMedicoPacienteCreado);
+		});
+	}
+
+	@Test
+	public void testUpdatePacienteWrongDni() {
+		Medico medico = this.createDummyMedico();
+		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
+
+		int idMedicoPacienteCreado = medico.getId();
+		int idPacienteCreado = paciente.getId();
+
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
+		paciente.setDNI("12345678A");
+
+		Assertions.assertThrows(IllegalArgumentException.class, () -> {
+			this.pacienteService.savePacienteByMedico(paciente, idMedicoPacienteCreado);
+		});
+	}
+
+	@Test
+	public void testUpdatePacienteWithoutFormaContacto() {
+		Medico medico = this.createDummyMedico();
+		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
+
+		int idMedicoPacienteCreado = medico.getId();
+		int idPacienteCreado = paciente.getId();
+
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
+		paciente.setN_telefono(null);
+		paciente.setDomicilio("");
+		paciente.setEmail("");
+
+		Assertions.assertThrows(IllegalArgumentException.class, () -> {
+			this.pacienteService.savePacienteByMedico(paciente, idMedicoPacienteCreado);
+		});
 	}
 
 	@Test
