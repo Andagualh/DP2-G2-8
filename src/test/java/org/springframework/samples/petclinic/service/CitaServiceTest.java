@@ -142,7 +142,7 @@ public class CitaServiceTest {
 	@Test
 	public void testCountWithInitialData() {
 		int count = this.citaService.citaCount();
-		Assertions.assertEquals(count, 3);
+		Assertions.assertEquals(count, 6);
 	}
 
 	@Test
