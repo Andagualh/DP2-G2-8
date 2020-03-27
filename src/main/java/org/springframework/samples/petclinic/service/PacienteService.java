@@ -12,6 +12,7 @@ import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.HistoriaClinica;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.repository.PacienteRepository;
+import org.springframework.samples.petclinic.util.DniValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,13 +63,37 @@ public class PacienteService {
 
 	@Transactional
 	public void savePaciente(final Paciente paciente) {
-		this.pacienteRepo.save(paciente);
+		this.pacienteRepo.save(paciente).getId();
 	}
 
 	@Transactional
 	public void savePacienteByMedico(final Paciente paciente, final int idMedico) {
+		boolean tieneTelefono = false;
+
+		if (paciente.getN_telefono() != null) {
+			tieneTelefono = true;
+		}
+
+		boolean tieneContacto = tieneTelefono || !paciente.getDomicilio().isEmpty() || !paciente.getEmail().isEmpty();
+		boolean dniOk = new DniValidator(paciente.getDNI()).validar();
+
 		if (paciente.getMedico().getId() == idMedico) {
-			this.pacienteRepo.save(paciente);
+			if (dniOk) {
+				if (tieneContacto) {
+					System.out.println("tienecontacto:" + tieneContacto);
+					System.out.println();
+					if (!paciente.getN_telefono().toString().isEmpty() && !(paciente.getN_telefono().toString().length() == 9)) {
+						throw new IllegalArgumentException("Número de teléfono incorrecto");
+					} else {
+						this.pacienteRepo.save(paciente).getId();
+					}
+				} else {
+					throw new IllegalArgumentException("No tiene forma de contacto");
+				}
+			} else {
+				throw new IllegalArgumentException("Dni incorrecto");
+
+			}
 		} else {
 			throw new IllegalAccessError();
 		}

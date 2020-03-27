@@ -26,13 +26,16 @@ public class Paciente extends BaseEntity {
 	@NotBlank
 	private String		nombre;
 
+	@NotBlank
 	private String		apellidos;
 
 	@PastOrPresent
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
+	@NotNull
 	private LocalDate	f_nacimiento;
 
 	@Length(min = 9, max = 9)
+	@NotBlank
 	private String		DNI;
 
 	private Integer		n_telefono;
@@ -43,6 +46,7 @@ public class Paciente extends BaseEntity {
 	private String		email;
 
 	@DateTimeFormat(pattern = "yyyy/MM/dd")
+	@NotNull
 	private LocalDate	f_alta;
 
 	@ManyToOne
