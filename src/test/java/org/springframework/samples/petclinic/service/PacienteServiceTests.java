@@ -175,7 +175,7 @@ public class PacienteServiceTests {
 	}
 
 	@Test
-	public void testFindPacienteByNonExistentMedico(){
+	public void testFindPacienteByNonExistentMedico() {
 		Assertions.assertFalse(!this.pacienteService.findPacienteByMedicoId(109209).isEmpty());
 
 	}
@@ -247,6 +247,7 @@ public class PacienteServiceTests {
 		Assertions.assertThrows(IllegalArgumentException.class, () -> {
 			this.pacienteService.savePacienteByMedico(paciente, idMedicoPacienteCreado);
 		});
+	}
 
 	@Test
 	public void testDeletePacienteByMedico() {
