@@ -42,7 +42,7 @@ public class CitaService {
 	public Iterable<Cita> findAllByMedicoId(final int medicoId) {
 		return this.citaRepo.findAll();
 	}
-
+  
 	@Transactional
 	public Collection<Cita> findAllByPaciente(final Paciente paciente) {
 		return this.citaRepo.findCitasByPaciente(paciente);

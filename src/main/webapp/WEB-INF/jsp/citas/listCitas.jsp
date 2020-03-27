@@ -11,20 +11,20 @@
     <table id="citasTable" class="table table-striped">
         <thead>
         <tr>
-        	<th style="width: 200px;">Cita</th>
-        	<th style="width: 200px;">Paciente</th>
-            <th style="width: 150px;">Fecha</th>
+        	<th style="width: 200px;">Fecha</th>
+        	<th style="width: 200px;">Lugar</th>
+            <th style="width: 200px;">Paciente</th>
+            <th style="width: 150px;">Acciones</th>
         </tr>
         </thead>
         <tbody>
         <c:forEach items="${selections}" var="cita">
             <tr>
                 <td>
-                	<%-- ESTE LINK NO FUNCIONA DE MOMENTO --%>
-                    <spring:url value="/citas/citaDetails/{citaId}" var="citaUrl">
-                        <spring:param name="citaId" value="${cita.id}"/>
-                    </spring:url>
-                    <a href="${fn:escapeXml(citaUrl)}"><c:out value="${cita.fecha} ${cita.lugar}"/></a>
+                    <c:out value="${cita.fecha}"/>
+                </td>
+                <td>
+                	<c:out value="${cita.lugar}"/>
                 </td>
                 <td>
                 	<spring:url value="/pacientes/{pacienteId}" var="pacienteUrl">
@@ -33,7 +33,10 @@
                     <a href="${fn:escapeXml(pacienteUrl)}"><c:out value="${cita.paciente.nombre} ${cita.paciente.apellidos}"/></a>
                 </td>
                 <td>
-                    <c:out value="${cita.fecha}"/>
+                	<spring:url value="/citas/delete/{citaId}" var="citaDeleteUrl">
+                        <spring:param name="citaId" value="${cita.id}"/>
+                    </spring:url>
+                    <a href="${fn:escapeXml(citaDeleteUrl)}">Borrar Cita</a>
                 </td>         
  
             </tr>

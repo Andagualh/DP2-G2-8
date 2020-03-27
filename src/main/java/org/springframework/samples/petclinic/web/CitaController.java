@@ -58,40 +58,47 @@ public class CitaController {
 
 	}
 
-	@GetMapping(path = "/new/{pacienteId}")
-	public String crearCita(final Integer pacienteId, final ModelMap modelMap) {
+	@GetMapping(path ="/new/{pacienteId}")
+	public String crearCita(@PathVariable("pacienteId") int pacienteId, final ModelMap modelMap) {
 		String view = "citas/createOrUpdateCitaForm";
 		Cita cita = new Cita();
 		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
 		cita.setPaciente(paciente);
+		cita.setName("paciente");
+		modelMap.addAttribute("paciente",paciente);
 		modelMap.addAttribute("cita", cita);
 		return view;
 	}
 
-	@PostMapping(path = "/save")
+	@PostMapping(path ="/save")
 	public String salvarCita(@Valid final Cita cita, final BindingResult result, final ModelMap modelMap) {
 		String view = "citas/createOrUpdateCitaForm";
 		if (result.hasErrors()) {
 			modelMap.addAttribute("cita", cita);
+			System.out.println(result.getAllErrors());
 			return "citas/createOrUpdateCitaForm";
 		} else {
+			Paciente paciente = pacienteService.findPacienteById(cita.getPaciente().getId()).get();
+			cita.setPaciente(paciente);
 			this.citaService.save(cita);
-			modelMap.addAttribute("messsage", "Cita successfully created");
+			modelMap.addAttribute("message", "Cita successfully created");
+			view = "redirect:/citas";
 		}
 		return view;
 	}
 
 	@GetMapping(path = "/delete/{citaId}")
-	public String borrarCita(@PathParam("citaId") final Integer citaId, final ModelMap modelMap) {
-		String view = "citas/citasList";
+	public String borrarCita(@PathVariable("citaId") int citaId, final ModelMap modelMap) {
+		System.out.println("Aqui llega delete: " + citaId);
 		Optional<Cita> cita = this.citaService.findCitaById(citaId);
+		System.out.println(cita.get());
 		if (cita.isPresent()) {
 			this.citaService.delete(cita.get());
 			modelMap.addAttribute("message", "Cita successfully deleted");
 		} else {
 			modelMap.addAttribute("message", "Cita not found");
 		}
-		return view;
+		return "redirect:/citas";
 	}
 
 	@GetMapping(value = "/find")
