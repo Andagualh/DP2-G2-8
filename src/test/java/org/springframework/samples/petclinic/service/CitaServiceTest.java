@@ -1,10 +1,8 @@
 
-
 package org.springframework.samples.petclinic.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -14,7 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.samples.petclinic.model.Authorities;
 import org.springframework.samples.petclinic.model.Cita;
+import org.springframework.samples.petclinic.model.HistoriaClinica;
 import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Paciente;
@@ -30,26 +30,55 @@ public class CitaServiceTest {
 	private PacienteService	pacienteService;
 	@Autowired
 	private MedicoService	medicoService;
+	@Autowired
+	private HistoriaClinicaService	historiaClinicaService;
 
-
-	@Test
-	public void testCountWithInitialData() {
-		int count = this.citaService.citaCount();
-		Assertions.assertEquals(count, 6);
-	}
-
-	@Test
-	public void testCreateCita() {
-
+	public Medico createDummyMedico() {
 		Medico medico = new Medico();
+		User medicoUser = new User();
+		Authorities authorities = new Authorities();
+
 		medico.setNombre("Medico 1");
 		medico.setApellidos("Apellidos");
 		medico.setDNI("12345678A");
 		medico.setN_telefono("123456789");
 		medico.setDomicilio("Domicilio");
-	
-		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
-		
+		medicoUser.setUsername("medico1");
+		medicoUser.setPassword("medico1");
+		medicoUser.setEnabled(true);
+		medico.setUser(medicoUser);
+		authorities.setUsername(medicoUser.getUsername());
+		authorities.setAuthority("medico");
+
+		this.medicoService.medicoCreate(medico);
+
+		return medico;
+	}
+
+	public Medico createDummyMedico2() {
+		Medico medico = new Medico();
+		User medicoUser = new User();
+		Authorities authorities = new Authorities();
+
+		medico.setNombre("Medico 2");
+		medico.setApellidos("Apellidos");
+		medico.setDNI("12345678A");
+		medico.setN_telefono("123456789");
+		medico.setDomicilio("Domicilio");
+
+		medicoUser.setUsername("medico2");
+		medicoUser.setPassword("medico2");
+		medicoUser.setEnabled(true);
+		medico.setUser(medicoUser);
+		authorities.setUsername(medicoUser.getUsername());
+		authorities.setAuthority("medico");
+
+		this.medicoService.medicoCreate(medico);
+
+		return medico;
+	}
+
+	public Paciente createDummyPaciente(final Medico medico, final HistoriaClinica hs) {
 		Paciente paciente = new Paciente();
 		paciente.setNombre("Paciente 1");
 		paciente.setApellidos("Apellidos");
@@ -58,14 +87,77 @@ public class CitaServiceTest {
 		paciente.setDomicilio("Sevilla");
 		paciente.setEmail("paciente@email.com");
 		paciente.setF_alta(LocalDate.now());
-		paciente.setMedico(this.medicoService.getMedicoById(idMedicoPaciente));
+		paciente.setMedico(medico);
 
-		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
+		this.pacienteService.pacienteCreate(paciente);
 
-		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado));
+		hs.setPaciente(paciente);
+		this.historiaClinicaService.saveHistoriaClinica(hs);
+
+		return paciente;
+	}
+
+	public Paciente createDummyPaciente2(final Medico medico, final HistoriaClinica hs) {
+		Paciente paciente = new Paciente();
+		paciente.setNombre("Paciente 2");
+		paciente.setApellidos("Apellidos");
+		paciente.setF_nacimiento(LocalDate.of(1996, 01, 12));
+		paciente.setDNI("12345678A");
+		paciente.setDomicilio("Sevilla");
+		paciente.setEmail("paciente@email.com");
+		paciente.setF_alta(LocalDate.now());
+		paciente.setMedico(medico);
+		
+
+		this.pacienteService.pacienteCreate(paciente);
+
+		hs.setPaciente(paciente);
+		this.historiaClinicaService.saveHistoriaClinica(hs);
+
+		return paciente;
+	}
+
+	public Paciente createDummyPaciente3(final Medico medico, final HistoriaClinica hs) {
+		Paciente paciente = new Paciente();
+		paciente.setNombre("Paciente 3");
+		paciente.setApellidos("Apellidos");
+		paciente.setF_nacimiento(LocalDate.of(1996, 01, 12));
+		paciente.setDNI("12345678A");
+		paciente.setDomicilio("Sevilla");
+		paciente.setEmail("paciente@email.com");
+		paciente.setF_alta(LocalDate.now());
+		paciente.setMedico(medico);
+		
+
+		this.pacienteService.pacienteCreate(paciente);
+
+		hs.setPaciente(paciente);
+		this.historiaClinicaService.saveHistoriaClinica(hs);
+
+		return paciente;
+	}
+
+
+
+	@Test
+	public void testCountWithInitialData() {
+		int count = this.citaService.citaCount();
+		Assertions.assertEquals(count, 3);
+	}
+
+	@Test
+	public void testCreateCita() {
+
+		Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+
+		int count = this.pacienteService.pacienteCount();
+		Assertions.assertEquals(count, 7);
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(paciente.getId()));
 
 		Cita cita = new Cita();
-		cita.setPaciente(this.pacienteService.findPacienteById(idPacienteCreado).get());
+
+		cita.setPaciente(this.pacienteService.findPacienteById(paciente.getId()).get());
 		cita.setFecha(LocalDate.of(2020, 05, 26));
 		cita.setLugar("Consulta 2");
 
@@ -76,7 +168,7 @@ public class CitaServiceTest {
 		Assertions.assertEquals(countCitas, 7);
 
 	}
-
+	//TODO: Test not working, needs to be fixed
 	@Test
 	public void testDeleteCita() {
 
@@ -122,66 +214,16 @@ public class CitaServiceTest {
 	
 	@Test
 	public void testFindCitasByMedicoId() {
-		Medico medico = new Medico();
-		Medico medico2 = new Medico();
-		Paciente paciente = new Paciente();
-		Paciente paciente2 = new Paciente();
-		Paciente paciente3 = new Paciente();
+		Medico medico = createDummyMedico();
+		Medico medico2 = createDummyMedico2();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+		Paciente paciente2 = createDummyPaciente2(medico2, new HistoriaClinica());
+		Paciente paciente3 = createDummyPaciente3(medico, new HistoriaClinica());
 		Cita cita = new Cita();
 		Cita cita2 = new Cita();
 		Cita cita3 = new Cita();
-
-		medico.setNombre("Medico 1");
-		medico.setApellidos("Apellidos");
-		medico.setDNI("12345678A");
-		medico.setN_telefono("123456789");
-		medico.setDomicilio("Domicilio");
-		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
-		
-		medico2.setNombre("Medico 2");
-		medico2.setApellidos("Apellidos");
-		medico2.setDNI("12345678A");
-		medico2.setN_telefono("123456789");
-		medico2.setDomicilio("Domicilio");
-		int idMedicoPaciente2 = this.medicoService.medicoCreate(medico2);
-
-		paciente.setNombre("Paciente 1");
-		paciente.setApellidos("Apellidos");
-		paciente.setF_nacimiento(LocalDate.of(1996, 01, 12));
-		paciente.setDNI("12345678A");
-		paciente.setDomicilio("Sevilla");
-		paciente.setEmail("paciente@email.com");
-		paciente.setF_alta(LocalDate.now());
-		paciente.setMedico(this.medicoService.getMedicoById(idMedicoPaciente));
-
-		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
-		
-		paciente2.setNombre("Paciente 2");
-		paciente2.setApellidos("Apellidos");
-		paciente2.setF_nacimiento(LocalDate.of(1996, 01, 12));
-		paciente2.setDNI("12345678A");
-		paciente2.setDomicilio("Sevilla");
-		paciente2.setEmail("paciente@email.com");
-		paciente2.setF_alta(LocalDate.now());
-		paciente2.setMedico(this.medicoService.getMedicoById(idMedicoPaciente2));
-		int idPaciente2 = this.pacienteService.pacienteCreate(paciente2);
-
-		paciente3.setNombre("Paciente 3");
-		paciente3.setApellidos("Apellidos");
-		paciente3.setF_nacimiento(LocalDate.of(1996, 01, 12));
-		paciente3.setDNI("12345678A");
-		paciente3.setDomicilio("Sevilla");
-		paciente3.setEmail("paciente@email.com");
-		paciente3.setF_alta(LocalDate.now());
-		paciente3.setMedico(this.medicoService.getMedicoById(idMedicoPaciente));
-		int idPaciente3 = this.pacienteService.pacienteCreate(paciente3);
-		
 		int count = this.pacienteService.pacienteCount();
-
-		Assertions.assertEquals(count, 6);
-
-		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado));
-		
+		Assertions.assertEquals(count, 9);
 		
 		cita.setFecha(LocalDate.of(2020, 8, 8));
 		cita.setLugar("Sevilla");
@@ -202,22 +244,28 @@ public class CitaServiceTest {
 
 		Assertions.assertEquals(countCita, 9);
 
-		Assertions.assertNotNull(this.citaService.findCitasByMedicoId(idMedicoPaciente));
 		Assertions.assertNotNull(cita.getPaciente().getId());
 		Assertions.assertNotNull(cita2.getPaciente().getId());
 		Assertions.assertNotNull(cita3.getPaciente().getId());
 	
-		
-		for(Cita c: this.citaService.findCitasByMedicoId(idMedicoPaciente)) {
+		//Citas of Medico 1
+		for(Cita c: this.citaService.findCitasByMedicoId(medico.getId())) {
 			Paciente pacienteActual = this.pacienteService.findPacienteById(c.getPaciente().getId()).get();
-			Assertions.assertEquals(pacienteActual.getMedico().getId(), idMedicoPaciente);
+			//Checking if the cita corresponds to a Paciente of given Medico
+			Assertions.assertEquals(pacienteActual.getMedico().getId(), medico.getId());
 		}
-		
-		for(Cita c: this.citaService.findCitasByMedicoId(idMedicoPaciente2)) {
+		//Citas of Medico 2
+		for(Cita c: this.citaService.findCitasByMedicoId(medico2.getId())) {
 			Paciente pacienteActual2 = this.pacienteService.findPacienteById(c.getPaciente().getId()).get();
-			Assertions.assertEquals(pacienteActual2.getMedico().getId(), idMedicoPaciente2);
+			//Checking if the cita corresponds to a Paciente of given Medico
+			Assertions.assertEquals(pacienteActual2.getMedico().getId(), medico2.getId());
 		}
 		
+	}
+
+	@Test
+	public void TestFindCitaByUnexistingMedicoId(){
+		Assertions.assertTrue(citaService.findCitasByMedicoId(12393493).isEmpty());
 	}
 	
 	@Test
@@ -269,8 +317,11 @@ public class CitaServiceTest {
 	void shouldFindCitasByDate() {
 		Collection<Cita> citas = this.citaService.findCitasByFecha(LocalDate.of(2020,3,9));
 		assertThat(citas.size()).isEqualTo(1);
+	}
 
-		citas = this.citaService.findCitasByFecha(LocalDate.of(2030, 1, 1));
+	@Test
+	void shouldNotFindCitasByUnexistingCitaDate(){
+		Collection <Cita> citas = this.citaService.findCitasByFecha(LocalDate.of(2030, 1, 1));
 		assertThat(citas.isEmpty()).isTrue();
 	}
 

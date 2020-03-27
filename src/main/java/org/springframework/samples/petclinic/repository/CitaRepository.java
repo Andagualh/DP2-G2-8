@@ -12,13 +12,17 @@ import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Paciente;
 
 public interface CitaRepository extends CrudRepository<Cita, Integer> {
-	
+
 	@Query("SELECT ALL p from Paciente p where p.medico.id =:id")
-    Collection<Paciente> findPacientesByMedicoId(@Param("id") int id) throws DataAccessException;
-	
+	Collection<Paciente> findPacientesByMedicoId(@Param("id") int id) throws DataAccessException;
+
 	@Query("SELECT ALL c from Cita c where c.paciente.id =:id")
 	Collection<Cita> findCitasByPacienteId(@Param("id") int id) throws DataAccessException;
 
 	@Query("SELECT DISTINCT cita FROM Cita cita WHERE cita.fecha LIKE :fecha")
 	Collection<Cita> findByDate(@Param("fecha") LocalDate fecha);
+
+	@Query("SELECT c from Cita c where c.paciente = :paciente")
+	Collection<Cita> findCitasByPaciente(Paciente paciente) throws DataAccessException;
+
 }

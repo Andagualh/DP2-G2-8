@@ -19,15 +19,16 @@ public class CitaService {
 
 	@Autowired
 	private CitaRepository citaRepo;
-	
+
+
 	@Transactional
 	public int citaCount() {
-		return (int) citaRepo.count();
+		return (int) this.citaRepo.count();
 	}
-	
+
 	@Transactional
-	public Iterable<Cita> findAll(){
-		return citaRepo.findAll();
+	public Iterable<Cita> findAll() {
+		return this.citaRepo.findAll();
 	}
 	
 	@Transactional
@@ -36,24 +37,30 @@ public class CitaService {
 		return this.citaRepo.save(cita).getId();
 	}
 	
+	//No esta terminada
 	@Transactional
-	public void save(Cita cita){
-		citaRepo.save(cita);
+	public Iterable<Cita> findAllByMedicoId(final int medicoId) {
+		return this.citaRepo.findAll();
 	}
-	
+  
 	@Transactional
-	public void delete(Cita cita){
-		citaRepo.delete(cita);
+	public Collection<Cita> findAllByPaciente(final Paciente paciente) {
+		return this.citaRepo.findCitasByPaciente(paciente);
 	}
-	
+
 	@Transactional
-	public void deleteById(int citaId){
-		citaRepo.deleteById(citaId);;
+	public Cita save(final Cita cita) {
+		return this.citaRepo.save(cita);
 	}
-	
+
 	@Transactional
-	public Optional<Cita> findCitaById(int citaId){
-		return citaRepo.findById(citaId);
+	public void delete(final Cita cita) {
+		this.citaRepo.delete(cita);
+	}
+
+	@Transactional
+	public Optional<Cita> findCitaById(final int citaId) {
+		return this.citaRepo.findById(citaId);
 	}
 	
 	@Transactional(readOnly = true)
