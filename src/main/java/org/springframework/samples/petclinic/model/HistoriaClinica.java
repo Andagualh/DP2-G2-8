@@ -1,11 +1,7 @@
 
 package org.springframework.samples.petclinic.model;
 
-import java.util.Collection;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
 
@@ -29,10 +25,10 @@ public class HistoriaClinica extends BaseEntity {
 	}
 
 
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne//(cascade = CascadeType.ALL)
 	@NotNull
-	private Paciente			paciente;
+	private Paciente paciente;
 
-	@OneToMany(mappedBy = "informe")
-	private Collection<Informe>	informes;
+	//	@OneToMany(mappedBy = "informe")
+	//	private Collection<Informe>	informes;
 }
