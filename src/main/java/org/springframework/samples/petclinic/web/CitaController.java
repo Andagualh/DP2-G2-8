@@ -60,19 +60,18 @@ public class CitaController {
 
 	@GetMapping(path ="/new/{pacienteId}")
 	public String crearCita(@PathVariable("pacienteId") int pacienteId, final ModelMap modelMap) {
-		String view = "citas/createOrUpdateCitaForm";
 		Cita cita = new Cita();
 		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
 		cita.setPaciente(paciente);
 		cita.setName("paciente");
 		modelMap.addAttribute("paciente",paciente);
 		modelMap.addAttribute("cita", cita);
-		return view;
+		return "citas/createOrUpdateCitaForm";
 	}
 
 	@PostMapping(path ="/save")
 	public String salvarCita(@Valid final Cita cita, final BindingResult result, final ModelMap modelMap) {
-		String view = "citas/createOrUpdateCitaForm";
+		
 		if (result.hasErrors()) {
 			modelMap.addAttribute("cita", cita);
 			System.out.println(result.getAllErrors());
@@ -82,9 +81,8 @@ public class CitaController {
 			cita.setPaciente(paciente);
 			this.citaService.save(cita);
 			modelMap.addAttribute("message", "Cita successfully created");
-			view = "redirect:/citas";
+			return "redirect:/citas";
 		}
-		return view;
 	}
 
 	@GetMapping(path = "/delete/{citaId}")

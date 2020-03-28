@@ -17,9 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CitaService {
 
-	@Autowired
 	private CitaRepository citaRepo;
 
+	@Autowired
+	public CitaService(CitaRepository citaRepo){
+		this.citaRepo = citaRepo;
+	}
 
 	@Transactional
 	public int citaCount() {
