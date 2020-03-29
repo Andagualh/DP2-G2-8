@@ -23,6 +23,10 @@ public class HistoriaClinicaService {
 		return (int) this.historiaRepository.count();
 	}
 
+	public void deleteHistoriaClinica(final HistoriaClinica hs) throws DataAccessException {
+		this.historiaRepository.delete(hs);
+	}
+
 	public HistoriaClinica saveHistoriaClinica(final HistoriaClinica hs) throws DataAccessException {
 		HistoriaClinica result = this.historiaRepository.save(hs);
 		return result;

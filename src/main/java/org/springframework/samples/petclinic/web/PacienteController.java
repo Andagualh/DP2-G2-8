@@ -1,6 +1,7 @@
 
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -8,8 +9,11 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
+import org.springframework.samples.petclinic.service.CitaService;
+import org.springframework.samples.petclinic.service.HistoriaClinicaService;
 import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
@@ -31,18 +35,23 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class PacienteController {
 
-	private static final String		VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM	= "pacientes/createOrUpdatePacientesForm";
+	private static final String				VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM	= "pacientes/createOrUpdatePacientesForm";
 	@Autowired
-	private final PacienteService	pacienteService;
-	private final MedicoService		medicoService;
-	private final UserService		userService;
+	private final PacienteService			pacienteService;
+	private final MedicoService				medicoService;
+	private final UserService				userService;
+	private final CitaService				citaService;
+	private final HistoriaClinicaService	historiaClinicaService;
 
 
 	@Autowired
-	public PacienteController(final PacienteService pacienteService, final MedicoService medicoService, final UserService userService, final AuthoritiesService authoritiesService) {
+	public PacienteController(final PacienteService pacienteService, final MedicoService medicoService, final UserService userService, final AuthoritiesService authoritiesService, final CitaService citaService,
+		final HistoriaClinicaService historiaClinicaService) {
 		this.pacienteService = pacienteService;
 		this.medicoService = medicoService;
 		this.userService = userService;
+		this.citaService = citaService;
+		this.historiaClinicaService = historiaClinicaService;
 	}
 
 	@InitBinder
@@ -53,7 +62,27 @@ public class PacienteController {
 	@GetMapping(value = "/pacientes/{pacienteId}")
 	public ModelAndView showPaciente(@PathVariable("pacienteId") final int pacienteId) {
 		ModelAndView mav = new ModelAndView("pacientes/pacienteDetails");
+		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
+
 		mav.addObject(this.pacienteService.findPacienteById(pacienteId).get());
+
+		Collection<Cita> citas = this.citaService.findAllByPaciente(paciente);
+		boolean canBeDeleted = citas.isEmpty();
+		if (!citas.isEmpty()) {
+			LocalDate ultimaCita = this.citaService.findAllByPaciente(paciente).stream().map(Cita::getFecha).max(LocalDate::compareTo).get();
+			LocalDate hoy = LocalDate.now();
+			canBeDeleted = hoy.compareTo(ultimaCita) >= 6 || hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() >= hoy.getDayOfYear();
+		}
+
+		canBeDeleted = canBeDeleted && this.historiaClinicaService.findHistoriaClinicaByPaciente(paciente).getDescripcion().isEmpty();
+
+		if (SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("admin"))) {
+			canBeDeleted = true;
+		} else {
+			canBeDeleted = canBeDeleted && paciente.getMedico().equals(this.userService.getCurrentMedico());
+		}
+
+		mav.getModel().put("canBeDeleted", true);
 		return mav;
 	}
 
@@ -84,7 +113,6 @@ public class PacienteController {
 			paciente = results.iterator().next();
 			return "redirect:/pacientes/" + paciente.getId();
 		} else {
-			System.out.println("testok");
 			model.put("selections", results);
 			return "pacientes/pacientesList";
 		}
@@ -127,8 +155,10 @@ public class PacienteController {
 	@RequestMapping(value = "/pacientes/{pacienteId}/delete")
 	public String borrarPaciente(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 		String view = "/pacientes";
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Optional<Paciente> paciente = this.pacienteService.findPacienteById(pacienteId);
+
 		if (paciente.isPresent()) {
 			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("admin"))) {
 				this.pacienteService.pacienteDelete(pacienteId);

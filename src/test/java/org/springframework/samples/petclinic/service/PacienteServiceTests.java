@@ -310,6 +310,29 @@ public class PacienteServiceTests {
 	}
 
 	@Test
+	public void testDeletePacienteWithCitasFuturo() {
+		int countPacientes = this.pacienteService.pacienteCount();
+		Medico medico = this.createDummyMedico();
+		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
+		Cita cita = new Cita();
+		cita.setFecha(LocalDate.now().plus(Period.ofDays(1)));
+		cita.setLugar("Hospital Virgen del Rocio");
+		cita.setPaciente(paciente);
+		this.citaService.save(cita);
+
+		int idMedicoPacienteCreado = medico.getId();
+		int idPacienteCreado = paciente.getId();
+
+		int count = this.pacienteService.pacienteCount();
+		Assertions.assertEquals(count, countPacientes + 1);
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
+
+		Assertions.assertThrows(IllegalStateException.class, () -> {
+			this.pacienteService.deletePacienteByMedico(idPacienteCreado, idMedicoPacienteCreado);
+		});
+	}
+
+	@Test
 	public void testDeletePacienteInactivo() {
 		int countPacientes = this.pacienteService.pacienteCount();
 		Medico medico = this.createDummyMedico();

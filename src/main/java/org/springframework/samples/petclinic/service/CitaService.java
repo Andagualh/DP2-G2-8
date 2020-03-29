@@ -30,19 +30,19 @@ public class CitaService {
 	public Iterable<Cita> findAll() {
 		return this.citaRepo.findAll();
 	}
-	
+
 	@Transactional
 	public int citaCreate(final Cita cita) {
 		System.out.println("cita: " + cita);
 		return this.citaRepo.save(cita).getId();
 	}
-	
+
 	//No esta terminada
 	@Transactional
 	public Iterable<Cita> findAllByMedicoId(final int medicoId) {
 		return this.citaRepo.findAll();
 	}
-  
+
 	@Transactional
 	public Collection<Cita> findAllByPaciente(final Paciente paciente) {
 		return this.citaRepo.findCitasByPaciente(paciente);
@@ -59,27 +59,31 @@ public class CitaService {
 	}
 
 	@Transactional
+	public void deleteAllByPaciente(final Paciente paciente) {
+		this.citaRepo.deleteAllByPaciente(paciente);
+	}
+
+	@Transactional
 	public Optional<Cita> findCitaById(final int citaId) {
 		return this.citaRepo.findById(citaId);
 	}
-	
+
 	@Transactional(readOnly = true)
-	public Collection<Cita> findCitasByMedicoId(int medicoId) throws DataAccessException{
+	public Collection<Cita> findCitasByMedicoId(final int medicoId) throws DataAccessException {
 		Collection<Paciente> pacientes = new ArrayList<>();
-		pacientes.addAll(citaRepo.findPacientesByMedicoId(medicoId));
+		pacientes.addAll(this.citaRepo.findPacientesByMedicoId(medicoId));
 		Collection<Cita> citas = new ArrayList<>();
-		for (Paciente p: pacientes ) {
-			citas.addAll(citaRepo.findCitasByPacienteId(p.getId()));
+		for (Paciente p : pacientes) {
+			citas.addAll(this.citaRepo.findCitasByPacienteId(p.getId()));
 		}
 		return citas;
 	}
-	
+
 	@Transactional(readOnly = true)
-	public Collection<Cita> findCitasByFecha(LocalDate fecha) throws DataAccessException{
+	public Collection<Cita> findCitasByFecha(final LocalDate fecha) throws DataAccessException {
 		Collection<Cita> citas = new ArrayList<>();
-		citas.addAll(citaRepo.findByDate(fecha));
+		citas.addAll(this.citaRepo.findByDate(fecha));
 		return citas;
 	}
-	
 
 }

@@ -3,7 +3,6 @@ package org.springframework.samples.petclinic.web;
 
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -12,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Optional;
 
 import org.assertj.core.util.Lists;
@@ -25,17 +26,29 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
 import org.springframework.samples.petclinic.model.Authorities;
+import org.springframework.samples.petclinic.model.HistoriaClinica;
 import org.springframework.samples.petclinic.model.Medico;
-import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
+import org.springframework.samples.petclinic.service.CitaService;
+import org.springframework.samples.petclinic.service.HistoriaClinicaService;
 import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
+
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 @WebMvcTest(controllers = PacienteController.class,
 excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, 
@@ -45,7 +58,6 @@ public class PacienteControllerTest {
 	private static final int  TEST_PACIENTE_ID = 1;
 	private static final int  TEST_MEDICO_ID = 1;
 	private static final String TEST_MEDICOUSER_ID = "medico1";
-	private static final String TEST_AUTHORITIES_ID = TEST_MEDICOUSER_ID;
 	
 	@Autowired
 	private PacienteController	pacienteController;
@@ -61,6 +73,12 @@ public class PacienteControllerTest {
 
 	@MockBean
 	private AuthoritiesService	authoritiesService;
+	
+	@MockBean
+	private CitaService citaService;
+	
+	@MockBean
+	private HistoriaClinicaService historiaClinicaService;
 
 	@Autowired
 	private MockMvc				mockMvc;
@@ -115,7 +133,9 @@ public class PacienteControllerTest {
 	
 		@WithMockUser(value = "spring")
 	@Test
-	void testShowPaciente() throws Exception {
+	void testShowPaciente() throws Exception {	
+		BDDMockito.given(this.historiaClinicaService.findHistoriaClinicaByPaciente(this.javier)).willReturn(new HistoriaClinica());
+	     
 		mockMvc.perform(get("/pacientes/{pacienteId}", TEST_PACIENTE_ID)).andExpect(status().isOk())
 				.andExpect(model().attributeExists("paciente"))
 				.andExpect(model().attribute("paciente", hasProperty("nombre", is("Javier"))))
@@ -166,25 +186,48 @@ public class PacienteControllerTest {
 				.andExpect(model().attributeHasFieldErrors("paciente", "apellidos"))
 				.andExpect(model().attributeHasFieldErrorCode("paciente", "apellidos", "notFound"))
 				.andExpect(view().name("pacientes/findPacientes"));
+	}        
+        
+		@WithMockUser(value = "spring")
+	@Test
+	void testInitFindMedForm() throws Exception {		
+		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+			
+		mockMvc.perform(get("/pacientes/findByMedico"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/pacientes/findByMedico/" + TEST_MEDICO_ID));
 	}
-       
-//		@WithMockUser(value = "spring")
-//	@Test
-//	void testInitFindMedForm() throws Exception {
-//		mockMvc.perform(get("/pacientes/findByMedico"))
-//				.andExpect(status().isOk()).andExpect(model().attributeExists("medicoId"))
-//				.andExpect(view().name("redirect:/pacientes/findByMedico/" + TEST_MEDICO_ID));
-//	}
         
+		@WithMockUser(value = "spring")
+	@Test
+	void testProcessFindMedForm() throws Exception {
+		BDDMockito.given(this.pacienteService.findPacienteByMedicoId(TEST_MEDICO_ID))
+			.willReturn(Lists.newArrayList(javier, new Paciente()));		
+			
+		mockMvc.perform(get("/pacientes/findByMedico/{medicoId}", TEST_MEDICO_ID))
+				.andExpect(status().isOk())
+				.andExpect(view().name("pacientes/pacientesListMedico"));
+	}
+				
+		@WithMockUser(value = "spring")
+	@Test
+	void testProcessFindFormMedFindOne() throws Exception {
+			BDDMockito.given(this.pacienteService.findPacienteByApellidos(javier.getApellidos()))
+				.willReturn(Lists.newArrayList(javier));
+
+			mockMvc.perform(get("/pacientes").param("apellidos", "Silva"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/pacientes/" + TEST_PACIENTE_ID));
+	}
+	
+        @WithMockUser(value = "spring")
+	@Test
+	void testProcessFindFormMedNoPacientesFound() throws Exception {
+    		mockMvc.perform(get("/pacientes/findByMedico/{medicoId}", 10))
+			.andExpect(status().is3xxRedirection())
+			.andExpect(view().name("redirect:/pacientes/"));
+	}
         
-        
-        
-        
-        
-        
-        
-        
-		
     	@WithMockUser(value = "spring")
 	@Test
 	void testInitUpdatePacientesForm() throws Exception {
