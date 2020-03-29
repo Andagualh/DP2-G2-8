@@ -86,7 +86,7 @@ class PetControllerTests {
 	void testInitCreationForm() throws Exception {
 		mockMvc.perform(get("/owners/{ownerId}/pets/new", TEST_OWNER_ID)).andExpect(status().isOk())
 				.andExpect(view().name("pets/createOrUpdatePetForm")).andExpect(model().attributeExists("pet"));
-	}
+	} 
 
 	@WithMockUser(value = "spring")
         @Test
