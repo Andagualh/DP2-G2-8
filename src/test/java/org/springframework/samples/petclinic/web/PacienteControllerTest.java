@@ -11,8 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Optional;
 
 import org.assertj.core.util.Lists;
@@ -37,18 +35,9 @@ import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
-
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.mock;
 
 @WebMvcTest(controllers = PacienteController.class,
 excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, 
