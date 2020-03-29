@@ -148,7 +148,7 @@ public class PacienteController {
 	@GetMapping(value = "/pacientes/{pacienteId}/edit")
 	public String initUpdatePacientesForm(@PathVariable("pacienteId") final int pacientesId, final Model model) {
 		Paciente paciente = this.pacienteService.findPacienteById(pacientesId).get();
-		model.addAttribute(paciente);
+		model.addAttribute("paciente", paciente);
 		model.addAttribute(this.medicoService.getMedicos());
 		return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 	}
