@@ -47,6 +47,11 @@ public class PacienteService {
 	}
 
 	@Transactional(readOnly = true)
+	public Paciente getPacienteById(final int id) throws DataAccessException {
+		return this.pacienteRepo.findById(id).get();
+	}
+
+	@Transactional(readOnly = true)
 	public Optional<Paciente> findPacienteById(final int id) throws DataAccessException {
 		return this.pacienteRepo.findById(id);
 	}
@@ -80,11 +85,14 @@ public class PacienteService {
 		if (paciente.getMedico().getId() == idMedico) {
 			if (dniOk) {
 				if (tieneContacto) {
-					System.out.println("tienecontacto:" + tieneContacto);
-					System.out.println();
-					if (!paciente.getN_telefono().toString().isEmpty() && !(paciente.getN_telefono().toString().length() == 9)) {
-						throw new IllegalArgumentException("Número de teléfono incorrecto");
+					if (tieneTelefono) {
+						if (!paciente.getN_telefono().toString().isEmpty() && !(paciente.getN_telefono().toString().length() == 9)) {
+							throw new IllegalArgumentException("Número de teléfono incorrecto");
+						} else {
+							this.pacienteRepo.save(paciente).getId();
+						}
 					} else {
+						System.out.println("guardapaciente");
 						this.pacienteRepo.save(paciente).getId();
 					}
 				} else {

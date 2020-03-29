@@ -15,6 +15,7 @@
             <th style="width: 200px;">Address</th>
             <th>City</th>
             <th style="width: 120px">Telephone</th>
+            <th>Citas</th>
         </tr>
         </thead>
         <tbody>
@@ -34,6 +35,11 @@
                 </td>
                 <td>
                     <c:out value="${paciente.n_telefono}"/>
+                </td>
+                <td>
+                    <c:forEach var="cita" items="${paciente.citas}">
+                        <c:out value="${cita.fecha} "/>
+                    </c:forEach>
                 </td>
             </tr>
         </c:forEach>

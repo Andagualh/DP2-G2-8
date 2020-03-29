@@ -39,7 +39,6 @@ public class MedicoController {
 	public ModelAndView showMedico(@PathVariable("medicoId") final int medicoId) {
 		ModelAndView mav = new ModelAndView("medicos/medicoDetails");
 		mav.addObject(this.medicoService.getMedicoById(medicoId));
-		System.out.println(this.medicoService.getMedicoById(medicoId));
 		return mav;
 	}
 
@@ -54,7 +53,6 @@ public class MedicoController {
 		if (medico.getApellidos() == null) {
 			medico.setApellidos("");
 		}
-		System.out.println("entramedicos");
 		Collection<Medico> results;
 
 		if (medico.getApellidos() == "") {

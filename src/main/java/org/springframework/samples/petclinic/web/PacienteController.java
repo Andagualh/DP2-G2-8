@@ -54,8 +54,6 @@ public class PacienteController {
 	public ModelAndView showPaciente(@PathVariable("pacienteId") final int pacienteId) {
 		ModelAndView mav = new ModelAndView("pacientes/pacienteDetails");
 		mav.addObject(this.pacienteService.findPacienteById(pacienteId).get());
-		System.out.println("error?");
-		System.out.println("currentmedico:" + this.userService.getCurrentMedico());
 		return mav;
 	}
 
@@ -77,7 +75,6 @@ public class PacienteController {
 			results = this.pacienteService.getPacientes();
 		} else {
 			results = this.pacienteService.findPacienteByApellidos(paciente.getApellidos());
-
 		}
 
 		if (results.isEmpty()) {
@@ -87,6 +84,7 @@ public class PacienteController {
 			paciente = results.iterator().next();
 			return "redirect:/pacientes/" + paciente.getId();
 		} else {
+			System.out.println("testok");
 			model.put("selections", results);
 			return "pacientes/pacientesList";
 		}
@@ -96,7 +94,7 @@ public class PacienteController {
 	public String initFindMedForm(final Map<String, Object> model) {
 		int idMedico = this.userService.getCurrentMedico().getId();
 		return "redirect:/pacientes/findByMedico/" + idMedico;
-		}
+	}
 
 	@GetMapping(value = "/pacientes/findByMedico/{medicoId}")
 	public String processFindMedForm(final Map<String, Object> model, @PathVariable("medicoId") final int medicoId) {
@@ -148,19 +146,29 @@ public class PacienteController {
 	@GetMapping(value = "/pacientes/{pacienteId}/edit")
 	public String initUpdatePacientesForm(@PathVariable("pacienteId") final int pacientesId, final Model model) {
 		Paciente paciente = this.pacienteService.findPacienteById(pacientesId).get();
-		model.addAttribute(paciente);
-		model.addAttribute(this.medicoService.getMedicos());
+		//Paciente paciente = this.pacienteService.getPacienteById(pacientesId);
+		model.addAttribute("paciente", paciente);
+		model.addAttribute("medicoList", this.medicoService.getMedicos());
 		return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 	}
 
 	@PostMapping(value = "/pacientes/{pacienteId}/edit")
 	public String processUpdatePacienteForm(@Valid final Paciente paciente, final BindingResult result, @PathVariable("pacienteId") final int pacienteId) {
-		if (result.hasErrors()) {
+
+		boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("admin"));
+		boolean noTieneContacto = paciente.getN_telefono() == null && paciente.getDomicilio().isEmpty() && paciente.getEmail().isEmpty();
+
+		if (result.hasErrors() || noTieneContacto) {
+			result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
-		} else {
+		} else if (isAdmin) {
 			paciente.setId(pacienteId);
 			this.pacienteService.savePaciente(paciente);
-			//this.pacienteService.savePacienteByMedico(paciente, idMedico);
+			return "redirect:/pacientes/{pacienteId}";
+		} else {
+			int currentMedico = this.userService.getCurrentMedico().getId();
+			paciente.setId(pacienteId);
+			this.pacienteService.savePacienteByMedico(paciente, currentMedico);
 			return "redirect:/pacientes/{pacienteId}";
 		}
 	}
