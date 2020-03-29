@@ -74,7 +74,6 @@ public class CitaController {
 		
 		if (result.hasErrors()) {
 			modelMap.addAttribute("cita", cita);
-			System.out.println(result.getAllErrors());
 			return "citas/createOrUpdateCitaForm";
 		} else {
 			Paciente paciente = pacienteService.findPacienteById(cita.getPaciente().getId()).get();
@@ -87,9 +86,9 @@ public class CitaController {
 
 	@GetMapping(path = "/delete/{citaId}")
 	public String borrarCita(@PathVariable("citaId") int citaId, final ModelMap modelMap) {
-		System.out.println("Aqui llega delete: " + citaId);
+		
 		Optional<Cita> cita = this.citaService.findCitaById(citaId);
-		System.out.println(cita.get());
+		
 		if (cita.isPresent()) {
 			this.citaService.delete(cita.get());
 			modelMap.addAttribute("message", "Cita successfully deleted");

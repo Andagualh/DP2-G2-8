@@ -83,14 +83,7 @@ public class PacienteControllerTest {
 		this.medico.setDNI("12345678Z");
 		this.medico.setN_telefono("123456789");
 		this.medico.setDomicilio("Domicilio");
-		/*
-		this.medicoUser.setUsername("medico2");
-		this.medicoUser.setPassword("medico2");
-		this.medicoUser.setEnabled(true);
-		this.medico.setUser(this.medicoUser);
-		this.authorities.setUsername(this.medicoUser.getUsername());
-		this.authorities.setAuthority("medico");
-		*/
+		
 		this.javier.setId(TEST_PACIENTE_ID);
 		this.javier.setNombre("Javier");
 		this.javier.setApellidos("Silva");

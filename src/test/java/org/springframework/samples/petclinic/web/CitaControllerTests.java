@@ -8,7 +8,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
+
+
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -103,6 +109,83 @@ class CitaControllerTests{
         .andExpect(model().attributeHasErrors("cita"))
         .andExpect(status().isOk())
         .andExpect(view().name("citas/createOrUpdateCitaForm")
+        );
+    }
+    
+    @WithMockUser(value = "spring")
+        @Test
+    void testBorrarCitas() throws Exception{
+        //El objeto sobre el que se realiza un Test si existe en este caso.
+        mockMvc.perform(get("/citas/delete/{citaId}", TEST_CITA_ID))
+        //.andExpect(model().attributeExists("message"))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/citas")
+        );
+    }
+    @WithMockUser(value = "spring")
+        @Test
+    void testBorrarCitaNoPresente() throws Exception{
+        //No existe ningún objeto CITA con ID 2 cuando se ejecuta este Test.
+        mockMvc.perform(get("/citas/delete/{citaId}", 2))
+      //  .andExpect(model().attributeExists("message"))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/citas")
+        );
+    }
+    
+    @WithMockUser(value = "spring")
+        @Test
+    void testInitFindForm() throws Exception{
+        mockMvc.perform(
+        get("/citas/find"))
+        .andExpect(status().isOk())
+        .andExpect(model().attributeExists("cita"))
+        .andExpect(view().name("citas/findCitas")
+        );
+    }
+    
+    @WithMockUser(value = "spring")
+        @Test
+    void testProcessFindFormSuccess() throws Exception{
+        Cita dum1 = new Cita();
+        Cita dum2 = new Cita();
+        dum1.setFecha(LocalDate.of(2020, 8, 8));
+        dum2.setFecha(LocalDate.of(2020, 8, 8));
+       
+        given(this.citaService.findCitasByFecha(LocalDate.of(2020,8,8))).willReturn(Lists.newArrayList(dum1, dum2));
+        
+        mockMvc.perform(
+        get("/citas/porfecha")
+        .param("fecha", "2020-08-08"))
+        .andExpect(status().isOk())
+        .andExpect(model().attributeExists("selections"))
+        .andExpect(view().name("citas/listCitas")
+        );
+    }
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testProcessFindFormNoCitaFound() throws Exception{
+        mockMvc.perform(
+            get("/citas/porfecha")
+            .param("fecha", "2020-08-07"))
+            .andExpect(status().isOk())
+            .andExpect(model().attributeHasFieldErrors("cita", "fecha"))
+			.andExpect(model().attributeHasFieldErrorCode("cita", "fecha", "notFound"))
+            .andExpect(view().name("citas/findCitas")
+            );
+    }    
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testInitList() throws Exception{
+       given(this.userService.getCurrentMedico().getId())
+       .willReturn(Integer.parseInt(TEST_USER_ID));
+       
+        mockMvc.perform(
+            get("/citas"))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(view().name("redirect:/citas/" + TEST_USER_ID)
         );
     }    
 }
