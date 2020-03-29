@@ -56,6 +56,11 @@ public class UserService {
 	}
 
 	@Transactional
+	public User getUserByUsername(final String userId) throws DataAccessException {
+		return this.userRepository.findById(userId).get();
+	}
+
+	@Transactional
 	public Optional<User> findUserByUsername(final String userId) throws DataAccessException {
 		return this.userRepository.findById(userId);
 	}

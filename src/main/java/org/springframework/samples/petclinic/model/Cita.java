@@ -4,8 +4,8 @@ package org.springframework.samples.petclinic.model;
 import java.time.LocalDate;
 
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -22,9 +22,10 @@ public class Cita extends NamedEntity {
 
 	private String		lugar;
 
-	@ManyToOne//(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JoinColumn(name = "paciente_id")
 	@NotNull
+	@Valid
+	@ManyToOne(optional = false)
+	//@JoinColumn(name = "paciente_id")
 	private Paciente	paciente;
 
 }

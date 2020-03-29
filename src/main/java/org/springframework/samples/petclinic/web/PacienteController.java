@@ -1,6 +1,7 @@
 
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -8,8 +9,11 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
+import org.springframework.samples.petclinic.service.CitaService;
+import org.springframework.samples.petclinic.service.HistoriaClinicaService;
 import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
@@ -31,18 +35,23 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class PacienteController {
 
-	private static final String		VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM	= "pacientes/createOrUpdatePacientesForm";
+	private static final String				VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM	= "pacientes/createOrUpdatePacientesForm";
 	@Autowired
-	private final PacienteService	pacienteService;
-	private final MedicoService		medicoService;
-	private final UserService		userService;
+	private final PacienteService			pacienteService;
+	private final MedicoService				medicoService;
+	private final UserService				userService;
+	private final CitaService				citaService;
+	private final HistoriaClinicaService	historiaClinicaService;
 
 
 	@Autowired
-	public PacienteController(final PacienteService pacienteService, final MedicoService medicoService, final UserService userService, final AuthoritiesService authoritiesService) {
+	public PacienteController(final PacienteService pacienteService, final MedicoService medicoService, final UserService userService, final AuthoritiesService authoritiesService, final CitaService citaService,
+		final HistoriaClinicaService historiaClinicaService) {
 		this.pacienteService = pacienteService;
 		this.medicoService = medicoService;
 		this.userService = userService;
+		this.citaService = citaService;
+		this.historiaClinicaService = historiaClinicaService;
 	}
 
 	@InitBinder
@@ -53,9 +62,27 @@ public class PacienteController {
 	@GetMapping(value = "/pacientes/{pacienteId}")
 	public ModelAndView showPaciente(@PathVariable("pacienteId") final int pacienteId) {
 		ModelAndView mav = new ModelAndView("pacientes/pacienteDetails");
+		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
+
 		mav.addObject(this.pacienteService.findPacienteById(pacienteId).get());
-		System.out.println("error?");
-		System.out.println("currentmedico:" + this.userService.getCurrentMedico());
+
+		Collection<Cita> citas = this.citaService.findAllByPaciente(paciente);
+		boolean canBeDeleted = citas.isEmpty();
+		if (!citas.isEmpty()) {
+			LocalDate ultimaCita = this.citaService.findAllByPaciente(paciente).stream().map(Cita::getFecha).max(LocalDate::compareTo).get();
+			LocalDate hoy = LocalDate.now();
+			canBeDeleted = hoy.compareTo(ultimaCita) >= 6 || hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() >= hoy.getDayOfYear();
+		}
+
+		canBeDeleted = canBeDeleted && this.historiaClinicaService.findHistoriaClinicaByPaciente(paciente).getDescripcion().isEmpty();
+
+		if (SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("admin"))) {
+			canBeDeleted = true;
+		} else {
+			canBeDeleted = canBeDeleted && paciente.getMedico().equals(this.userService.getCurrentMedico());
+		}
+
+		mav.getModel().put("canBeDeleted", true);
 		return mav;
 	}
 
@@ -77,7 +104,6 @@ public class PacienteController {
 			results = this.pacienteService.getPacientes();
 		} else {
 			results = this.pacienteService.findPacienteByApellidos(paciente.getApellidos());
-
 		}
 
 		if (results.isEmpty()) {
@@ -96,7 +122,7 @@ public class PacienteController {
 	public String initFindMedForm(final Map<String, Object> model) {
 		int idMedico = this.userService.getCurrentMedico().getId();
 		return "redirect:/pacientes/findByMedico/" + idMedico;
-		}
+	}
 
 	@GetMapping(value = "/pacientes/findByMedico/{medicoId}")
 	public String processFindMedForm(final Map<String, Object> model, @PathVariable("medicoId") final int medicoId) {
@@ -129,8 +155,10 @@ public class PacienteController {
 	@RequestMapping(value = "/pacientes/{pacienteId}/delete")
 	public String borrarPaciente(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 		String view = "/pacientes";
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Optional<Paciente> paciente = this.pacienteService.findPacienteById(pacienteId);
+
 		if (paciente.isPresent()) {
 			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("admin"))) {
 				this.pacienteService.pacienteDelete(pacienteId);
@@ -148,19 +176,29 @@ public class PacienteController {
 	@GetMapping(value = "/pacientes/{pacienteId}/edit")
 	public String initUpdatePacientesForm(@PathVariable("pacienteId") final int pacientesId, final Model model) {
 		Paciente paciente = this.pacienteService.findPacienteById(pacientesId).get();
+		//Paciente paciente = this.pacienteService.getPacienteById(pacientesId);
 		model.addAttribute("paciente", paciente);
-		model.addAttribute(this.medicoService.getMedicos());
+		model.addAttribute("medicoList", this.medicoService.getMedicos());
 		return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 	}
 
 	@PostMapping(value = "/pacientes/{pacienteId}/edit")
 	public String processUpdatePacienteForm(@Valid final Paciente paciente, final BindingResult result, @PathVariable("pacienteId") final int pacienteId) {
-		if (result.hasErrors()) {
+
+		boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("admin"));
+		boolean noTieneContacto = paciente.getN_telefono() == null && paciente.getDomicilio().isEmpty() && paciente.getEmail().isEmpty();
+
+		if (result.hasErrors() || noTieneContacto) {
+			result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
-		} else {
+		} else if (isAdmin) {
 			paciente.setId(pacienteId);
 			this.pacienteService.savePaciente(paciente);
-			//this.pacienteService.savePacienteByMedico(paciente, idMedico);
+			return "redirect:/pacientes/{pacienteId}";
+		} else {
+			int currentMedico = this.userService.getCurrentMedico().getId();
+			paciente.setId(pacienteId);
+			this.pacienteService.savePacienteByMedico(paciente, currentMedico);
 			return "redirect:/pacientes/{pacienteId}";
 		}
 	}

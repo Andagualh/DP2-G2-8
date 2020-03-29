@@ -55,7 +55,13 @@ public class Paciente extends BaseEntity {
 	@Valid
 	private Medico		medico;
 
-	//	@OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
+	//	@NotNull
 	//	@Valid
-	//	private Collection<@Valid Cita>	citas;
+	//	@OneToOne(optional = false, mappedBy = "paciente", cascade = CascadeType.ALL)
+	//	private HistoriaClinica	historiaClinica;
+
+	//	@NotNull
+	//	@Valid
+	//	@OneToMany(mappedBy = "paciente", cascade = CascadeType.REMOVE)
+	//	private Collection<Cita>	citas;
 }
