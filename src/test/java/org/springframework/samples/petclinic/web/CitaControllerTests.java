@@ -179,13 +179,40 @@ class CitaControllerTests{
     @WithMockUser(value = "spring")
         @Test
     void testInitList() throws Exception{
-       given(this.userService.getCurrentMedico().getId())
-       .willReturn(Integer.parseInt(TEST_USER_ID));
+        Medico medic = new Medico();
+        medic.setId(TEST_MEDICO_ID);
+        given(this.userService.getCurrentMedico()).willReturn(medic);
+        
        
         mockMvc.perform(
             get("/citas"))
             .andExpect(status().is3xxRedirection())
             .andExpect(view().name("redirect:/citas/" + TEST_USER_ID)
+        );
+    }
+    
+    @WithMockUser(value = "spring")
+        @Test
+    void listadoCitasSuccess() throws Exception{
+        given(citaService.findCitasByMedicoId(TEST_MEDICO_ID)).willReturn(Lists.newArrayList(new Cita(), new Cita()));
+        
+        mockMvc.perform(
+            get("/citas/{medicoId}", TEST_MEDICO_ID))
+            .andExpect(status().isOk())
+            .andExpect(model().attributeExists("selections"))
+            .andExpect(view().name("citas/listCitas")
+        );
+    }
+    
+    @WithMockUser(value = "spring")
+        @Test
+    void listadoCitasIsEmpty() throws Exception{
+        given(citaService.findCitasByMedicoId(TEST_MEDICO_ID)).willReturn(Lists.newArrayList());
+
+        mockMvc.perform(
+            get("/citas/{medicoId}", TEST_MEDICO_ID))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(view().name("redirect:/")
         );
     }    
 }

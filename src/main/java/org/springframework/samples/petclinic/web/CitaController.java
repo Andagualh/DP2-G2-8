@@ -36,6 +36,8 @@ public class CitaController {
 	@Autowired
 	private UserService userService;
 
+
+	
 	//CUANDO ALGUIEN HAGA EL CITADETAILS POR FAVOR QUE USE ESTA URL EN EL MAPPING: "/citas/citaDetails/{citaId}" 
 	
 	@GetMapping()
