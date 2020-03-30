@@ -69,38 +69,6 @@
 		<spring:param name="pacienteId" value="${paciente.id}" />
 	</spring:url>
 	<a href="${fn:escapeXml(createCitaUrl)}" class="btn btn-default">Crear Cita</a>
-
-        <tr>
-            <th>Email</th>
-            <td><c:out value="${paciente.email}"/></td>
-        </tr>
-        
-        <tr>
-                <%--Must be fixed to properly work, the url is not working as intended--%>
-                <th>Medico Asignado</th>
-                <spring:url value="/medicos/{medico.id}" var="medicoUrl">
-                    <spring:param name="medicoId" value="${paciente.medico.id}"/>
-                </spring:url>
-            <td>    
-                <a href="${fn:escapeXml(medicoUrl)}">${paciente.medico.nombre}&ensp;${paciente.medico.apellidos}</a>
-            </td>
-        </tr>
-    </table>
-    
-    <spring:url value="/pacientes/{pacienteId}/edit" var="editUrl">
-   		<spring:param name="pacienteId" value="${paciente.id}"/>
-    </spring:url>
-    <a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Editar Paciente</a>
-    
-    <spring:url value="/pacientes/{pacienteId}/delete" var="deleteUrl">
-   		<spring:param name="pacienteId" value="${paciente.id}"/>
-    </spring:url>
-    <a href="${fn:escapeXml(deleteUrl)}" class="btn btn-default">Borrar Paciente</a>
-    
-    <spring:url value="/citas/new/{pacienteId}" var="createCitaUrl">
-   		<spring:param name="pacienteId" value="${paciente.id}"/>
-    </spring:url>
-    <a href="${fn:escapeXml(createCitaUrl)}" class="btn btn-default">Crear Cita</a>
     
     <spring:url value="/pacientes/{pacienteId}/historiaclinica" var="historiaClinicaUrl">
    		<spring:param name="pacienteId" value="${paciente.id}"/>

@@ -5,44 +5,7 @@
 <!--  >%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%-->
 <%@ attribute name="name" required="true" rtexprvalue="true" description="Name of the active menu: home, owners, vets or error"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-<style>
-.dropbtn {
-  background-color: #34302d;
-  color: white;
-  padding: 22.2px;
-  font-size: 22.2px;
-  border: none;
-  font-size: 18px;
-  
-}
 
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #f1f1f1;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px #34302d;
-  z-index: 1;
-}
-
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-}
-
-.dropdown-content a:hover {background-color: #ddd;}
-
-.dropdown:hover .dropdown-content {display: block;}
-
-.dropdown:hover .dropbtn {background-color: #6db33f;}
-</style>
 
 <nav class="navbar navbar-default" role="navigation">
 	<div class="container">
@@ -112,17 +75,6 @@
 					<span>Error</span>
 				</petclinic:menuItem>
 
-				<div class="dropdown">
-				  <button class="dropbtn"><span >Clinica</span></button>
-				  <div class="dropdown-content">
-				    <a href="/pacientes">Lista pacientes</a>
-				    <a href="/pacientes/find">Buscar pacientes</a>
-				    <a href="/medicos">Lista de medicos</a>
-				    <a href="/citas">Citas</a>
-					<a href="/pacientes/findByMedico">Mis Paciente</a>
-				  </div>
-				</div>
-
 			</ul>
 
 
@@ -135,7 +87,7 @@
 				</sec:authorize>
 				<sec:authorize access="isAuthenticated()">
 					<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> <span
-							class="glyphicon glyphicon-user"></span>� <strong><sec:authentication property="name" /></strong> <span
+							class="glyphicon glyphicon-user"></span> <strong><sec:authentication property="name" /></strong> <span
 							class="glyphicon glyphicon-chevron-down"></span>
 					</a>
 						<ul class="dropdown-menu">
