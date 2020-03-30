@@ -69,8 +69,8 @@ public class HistoriaClinicaController {
 	public String processCreationForm(@PathVariable("pacienteId") final int pacienteId, final HistoriaClinica historiaclinica, final BindingResult result, final ModelMap model) {
 		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
 		if (result.hasErrors()) {
-			model.put("historiaclinica", historiaclinica);
-			model.put("paciente", paciente);
+			model.addAttribute("historiaclinica", historiaclinica);
+			model.addAttribute("paciente", paciente);
 			return HistoriaClinicaController.VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM;
 		} else if (this.pacienteService.findHistoriaClinicaByPaciente(paciente) != null) {
 			return "redirect:/oups";
@@ -86,8 +86,8 @@ public class HistoriaClinicaController {
 		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
 		HistoriaClinica historiaclinica = this.pacienteService.findHistoriaClinicaByPaciente(paciente);
 		historiaclinica.setPaciente(this.pacienteService.findPacienteById(pacienteId).get());
-		model.addAttribute("historiaclinica", historiaclinica);
-		model.addAttribute("paciente", this.pacienteService.findPacienteById(pacienteId).get());
+		model.put("historiaclinica", historiaclinica);
+		model.put("paciente", this.pacienteService.findPacienteById(pacienteId).get());
 
 		return HistoriaClinicaController.VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM;
 	}

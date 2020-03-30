@@ -35,4 +35,5 @@ public class HistoriaClinicaService {
 	public HistoriaClinica findHistoriaClinicaByPacienteId(final int pacienteid) throws DataAccessException {
 		return this.historiaRepository.findHistoriaClinicaByPacienteId(pacienteid);
 	}
+	
 }
