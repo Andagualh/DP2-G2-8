@@ -64,13 +64,13 @@
 				<li><a href="#" class="dropdown-toggle hvr-bounce-to-bottom" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Pacientes<span class="caret"></span></a>
 						<ul class="dropdown-menu">
 						
-							<li><petclinic:menuItem active="${name eq 'pacientes'}" url="/pacientes/listar"
+							<li><petclinic:menuItem active="${name eq 'pacientes'}" url="/pacientes"
 					title="listar pacientes">
 					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 					<span>Listar Pacientes</span>
 				</petclinic:menuItem></li>
 				
-				<li><petclinic:menuItem active="${name eq 'pacientes'}" url="/pacientes/listarpersonales"
+				<li><petclinic:menuItem active="${name eq 'pacientes'}" url="/pacientes/findByMedico/{idMedico}"
 					title="listar pacientes personales">
 					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 					<span>Listar Pacientes Personales</span>
@@ -82,7 +82,7 @@
 					<span>Crear Paciente</span>
 				</petclinic:menuItem></li>
 				
-				<li><petclinic:menuItem active="${name eq 'pacientes'}" url="/pacientes/buscarpaciente"
+				<li><petclinic:menuItem active="${name eq 'pacientes'}" url="/pacientes/find"
 					title="buscar paciente">
 					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 					<span>Buscar Paciente</span>
@@ -93,19 +93,13 @@
 				<li><a href="#" class="dropdown-toggle hvr-bounce-to-bottom" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Citas<span class="caret"></span></a>
 						<ul class="dropdown-menu">
 						
-							<li><petclinic:menuItem active="${name eq 'citas'}" url="/citas/listar"
+							<li><petclinic:menuItem active="${name eq 'citas'}" url="/citas"
 					title="listar citas">
-					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-					<span>Listar Citas</span>
-				</petclinic:menuItem></li>
-				
-				<li><petclinic:menuItem active="${name eq 'citas'}" url="/citas/listarpersonales"
-					title="listar citas personales">
 					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 					<span>Listar Citas Personales</span>
 				</petclinic:menuItem></li>
 				
-				<li><petclinic:menuItem active="${name eq 'citas'}" url="/citas/listarfecha"
+				<li><petclinic:menuItem active="${name eq 'citas'}" url="/citas/find"
 					title="listar citas por fecha">
 					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 					<span>Listar Citas por Fecha</span>
