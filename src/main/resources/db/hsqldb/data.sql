@@ -100,4 +100,6 @@ INSERT INTO cita VALUES (6, 'nombre9','2023-05-09','Consulta 6',3);
 INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (1,'Descripcion',1);
 INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (2,'Descripcion 2',2);
 INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (3,'Descripcion 3',3);
-
+INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (4,'Descripcion 4',4);
+INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (5,'Descripcion 5',5);
+INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (6,'Descripcion 6',6);
