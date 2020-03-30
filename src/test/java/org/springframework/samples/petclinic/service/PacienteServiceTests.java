@@ -391,4 +391,38 @@ public class PacienteServiceTests {
 		Assert.assertFalse(this.pacienteService.existsPacienteById(idPacienteCreado).isPresent());
 		//Assertions.assert(this.pacienteService.findPacienteById(idPacienteCreado));
 	}
+	
+	@Test
+	public void testPacienteCreate() {
+		int countPacientes = this.pacienteService.pacienteCount();
+		
+		Medico medico = this.createDummyMedico();
+		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
+		
+		this.pacienteService.savePaciente(paciente);
+		
+		Assertions.assertEquals(countPacientes + 1, 7);
+		Assertions.assertNotNull(paciente);
+		Assertions.assertNotNull(paciente.getMedico());
+	}
+	
+	@Test
+	public void testPacienteSaveByMedico() {
+		int countPacientes = this.pacienteService.pacienteCount();
+		Medico medico1 = this.createDummyMedico();
+		Medico medico2 = this.createDummyMedico2();
+		Paciente paciente = this.createDummyPaciente(medico1, new HistoriaClinica());
+
+		int idMedico2 = medico2.getId();
+
+		int idPacienteCreado = paciente.getId();
+
+		int count = this.pacienteService.pacienteCount();
+		Assertions.assertEquals(count, countPacientes + 1);
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
+
+		Assertions.assertThrows(IllegalAccessError.class, () -> {
+			this.pacienteService.savePacienteByMedico(paciente, idMedico2);
+		});
+	}
 }

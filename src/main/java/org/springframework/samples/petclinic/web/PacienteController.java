@@ -137,20 +137,20 @@ public class PacienteController {
 		}
 	}
 
-	@GetMapping(value = "/paciente/save/{pacienteId}")
-	public String savePaciente(@Valid final Paciente paciente, final BindingResult result, final ModelMap modelMap) {
-		String view = "/pacientes";
-
-		if (result.hasErrors()) {
-			modelMap.addAttribute("paciente", paciente);
-			return "pacientes/editPaciente";
-		} else {
-			this.pacienteService.savePacienteByMedico(paciente, 1);
-			modelMap.addAttribute("message", "Paciente guardado exitosamente");
-		}
-
-		return view;
-	}
+//	@GetMapping(value = "/paciente/save/{pacienteId}")
+//	public String savePaciente(@Valid final Paciente paciente, final BindingResult result, final ModelMap modelMap) {
+//		String view = "/pacientes";
+//
+//		if (result.hasErrors()) {
+//			modelMap.addAttribute("paciente", paciente);
+//			return "pacientes/editPaciente";
+//		} else {
+//			this.pacienteService.savePacienteByMedico(paciente, this.userService.getCurrentMedico().getId());
+//			modelMap.addAttribute("message", "Paciente guardado exitosamente");
+//		}
+//
+//		return view;
+//	}
 
 	@RequestMapping(value = "/pacientes/{pacienteId}/delete")
 	public String borrarPaciente(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
@@ -202,5 +202,25 @@ public class PacienteController {
 			return "redirect:/pacientes/{pacienteId}";
 		}
 	}
+	
+	@GetMapping(value = "/pacientes/new")
+	public String initCreationForm(final Map<String, Object> model) {
+		Paciente paciente = new Paciente();
+		model.put("paciente", paciente);
+		model.put("medicoList", this.medicoService.getMedicos());
+		return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
+	}
 
+	@PostMapping(value = "/pacientes/new")
+	public String processCreationForm(@Valid final Paciente paciente, final BindingResult result) {
+		if (result.hasErrors()) {
+			result.getModel().put("medicoList", this.medicoService.getMedicos());
+			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
+		} else {
+			//creating owner, user and authorities
+			this.pacienteService.savePaciente(paciente);
+
+			return "redirect:/pacientes/" + paciente.getId();
+		}
+	}
 }
