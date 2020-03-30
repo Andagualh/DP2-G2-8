@@ -64,8 +64,8 @@ public class CitaController {
 	public String crearCita(@PathVariable("pacienteId") int pacienteId, final ModelMap modelMap) {
 		Cita cita = new Cita();
 		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
-		cita.setPaciente(paciente);
-		cita.setName("paciente");
+		//cita.setPaciente(paciente);
+		//cita.setName("paciente");
 		modelMap.addAttribute("paciente",paciente);
 		modelMap.addAttribute("cita", cita);
 		return "citas/createOrUpdateCitaForm";

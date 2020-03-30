@@ -23,9 +23,9 @@
     <form:form modelAttribute="cita" class="form-horizontal" id="add-cita-form" action="/citas/save">
     
         <div class="form-group has-feedback">
-        	<petclinic:inputField label="Paciente" name="paciente.id"/>
             <petclinic:inputField label="Fecha" name="fecha"/>
-            <petclinic:inputField label="Lugar" name="lugar" />    
+            <petclinic:inputField label="Lugar" name="lugar"/>
+            <input type="hidden" name="paciente" value="${paciente.id}"/>
         </div>
         
         <div class="form-group">
@@ -33,7 +33,7 @@
                 <c:choose>
                     <c:when test="${cita['new']}">
                     	<input type="hidden" name="id" value="${cita.id}">
-                        <button class="btn btn-default" type="submit">Añadir Cita</button>
+                        <button class="btn btn-default" type="submit">Aï¿½adir Cita</button>
                     </c:when>
                     <c:otherwise>
                     	<input type="hidden" name="id" value="${cita.id}">
