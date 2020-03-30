@@ -70,7 +70,7 @@
 					<span>Listar Pacientes</span>
 				</petclinic:menuItem></li>
 				
-				<li><petclinic:menuItem active="${name eq 'pacientes'}" url="/pacientes/findByMedico/{idMedico}"
+				<li><petclinic:menuItem active="${name eq 'pacientes'}" url="/pacientes/findByMedico"
 					title="listar pacientes personales">
 					<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 					<span>Listar Pacientes Personales</span>
