@@ -96,3 +96,6 @@ INSERT INTO cita VALUES (4, 'nombre7','2025-04-09','Consulta 4',2);
 INSERT INTO cita VALUES (5, 'nombre8','2023-05-09','Consulta 5',3);
 INSERT INTO cita VALUES (6, 'nombre9','2023-05-09','Consulta 6',3);
 
+INSERT INTO historiaClinica(id,descripcion,paciente_id)
+VALUES (1,'Descripcion',1);
+

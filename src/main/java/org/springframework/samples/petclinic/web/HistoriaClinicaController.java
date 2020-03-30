@@ -51,9 +51,7 @@ public class HistoriaClinicaController {
 		if (this.pacienteService.findHistoriaClinicaByPaciente(paciente) == null) {
 			HistoriaClinica hc = new HistoriaClinica();
 			historiaclinica = hc;
-			System.out.println("La Historia ES NULL");
 		}
-		System.out.println(historiaclinica);
 		mav.addObject("historiaclinica", historiaclinica);
 		return mav;
 	}
@@ -62,7 +60,6 @@ public class HistoriaClinicaController {
 	public String initCreationForm(@PathVariable("pacienteId") final int pacienteId, final ModelMap model) {
 		HistoriaClinica historiaclinica = new HistoriaClinica();
 		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
-		//paciente.setHistoriaclinica(historiaclinica);
 		model.put("historiaclinica", historiaclinica);
 		model.put("paciente", paciente);
 		return HistoriaClinicaController.VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM;
@@ -78,7 +75,6 @@ public class HistoriaClinicaController {
 		} else if (this.pacienteService.findHistoriaClinicaByPaciente(paciente) != null) {
 			return "redirect:/oups";
 		} else {
-			//paciente.setHistoriaclinica(historiaclinica);
 			historiaclinica.setPaciente(paciente);
 			this.historiaclinicaService.saveHistoriaClinica(historiaclinica);
 			return "redirect:/pacientes/{pacienteId}";

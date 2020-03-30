@@ -5,14 +5,17 @@ import java.util.Collection;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
 
 @Entity
 @Data
+@Table(name = "historiaclinica")
 public class HistoriaClinica extends BaseEntity {
 
 	private String descripcion;
@@ -31,6 +34,7 @@ public class HistoriaClinica extends BaseEntity {
 
 	@OneToOne(cascade = CascadeType.ALL)
 	@NotNull
+	@JoinColumn(name = "paciente_id")
 	private Paciente			paciente;
 
 	@OneToMany(mappedBy = "informe")
