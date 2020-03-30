@@ -66,13 +66,55 @@ class CitaControllerTests{
     private static final int TEST_PACIENTE_ID = 1;
     private static final String TEST_USER_ID = "1";
     private static final int TEST_CITA_ID = 1;
+    private static final String TEST_MEDICOUSER_ID = "medico1";
+    
+    private Paciente            javier;
+
+    private Medico                medico1;
+
+    private User                medico1User;
+
+    private Authorities            authorities;
 
     @BeforeEach
     void setup(){
+
+
+        this.medico1 = new Medico();
+        this.medico1.setId(TEST_MEDICO_ID);
+        this.medico1.setNombre("Medico 2");
+        this.medico1.setApellidos("Apellidos");
+        this.medico1.setDNI("12345678Z");
+        this.medico1.setN_telefono("123456789");
+        this.medico1.setDomicilio("Domicilio");
         
-        given(this.medicoService.getMedicoById(TEST_MEDICO_ID)).willReturn(new Medico());
-        given(this.userService.findUserByUsername(TEST_USER_ID)).willReturn(Optional.of(new User()));
-        given(this.pacienteService.findPacienteById(TEST_PACIENTE_ID)).willReturn(Optional.of(new Paciente()));
+        this.medico1User = new User();
+        this.medico1User.setUsername(TEST_MEDICOUSER_ID);
+        this.medico1User.setPassword("medico1");
+        this.medico1User.setEnabled(true);
+        
+        this.medico1.setUser(this.medico1User);
+        this.medico1.getUser().setEnabled(true);
+        
+        this.authorities = new Authorities();
+        this.authorities.setUsername(TEST_MEDICOUSER_ID);
+        this.authorities.setAuthority("medico");
+
+        this.javier = new Paciente();
+        this.javier.setId(TEST_PACIENTE_ID);
+        this.javier.setNombre("Javier");
+        this.javier.setApellidos("Silva");
+        this.javier.setF_nacimiento(LocalDate.of(1997, 6, 8));
+        this.javier.setDNI("12345678Z");
+        this.javier.setDomicilio("Ecija");
+        this.javier.setN_telefono(612345987);
+        this.javier.setEmail("javier_silva@gmail.com");
+        this.javier.setF_alta(LocalDate.now());
+        this.javier.setMedico(this.medico1);
+        
+        given(this.medicoService.getMedicoById(TEST_MEDICO_ID)).willReturn(this.medico1);
+        given(this.userService.findUserByUsername(TEST_USER_ID)).willReturn(Optional.of(this.medico1User));
+        given(this.pacienteService.findPacienteById(TEST_PACIENTE_ID)).willReturn(Optional.of(this.javier));
         given(this.citaService.findCitaById(TEST_CITA_ID)).willReturn(Optional.of(new Cita()));
     }
 
@@ -91,6 +133,17 @@ class CitaControllerTests{
         mockMvc.perform(post("/citas/save")
             .with(csrf())
             .param("paciente.id", Integer.toString(TEST_PACIENTE_ID))
+            .param("paciente.nombre", "test")
+            .param("paciente.apellidos", "test")
+            .param("paciente.f_nacimiento", "1997/09/09")
+            .param("paciente.f_alta", "2020/08/08")
+            .param("paciente.DNI", "12345689Q")
+            .param("paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
+            .param("paciente.medico.nombre", "test")
+            .param("paciente.medico.apellidos", "test")
+            .param("paciente.medico.domicilio", "test")
+            .param("paciente.medico.user.username", "test")
+            .param("paciente.medico.user.password", "test")
             .param("fecha","2020-08-08")
             .param("lugar","Seville"))
             .andExpect(status().is3xxRedirection())
