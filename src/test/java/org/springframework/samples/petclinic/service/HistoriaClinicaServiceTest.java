@@ -70,7 +70,7 @@ public class HistoriaClinicaServiceTest {
 	@Test
 	void testCountWithInitialData() {
 		int count = historiaClinicaService.historiaClinicaCount();
-		assertEquals(count,3);
+		assertEquals(count,6);
 	}
 
 	@Test
@@ -88,7 +88,7 @@ public class HistoriaClinicaServiceTest {
 		
 		int count = this.historiaClinicaService.historiaClinicaCount();
 		
-		Assertions.assertEquals(count, 4);
+		Assertions.assertEquals(count, 7);
 		
 		
 	}
