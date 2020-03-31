@@ -23,8 +23,8 @@
     <form:form modelAttribute="cita" class="form-horizontal" id="add-cita-form" action="/citas/save">
     
         <div class="form-group has-feedback">
-            <petclinic:inputField label="Fecha" name="fecha"/>
             <petclinic:inputField label="Lugar" name="lugar"/>
+            <petclinic:inputField label="Fecha" name="fecha"/>
             <input type="hidden" name="paciente" value="${paciente.id}"/>
         </div>
         
