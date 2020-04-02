@@ -7,13 +7,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Cita;
-
 import org.springframework.samples.petclinic.model.Paciente;
-
 import org.springframework.samples.petclinic.service.CitaService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;

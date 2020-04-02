@@ -24,5 +24,5 @@ public class Informe extends NamedEntity {
 
 	@ManyToOne
 	@JoinColumn(name = "historia_clinica_id")
-	private Informe	informe;
+	private HistoriaClinica	historiaClinica;
 }
