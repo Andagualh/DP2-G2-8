@@ -7,13 +7,10 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Cita;
-
 import org.springframework.samples.petclinic.model.Paciente;
-
 import org.springframework.samples.petclinic.service.CitaService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
@@ -34,52 +31,49 @@ public class CitaController {
 	@Autowired
 	private PacienteService	pacienteService;
 	@Autowired
-	private UserService userService;
+	private UserService		userService;
 
 
-	
-	//CUANDO ALGUIEN HAGA EL CITADETAILS POR FAVOR QUE USE ESTA URL EN EL MAPPING: "/citas/citaDetails/{citaId}" 
-	
+	//CUANDO ALGUIEN HAGA EL CITADETAILS POR FAVOR QUE USE ESTA URL EN EL MAPPING: "/citas/citaDetails/{citaId}"
+
 	@GetMapping()
-	public String initList(ModelMap modelMap){
+	public String initList(final ModelMap modelMap) {
 		int idMedico = this.userService.getCurrentMedico().getId();
 		return "redirect:/citas/" + idMedico;
 	}
 
-	@GetMapping(path="/{medicoId}")
-	public String listadoCitas(ModelMap modelMap, @PathVariable("medicoId") int medicoId) {
+	@GetMapping(path = "/{medicoId}")
+	public String listadoCitas(final ModelMap modelMap, @PathVariable("medicoId") final int medicoId) {
 		String vista = "citas/listCitas";
-		Collection<Cita> citas = citaService.findCitasByMedicoId(medicoId);
+		Collection<Cita> citas = this.citaService.findCitasByMedicoId(medicoId);
 		if (citas.isEmpty()) {
 			//TODO: Si no se han encontrado citas devuelve al index, pensad en una alternativa a esto como un popup o pagina que indique no se ha encontrado
 			return "redirect:/";
-		}else {
+		} else {
 			modelMap.put("selections", citas);
 			return vista;
 		}
 
 	}
 
-	@GetMapping(path ="/new/{pacienteId}")
-	public String crearCita(@PathVariable("pacienteId") int pacienteId, final ModelMap modelMap) {
+	@GetMapping(path = "/new/{pacienteId}")
+	public String crearCita(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 		Cita cita = new Cita();
 		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
 		//cita.setPaciente(paciente);
 		//cita.setName("paciente");
-		modelMap.addAttribute("paciente",paciente);
+		modelMap.addAttribute("paciente", paciente);
 		modelMap.addAttribute("cita", cita);
 		return "citas/createOrUpdateCitaForm";
 	}
 
-	@PostMapping(path ="/save")
+	@PostMapping(path = "/save")
 	public String salvarCita(@Valid final Cita cita, final BindingResult result, final ModelMap modelMap) {
-		
 		if (result.hasErrors()) {
 			modelMap.addAttribute("cita", cita);
+			modelMap.addAttribute("paciente", cita.getPaciente());
 			return "citas/createOrUpdateCitaForm";
 		} else {
-			Paciente paciente = pacienteService.findPacienteById(cita.getPaciente().getId()).get();
-			cita.setPaciente(paciente);
 			this.citaService.save(cita);
 			modelMap.addAttribute("message", "Cita successfully created");
 			return "redirect:/citas";
@@ -87,10 +81,10 @@ public class CitaController {
 	}
 
 	@GetMapping(path = "/delete/{citaId}")
-	public String borrarCita(@PathVariable("citaId") int citaId, final ModelMap modelMap) {
-		
+	public String borrarCita(@PathVariable("citaId") final int citaId, final ModelMap modelMap) {
+
 		Optional<Cita> cita = this.citaService.findCitaById(citaId);
-		
+
 		if (cita.isPresent()) {
 			this.citaService.delete(cita.get());
 			modelMap.addAttribute("message", "Cita successfully deleted");
@@ -101,15 +95,15 @@ public class CitaController {
 	}
 
 	@GetMapping(value = "/find")
-	public String initFindForm(Map<String, Object> model) {
+	public String initFindForm(final Map<String, Object> model) {
 		model.put("cita", new Cita());
 		return "citas/findCitas";
 	}
 
 	//TODO: Falta el caso para una sola cita, que muestre directamente los detalles, no se ha incluido porque genera conflicto con otro método
-	//TODO: Cuando este hecho el details se incluye	
+	//TODO: Cuando este hecho el details se incluye
 	@GetMapping(value = "/porfecha")
-	public String processFindForm(Cita cita, BindingResult result, Map<String, Object> model) {
+	public String processFindForm(final Cita cita, final BindingResult result, final Map<String, Object> model) {
 
 		// allow parameterless GET request for /citas to return all records
 		if (cita.getFecha() == null) {
@@ -122,8 +116,7 @@ public class CitaController {
 			// no citas found
 			result.rejectValue("fecha", "notFound", "not found");
 			return "citas/findCitas";
-		}
-		else {
+		} else {
 			// multiple citas found
 			model.put("selections", results);
 			return "citas/listCitas";

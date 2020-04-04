@@ -15,6 +15,7 @@
         	<th style="width: 200px;">Lugar</th>
             <th style="width: 200px;">Paciente</th>
             <th style="width: 150px;">Acciones</th>
+            <th style="width: 150px;"></th>
         </tr>
         </thead>
         <tbody>
@@ -33,11 +34,17 @@
                     <a href="${fn:escapeXml(pacienteUrl)}"><c:out value="${cita.paciente.nombre} ${cita.paciente.apellidos}"/></a>
                 </td>
                 <td>
+                    <spring:url value="/informes/new/{citaId}" var="informeNewUrl">
+						<spring:param name="citaId" value="${citas.id}" />
+					</spring:url> 
+					<a href="${fn:escapeXml(informeNewUrl)}">Crear Informe</a>
+                </td>
+                <td>
                 	<spring:url value="/citas/delete/{citaId}" var="citaDeleteUrl">
                         <spring:param name="citaId" value="${cita.id}"/>
                     </spring:url>
                     <a href="${fn:escapeXml(citaDeleteUrl)}">Borrar Cita</a>
-                </td>         
+                </td>      
  
             </tr>
         </c:forEach>

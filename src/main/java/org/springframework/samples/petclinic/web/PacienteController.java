@@ -10,6 +10,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Cita;
+import org.springframework.samples.petclinic.model.HistoriaClinica;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.CitaService;
@@ -137,20 +138,20 @@ public class PacienteController {
 		}
 	}
 
-//	@GetMapping(value = "/paciente/save/{pacienteId}")
-//	public String savePaciente(@Valid final Paciente paciente, final BindingResult result, final ModelMap modelMap) {
-//		String view = "/pacientes";
-//
-//		if (result.hasErrors()) {
-//			modelMap.addAttribute("paciente", paciente);
-//			return "pacientes/editPaciente";
-//		} else {
-//			this.pacienteService.savePacienteByMedico(paciente, this.userService.getCurrentMedico().getId());
-//			modelMap.addAttribute("message", "Paciente guardado exitosamente");
-//		}
-//
-//		return view;
-//	}
+	//	@GetMapping(value = "/paciente/save/{pacienteId}")
+	//	public String savePaciente(@Valid final Paciente paciente, final BindingResult result, final ModelMap modelMap) {
+	//		String view = "/pacientes";
+	//
+	//		if (result.hasErrors()) {
+	//			modelMap.addAttribute("paciente", paciente);
+	//			return "pacientes/editPaciente";
+	//		} else {
+	//			this.pacienteService.savePacienteByMedico(paciente, this.userService.getCurrentMedico().getId());
+	//			modelMap.addAttribute("message", "Paciente guardado exitosamente");
+	//		}
+	//
+	//		return view;
+	//	}
 
 	@RequestMapping(value = "/pacientes/{pacienteId}/delete")
 	public String borrarPaciente(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
@@ -179,16 +180,19 @@ public class PacienteController {
 		//Paciente paciente = this.pacienteService.getPacienteById(pacientesId);
 		model.addAttribute("paciente", paciente);
 		model.addAttribute("medicoList", this.medicoService.getMedicos());
+		model.addAttribute("isNewPaciente", false);
 		return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 	}
 
 	@PostMapping(value = "/pacientes/{pacienteId}/edit")
-	public String processUpdatePacienteForm(@Valid final Paciente paciente, final BindingResult result, @PathVariable("pacienteId") final int pacienteId) {
+	public String processUpdatePacienteForm(@Valid final Paciente paciente, final BindingResult result, @PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 
 		boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("admin"));
 		boolean noTieneContacto = paciente.getN_telefono() == null && paciente.getDomicilio().isEmpty() && paciente.getEmail().isEmpty();
 
 		if (result.hasErrors() || noTieneContacto) {
+			modelMap.addAttribute("medicoList", this.medicoService.getMedicos());
+			modelMap.addAttribute("isNewPaciente", false);
 			result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else if (isAdmin) {
@@ -202,24 +206,34 @@ public class PacienteController {
 			return "redirect:/pacientes/{pacienteId}";
 		}
 	}
-	
+
 	@GetMapping(value = "/pacientes/new")
 	public String initCreationForm(final Map<String, Object> model) {
 		Paciente paciente = new Paciente();
+		paciente.setMedico(this.userService.getCurrentMedico());
+		paciente.setF_alta(LocalDate.now());
 		model.put("paciente", paciente);
 		model.put("medicoList", this.medicoService.getMedicos());
+		model.put("isNewPaciente", true);
+
 		return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 	}
 
 	@PostMapping(value = "/pacientes/new")
-	public String processCreationForm(@Valid final Paciente paciente, final BindingResult result) {
-		if (result.hasErrors()) {
-			result.getModel().put("medicoList", this.medicoService.getMedicos());
+	public String processCreationForm(@Valid final Paciente paciente, final BindingResult result, final ModelMap modelMap) {
+		boolean noTieneContacto = paciente.getN_telefono() == null && paciente.getDomicilio().isEmpty() && paciente.getEmail().isEmpty();
+
+		if (result.hasErrors() || noTieneContacto) {
+			modelMap.addAttribute("medicoList", this.medicoService.getMedicos());
+			modelMap.addAttribute("isNewPaciente", true);
+			result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else {
 			//creating owner, user and authorities
 			this.pacienteService.savePaciente(paciente);
-
+			HistoriaClinica hc = new HistoriaClinica();
+			hc.setPaciente(paciente);
+			this.historiaClinicaService.saveHistoriaClinica(hc);
 			return "redirect:/pacientes/" + paciente.getId();
 		}
 	}

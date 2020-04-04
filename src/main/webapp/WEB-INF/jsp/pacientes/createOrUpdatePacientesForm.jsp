@@ -7,20 +7,36 @@
 <%@ taglib prefix="petclinic" tagdir="/WEB-INF/tags"%>
 
 <petclinic:layout pageName="pacientes">
+	<jsp:attribute name="customScript">
+        <script>
+									$(function() {
+										$("#f_nacimiento").datepicker({
+											dateFormat : 'yy/mm/dd'
+										});
+									});
+									
+									$(function() {
+										$("#f_alta").datepicker({
+											dateFormat : 'yy/mm/dd'
+										});
+									});
+								</script>
+    </jsp:attribute>
+	<jsp:body>
 	<h2>
-		<c:if test="${paciente['new']}">New </c:if>
-		paciente
+		<c:if test="${isNewPaciente}">New </c:if>
+		Paciente
 	</h2>
 	<form:form modelAttribute="paciente" class="form-horizontal" id="add-paciente-form">
 		<div class="form-group has-feedback">
 			<petclinic:inputField label="First Name" name="nombre" />
 			<petclinic:inputField label="Last Name" name="apellidos" />
-			<petclinic:inputField label="Birth Date" name="f_nacimiento" />
+			<petclinic:customDateInput label="Fecha Nacimiento" name="f_nacimiento"/>
 			<petclinic:inputField label="DNI" name="DNI" />
 			<petclinic:inputField label="Address" name="domicilio" />
 			<petclinic:inputField label="Telephone" name="n_telefono" />
 			<petclinic:inputField label="Email" name="email" />
-			<petclinic:inputField label="Fecha alta" name="f_alta" />
+			<petclinic:customDateInput label="Fecha Nacimiento" name="f_alta"/>
 						
 			<spring:bind path="medico">
 				<c:set var="cssGroup" value="form-group ${status.error ? 'error' : '' }" />
@@ -29,14 +45,14 @@
 					<label class="col-sm-2 control-label">Medico</label>
 
 					<div class="col-sm-10">
-						<form:select  class="form-control" path="medico">
+						<form:select class="form-control" path="medico">
 						<c:forEach var="m" items="${medicoList}">
 						    <c:choose>
 						        <c:when test="${paciente.medico.id==m.id}">
-						            <form:option selected="true" value="${m.id}" label="${m.nombre} ${m.apellidos}"/>
+						            <form:option selected="true" value="${m.id}" label="${m.nombre} ${m.apellidos}" />
 						        </c:when>
 						        <c:otherwise>
-						            <form:option value="${m.id}" label="${m.nombre} ${m.apellidos}"/>
+						            <form:option value="${m.id}" label="${m.nombre} ${m.apellidos}" />
 						        </c:otherwise>
 						    </c:choose>
 						</c:forEach>
@@ -57,7 +73,7 @@
 		<div class="form-group">
 			<div class="col-sm-offset-2 col-sm-10">
 				<c:choose>
-					<c:when test="${paciente['new']}">
+					<c:when test="${isNewPaciente}">
 						<button class="btn btn-default" type="submit">Add paciente</button>
 					</c:when>
 					<c:otherwise>
@@ -67,4 +83,6 @@
 			</div>
 		</div>
 	</form:form>
+	</jsp:body>
+
 </petclinic:layout>

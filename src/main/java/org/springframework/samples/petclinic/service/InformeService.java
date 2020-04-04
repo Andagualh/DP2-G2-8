@@ -2,8 +2,11 @@
 package org.springframework.samples.petclinic.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.samples.petclinic.model.Informe;
 import org.springframework.samples.petclinic.repository.InformeRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class InformeService {
@@ -11,4 +14,9 @@ public class InformeService {
 	@Autowired
 	private InformeRepository informeRepository;
 
+
+	@Transactional
+	public void saveInforme(final Informe informe) throws DataAccessException {
+		this.informeRepository.save(informe);
+	}
 }
