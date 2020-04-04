@@ -20,6 +20,7 @@ public class Cita extends NamedEntity {
 	//@Future
 	@NotNull
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@NotNull
 	private LocalDate	fecha;
 
 	@NotEmpty

@@ -168,47 +168,13 @@ public class CitaServiceTest {
 		Assertions.assertEquals(countCitas, 7);
 
 	}
-	//TODO: Test not working, needs to be fixed
+	
 	@Test
 	public void testDeleteCita() {
-
-		Medico medico = new Medico();
-		Paciente paciente = new Paciente();
 		
+		this.citaService.delete(this.citaService.findCitaById(3).get());
 
-		medico.setNombre("Medico 1");
-		medico.setApellidos("Apellidos");
-		medico.setDNI("12345678A");
-		medico.setN_telefono("123456789");
-		medico.setDomicilio("Domicilio");
-		
-
-		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
-
-		paciente.setNombre("Paciente 1");
-		paciente.setApellidos("Apellidos");
-		paciente.setF_nacimiento(LocalDate.of(1996, 01, 12));
-		paciente.setDNI("12345678A");
-		paciente.setDomicilio("Sevilla");
-		paciente.setEmail("paciente@email.com");
-		paciente.setF_alta(LocalDate.now());
-		paciente.setMedico(this.medicoService.getMedicoById(idMedicoPaciente));
-
-		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
-
-		Cita cita = new Cita();
-
-		cita.setPaciente(this.pacienteService.findPacienteById(idPacienteCreado).get());
-		cita.setFecha(LocalDate.of(2020, 05, 26));
-		cita.setLugar("Consulta 2");
-
-		this.citaService.save(cita);
-
-		Assertions.assertEquals(this.citaService.citaCount(), 7);
-
-		this.citaService.delete(this.citaService.findCitaById(1).get());
-
-		Assertions.assertEquals(this.citaService.citaCount(), 6);
+		Assertions.assertEquals(this.citaService.citaCount(),5);
 
 	}
 	
