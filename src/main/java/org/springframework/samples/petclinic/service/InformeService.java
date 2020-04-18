@@ -30,7 +30,7 @@ public class InformeService {
 	
 	@Transactional
 	public void deleteInforme(final int id) {
-		this.informeRepository.deleteInforme(id);
+		this.informeRepository.deleteById(id);
 	}
 	
 }

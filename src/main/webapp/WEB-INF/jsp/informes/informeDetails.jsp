@@ -21,7 +21,6 @@
 		</tr>
 
 		<tr>
-			<%--Must be fixed to properly work, the url is not working as intended--%>
 			<th>Paciente Asignado</th>
 			<spring:url value="/pacientes/{paciente.id}" var="pacienteUrl">
 				<spring:param name="pacienteId" value="${paciente.id}" />
@@ -30,22 +29,12 @@
 		</tr>
 	</table>
 
-	<c:if test="${canBeDeleted==true}">
-		<spring:url value="/pacientes/{pacienteId}/delete" var="deleteUrl">
-			<spring:param name="pacienteId" value="${paciente.id}" />
+	<c:if test="${canbedeleted==false}">
+		<spring:url value="citas/{citaId}/informes/{informeId}" var="deleteUrl">
+			<spring:param name="informeId" value="${informe.id}" />
+			<spring:param name="citaId" value="${informe.cita.id}"/>
 		</spring:url>
-		<a href="${fn:escapeXml(deleteUrl)}" class="btn btn-default">Borrar Paciente</a>
+		<a href="${fn:escapeXml(deleteUrl)}" class="btn btn-default">Borrar Informe</a>
 	</c:if>
-
-	<spring:url value="/citas/new/{pacienteId}" var="createCitaUrl">
-		<spring:param name="pacienteId" value="${paciente.id}" />
-	</spring:url>
-	<a href="${fn:escapeXml(createCitaUrl)}" class="btn btn-default">Crear Cita</a>
-    
-    <spring:url value="/pacientes/{pacienteId}/historiaclinica" var="historiaClinicaUrl">
-   		<spring:param name="pacienteId" value="${paciente.id}"/>
-    </spring:url>
-    <a href="${fn:escapeXml(historiaClinicaUrl)}" class="btn btn-default">Historia Clinica</a>
-    
 
 </petclinic:layout>

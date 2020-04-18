@@ -105,7 +105,9 @@ public class InformeController {
 		Cita cita = this.citaService.findCitaById(informe.getCita().getId()).get();
 		Paciente paciente = cita.getPaciente();
 		mav.addObject(paciente);
-		
+
+		Boolean canBeDeleted = informe.getCita().getFecha().isBefore(LocalDate.now().plusDays(1)) && informe.getHistoriaClinica() == null;
+		mav.getModel().put("canbedeleted", canBeDeleted);
 		return mav;
 	}
 	

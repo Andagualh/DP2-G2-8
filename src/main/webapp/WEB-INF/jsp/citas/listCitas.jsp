@@ -38,13 +38,14 @@
 	                <c:choose>
 	                    <c:when test="${cita.informe != null}">
 							<spring:url value="{citaId}/informes/{informeId}" var="informeUrl">
-						<spring:param name="informeId" value="${informe.id}" />
+                            <spring:param name="citaId" value="${cita.id}"/>
+                            <spring:param name="informeId" value="${cita.informe.id}" />
 					</spring:url> 
 					<a href="${fn:escapeXml(informeUrl)}">Informe</a>
 	                    </c:when>
 	                    <c:otherwise>
 							<spring:url value="{citaId}/informes/new" var="informeUrl">
-								<spring:param name="citaId" value="${citas.id}" />
+								<spring:param name="citaId" value="${cita.id}" />
 						    </spring:url>
 							<a href="${fn:escapeXml(informeUrl)}">Crear Informe</a>
 	                    </c:otherwise>
