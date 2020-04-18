@@ -1,6 +1,8 @@
 
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,10 +67,15 @@ public class InformeController {
 
 	@GetMapping(value = "/informes/new")
 	public String initCreationForm(final Cita cita, final ModelMap model) {
-		Informe informe = new Informe();
-		informe.setCita(cita);
-		model.put("informe", informe);
-		return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
+		LocalDate today = LocalDate.now();
+		if (cita.getFecha().equals(today)) {
+			Informe informe = new Informe();
+			informe.setCita(cita);
+			model.put("informe", informe);
+			return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
+		} else {
+			return "redirect:/citas/" + cita.getPaciente().getMedico().getId();
+		}
 	}
 
 	@PostMapping(value = "/informes/new")

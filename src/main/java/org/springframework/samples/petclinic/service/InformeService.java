@@ -1,6 +1,7 @@
 
 package org.springframework.samples.petclinic.service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ public class InformeService {
 
 	@Transactional
 	public void saveInforme(final Informe informe) throws DataAccessException {
-		this.informeRepository.save(informe);
+		if (informe.getCita().getFecha() == LocalDate.now()) {
+			this.informeRepository.save(informe);
+		}
 	}
 }

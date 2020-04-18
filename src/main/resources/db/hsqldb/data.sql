@@ -96,7 +96,7 @@ INSERT INTO cita VALUES (3, 'nombre6','2021-03-10','Consulta 3',2);
 INSERT INTO cita VALUES (4, 'nombre7','2025-04-09','Consulta 4',2);
 INSERT INTO cita VALUES (5, 'nombre8','2023-05-09','Consulta 5',3);
 INSERT INTO cita VALUES (6, 'nombre9','2023-05-09','Consulta 6',3);
-INSERT INTO cita VALUES (7, 'Cita Test Informe','2023-04-18','Consulta Test Informe',1);
+INSERT INTO cita VALUES (7, 'Cita Test Informe','2020-04-18','Consulta Test Informe',1);
 
 INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (1,'Descripcion',1);
 INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (2,'Descripcion 2',2);

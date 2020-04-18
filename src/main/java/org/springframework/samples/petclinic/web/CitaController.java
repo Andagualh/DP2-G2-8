@@ -51,6 +51,7 @@ public class CitaController {
 			return "redirect:/";
 		} else {
 			modelMap.put("selections", citas);
+			modelMap.put("dateOfToday", LocalDate.now());
 			return vista;
 		}
 

@@ -33,17 +33,20 @@
                     </spring:url>
                     <a href="${fn:escapeXml(pacienteUrl)}"><c:out value="${cita.paciente.nombre} ${cita.paciente.apellidos}"/></a>
                 </td>
-                <td>              
+                <td>
 	                <c:choose>
 	                    <c:when test="${cita.informe != null}">
 							<c:out value="TODO Ver Informe"></c:out>
 	                    </c:when>
-	                    <c:otherwise>
+	                   	<c:when test="${cita.fecha == dateOfToday}">
 							<spring:url value="{citaId}/informes/new" var="informeUrl">
-								<spring:param name="citaId" value="${citas.id}" />
+								<spring:param name="citaId" value="${cita.id}" />
 						    </spring:url>
-							<a href="${fn:escapeXml(informeUrl)}">Crear Informe</a>
-	                    </c:otherwise>
+							<a href="${fn:escapeXml(informeUrl)}">Crear Informe</a>	                    
+						</c:when>
+						<c:otherwise>
+							<c:out value="No tiene informe"></c:out>                    
+						</c:otherwise>
                 </c:choose>
                 </td>
                 <td>
