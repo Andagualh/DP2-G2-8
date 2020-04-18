@@ -1,7 +1,15 @@
 
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.petclinic.model.Cita;
+import org.springframework.samples.petclinic.model.Informe;
+import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.CitaService;
 import org.springframework.samples.petclinic.service.HistoriaClinicaService;
@@ -10,8 +18,12 @@ import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class InformeController {
@@ -66,4 +78,36 @@ public class InformeController {
 	//                    return "redirect:/owners/{ownerId}";
 	//		}
 	//	}
+	
+	@GetMapping(path = "/delete/{informeId}")
+	public String borrarInforme(@PathVariable("informeId") final int informeId, final ModelMap modelMap) {
+		Optional<Informe> informe = this.informeService.findInformeById(informeId);
+		LocalDate today = LocalDate.now();
+		
+		if((informe.get().getCita().getFecha().isBefore(today.plusDays(1))) && informe.get().getHistoriaClinica() == null) {
+			this.informeService.deleteInforme(informeId);
+			modelMap.addAttribute("message", "Informe succesfully deleted");
+		}else if(!(informe.get().getCita().getFecha().isBefore(today.plusDays(1)))){
+			modelMap.addAttribute("message", "Informe is older than 24 hours");
+		}else if(!(informe.get().getHistoriaClinica() == null)) {
+			modelMap.addAttribute("message", "Informe has not a clinic history");
+		}
+		return "redirect:/informe";
+	}
+	
+	@GetMapping(value = "/informes/{informeId}")
+	public ModelAndView showInforme(@PathVariable("informeId") final int informeId) {
+		ModelAndView mav = new ModelAndView("informes/informeDetails");
+		Informe informe = this.informeService.findInformeById(informeId).get();
+		
+		mav.addObject(informe);
+		
+		Cita cita = this.citaService.findCitaById(informe.getCita().getId()).get();
+		Paciente paciente = cita.getPaciente();
+		mav.addObject(paciente);
+		
+		return mav;
+	}
+	
+	
 }
