@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Informe;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/citas/{citaId}")
@@ -79,7 +81,7 @@ public class InformeController {
 	}
 
 	@PostMapping(value = "/informes/new")
-	public String processCreationForm(final Cita cita, @Valid final Informe informe, final BindingResult result, final ModelMap model) {
+	public String processCreationForm(final Cita cita, @Valid final Informe informe, final BindingResult result, final ModelMap model) throws DataAccessException, IllegalAccessException {
 		if (result.hasErrors()) {
 			model.put("informe", informe);
 			return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
@@ -88,6 +90,14 @@ public class InformeController {
 			this.informeService.saveInforme(informe);
 		}
 		return "redirect:/citas/" + informe.getCita().getPaciente().getMedico().getId();
+	}
+
+	@GetMapping("/informes/{informeId}")
+	public ModelAndView showInforme(@PathVariable("informeId") final int informeId) {
+		ModelAndView mav = new ModelAndView("informes/informeDetails");
+		System.out.println("informeDetails" + this.informeService.findInformeById(informeId).get());
+		mav.addObject(this.informeService.findInformeById(informeId).get());
+		return mav;
 	}
 
 }

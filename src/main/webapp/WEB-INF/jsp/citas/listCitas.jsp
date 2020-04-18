@@ -36,7 +36,11 @@
                 <td>
 	                <c:choose>
 	                    <c:when test="${cita.informe != null}">
-							<c:out value="TODO Ver Informe"></c:out>
+	                    	<spring:url value="{citaId}/informes/{informeId}" var="informeDetailsUrl">
+								<spring:param name="citaId" value="${cita.id}" />
+								<spring:param name="informeId" value="${cita.informe.id}" />
+						    </spring:url>
+							<a href="${fn:escapeXml(informeDetailsUrl)}">Ver Informe</a>	   
 	                    </c:when>
 	                   	<c:when test="${cita.fecha == dateOfToday}">
 							<spring:url value="{citaId}/informes/new" var="informeUrl">

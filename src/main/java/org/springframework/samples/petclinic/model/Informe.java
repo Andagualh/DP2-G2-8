@@ -9,9 +9,17 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-@Data
+// @Data
+
+@EqualsAndHashCode
+@RequiredArgsConstructor
+@Getter
+@Setter
 @Entity
 public class Informe extends NamedEntity {
 

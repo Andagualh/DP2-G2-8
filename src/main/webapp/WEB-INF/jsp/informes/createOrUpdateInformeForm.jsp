@@ -14,7 +14,6 @@
         <div class="form-group has-feedback">
             <petclinic:inputField label="Motivo de Consulta" name="motivo_consulta"/>
             <petclinic:inputField label="Diagnostico" name="diagnostico"/>
-            <c:out value="${informe.cita}"/>
             <input type="hidden" name="cita" value="${cita.id}" />
         </div>
         <div class="form-group">
