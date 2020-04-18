@@ -15,12 +15,12 @@ public class InformeService {
 
 	@Autowired
 	private InformeRepository informeRepository;
-	
+
+
 	@Transactional(readOnly = true)
 	public Optional<Informe> findInformeById(final int id) throws DataAccessException {
 		return this.informeRepository.findById(id);
 	}
-
 
 	@Transactional
 	public void saveInforme(final Informe informe) throws DataAccessException {

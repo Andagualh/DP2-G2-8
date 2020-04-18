@@ -6,6 +6,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
@@ -14,8 +15,10 @@ import lombok.Data;
 @Entity
 public class Informe extends NamedEntity {
 
+	@NotEmpty
 	private String			motivo_consulta;
 
+	@NotEmpty
 	private String			diagnostico;
 
 	@Valid
