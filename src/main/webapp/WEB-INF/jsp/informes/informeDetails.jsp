@@ -29,8 +29,8 @@
 		</tr>
 	</table>
 
-	<c:if test="${canbedeleted==false}">
-		<spring:url value="citas/{citaId}/informes/{informeId}" var="deleteUrl">
+	<c:if test="${cannotbedeleted==false}">
+		<spring:url value="/citas/{citaId}/informes/delete/{informeId}" var="deleteUrl">
 			<spring:param name="informeId" value="${informe.id}" />
 			<spring:param name="citaId" value="${informe.cita.id}"/>
 		</spring:url>

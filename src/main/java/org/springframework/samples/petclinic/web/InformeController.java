@@ -79,20 +79,17 @@ public class InformeController {
 	public void initCitaBinder(final WebDataBinder dataBinder) {
 		dataBinder.setDisallowedFields("id");
 	}	
-	@GetMapping(path = "/delete/{informeId}")
+	@GetMapping(path = "informes/delete/{informeId}")
 	public String borrarInforme(@PathVariable("informeId") final int informeId, final ModelMap modelMap) {
 		Optional<Informe> informe = this.informeService.findInformeById(informeId);
-		LocalDate today = LocalDate.now();
 		
-		if((informe.get().getCita().getFecha().isBefore(today.plusDays(1))) && informe.get().getHistoriaClinica() == null) {
+		if(informe.get().getHistoriaClinica() == null) {
 			this.informeService.deleteInforme(informeId);
 			modelMap.addAttribute("message", "Informe succesfully deleted");
-		}else if(!(informe.get().getCita().getFecha().isBefore(today.plusDays(1)))){
-			modelMap.addAttribute("message", "Informe is older than 24 hours");
 		}else if(!(informe.get().getHistoriaClinica() == null)) {
 			modelMap.addAttribute("message", "Informe has not a clinic history");
 		}
-		return "redirect:/informe";
+		return "redirect:/";
 	}
 	
 	@GetMapping(value = "/informes/{informeId}")
@@ -107,7 +104,7 @@ public class InformeController {
 		mav.addObject(paciente);
 
 		Boolean canBeDeleted = informe.getCita().getFecha().isBefore(LocalDate.now().plusDays(1)) && informe.getHistoriaClinica() == null;
-		mav.getModel().put("canbedeleted", canBeDeleted);
+		mav.getModel().put("cannotbedeleted", canBeDeleted);
 		return mav;
 	}
 	

@@ -16,7 +16,6 @@
             <th style="width: 200px;">Paciente</th>
             <th style="width: 150px;">Acciones</th>
             <th style="width: 150px;">Informe</th>
-            <th style="width: 150px;"></th>
         </tr>
         </thead>
         <tbody>
