@@ -1,6 +1,8 @@
+
 package org.springframework.samples.petclinic.web;
 
 import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Informe;
 import org.springframework.samples.petclinic.model.Tratamiento;
@@ -19,14 +21,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/tratamientos")
 public class TratamientoController {
-	
+
 	@Autowired
-	private TratamientoService		tratamientoService;
+	private TratamientoService	tratamientoService;
 	@Autowired
-	private InformeService				informeService;
-	
-	private static final String		VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM	= "tratamientos/createOrUpdateTratamientosForm";
-	
+	private InformeService		informeService;
+
+	private static final String	VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM	= "tratamientos/createOrUpdateTratamientosForm";
+
+
 	@GetMapping(value = "/{tratamientoId}/edit")
 	public String initUpdateTratamientosForm(@PathVariable("tratamientoId") final int tratamientoId, final Model model) {
 		Tratamiento tratamiento = this.tratamientoService.findTratamientoById(tratamientoId).get();
@@ -38,11 +41,11 @@ public class TratamientoController {
 
 	@PostMapping(value = "/save")
 	public String saveTratamiento(@Valid final Tratamiento tratamiento, final BindingResult result) {
-		
+
 		boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("admin"));
 
 		if (result.hasErrors()) {
-			System.out.println("ERRORES: "+result.getAllErrors());
+			System.out.println("ERRORES: " + result.getAllErrors());
 			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
 		} else if (isAdmin) {
 			tratamiento.setId(tratamiento.getId());
@@ -50,7 +53,7 @@ public class TratamientoController {
 			return "redirect:/tratamientos/{tratamientoId}";
 		} else {
 			tratamiento.setId(tratamiento.getId());
-			tratamiento.setInforme(informeService.findInformeById(tratamiento.getInforme().getId()).get());
+			tratamiento.setInforme(this.informeService.findInformeById(tratamiento.getInforme().getId()).get());
 			this.tratamientoService.save(tratamiento);
 			//modelMap.addAttribute("message", "Tratamiento successfully edited");
 			return "redirect:/pacientes";
