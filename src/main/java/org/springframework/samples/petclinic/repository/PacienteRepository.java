@@ -18,5 +18,4 @@ public interface PacienteRepository extends CrudRepository<Paciente, Integer> {
 
 	@Query("SELECT ALL p from Paciente p where p.medico.id =:id")
 	Collection<Paciente> findPacientesByMedicoId(@Param("id") int id) throws DataAccessException;
-
 }
