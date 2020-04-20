@@ -97,7 +97,9 @@ public class CitaController {
 
 	@GetMapping(value = "/find")
 	public String initFindForm(final Map<String, Object> model) {
-		model.put("cita", new Cita());
+		Cita cita = new Cita();
+		cita.setFecha(LocalDate.now());
+		model.put("cita", cita);
 		return "citas/findCitas";
 	}
 

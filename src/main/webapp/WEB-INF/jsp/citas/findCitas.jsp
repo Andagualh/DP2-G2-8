@@ -12,7 +12,6 @@
 
     <h2>Buscar Citas</h2>
 
-    
     <form:form modelAttribute="cita" action="/citas/porfecha" method="get" class="form-horizontal"
                id="search-owner-form">
         <div class="form-group">

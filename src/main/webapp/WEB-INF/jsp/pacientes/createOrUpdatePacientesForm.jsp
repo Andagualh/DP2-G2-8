@@ -36,7 +36,7 @@
 			<petclinic:inputField label="Address" name="domicilio" />
 			<petclinic:inputField label="Telephone" name="n_telefono" />
 			<petclinic:inputField label="Email" name="email" />
-			<petclinic:customDateInput label="Fecha Nacimiento" name="f_alta"/>
+			<petclinic:customDateInput label="Fecha de Alta" name="f_alta"/>
 						
 			<spring:bind path="medico">
 				<c:set var="cssGroup" value="form-group ${status.error ? 'error' : '' }" />
