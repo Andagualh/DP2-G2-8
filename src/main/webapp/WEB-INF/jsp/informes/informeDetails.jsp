@@ -8,9 +8,6 @@
 
 	<h2>Informe Information</h2>
 
-    <input type="hidden" name="informe" value="${informe}" />
-    <input type="hidden" name="cita" value="${informe.cita}" />
-
 	<table class="table table-striped">
 		<tr>
 			<th>Motivo de la consulta</th>

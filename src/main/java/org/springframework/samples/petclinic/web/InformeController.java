@@ -104,8 +104,8 @@ public class InformeController {
 		Collection<Tratamiento> tratamientos = this.tratamientoService.findTratamientosByInforme(informe);
 		mav.getModel().put("tratamientos", tratamientos);
 
-		Boolean informeInHistoriaClinica = informe.getHistoriaClinica() != null;
-		mav.getModel().put("informeInHistoriaClinica", informeInHistoriaClinica);
+		//		Boolean informeInHistoriaClinica = informe.getHistoriaClinica() != null;
+		//		mav.getModel().put("informeInHistoriaClinica", informeInHistoriaClinica);
 
 		return mav;
 	}
