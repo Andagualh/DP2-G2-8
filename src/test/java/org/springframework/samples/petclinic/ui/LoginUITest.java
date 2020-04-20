@@ -56,15 +56,13 @@ public class LoginUITest {
 	@Test
 	public void testLoginUI() throws Exception {
 		this.driver.get("http://localhost:" + this.port);
-		this.driver.findElement(By.linkText("Login")).click();
-		this.driver.findElement(By.id("username")).click();
+		this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 		this.driver.findElement(By.id("username")).clear();
 		this.driver.findElement(By.id("username")).sendKeys("alvaroMedico");
-		this.driver.findElement(By.id("password")).click();
 		this.driver.findElement(By.id("password")).clear();
 		this.driver.findElement(By.id("password")).sendKeys("entrar");
 		this.driver.findElement(By.xpath("//button[@type='submit']")).click();
-		Assert.assertEquals("alvaroMedico", this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).getText());
+		Assert.assertEquals("ALVAROMEDICO", this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).getText());
 		this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/span[2]")).click();
 		Assert.assertEquals("alvaroMedico", this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/ul/li/div/div/div[2]/p/strong")).getText());
 		Assert.assertEquals("Logout", this.driver.findElement(By.linkText("Logout")).getText());
