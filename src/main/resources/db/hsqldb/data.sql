@@ -97,6 +97,7 @@ INSERT INTO cita VALUES (4, 'nombre7','2025-04-09','Consulta 4',2);
 INSERT INTO cita VALUES (5, 'nombre8','2023-05-09','Consulta 5',3);
 INSERT INTO cita VALUES (6, 'nombre9','2023-05-09','Consulta 6',3);
 INSERT INTO cita VALUES (7, 'Cita Test Informe','2020-04-18','Consulta Test Informe',1);
+INSERT INTO cita VALUES (8, 'Cita Test Edit Informe', '2020-04-20', 'Consulta Test 7', 1);
 
 INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (1,'Descripcion',1);
 INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (2,'Descripcion 2',2);
@@ -105,7 +106,8 @@ INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (4,'Descripcion 4
 INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (5,'Descripcion 5',5);
 INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (6,'Descripcion 6',6);
 
-INSERT INTO informe VALUES (1, 'informeAuxiliar','motivo','diagnostico',1,null);
+INSERT INTO informe VALUES (1,'motivo','diagnostico',1,null);
+INSERT INTO informe VALUES (2, 'motivo test', 'diagnostico test', 8, null);
 
 INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tratamiento,informe_id) 
 VALUES (1, 'nombre1','paracetamol','1 pastilla cada 4 horas','2020-03-09','2020-12-24',1);
