@@ -4,6 +4,7 @@ package org.springframework.samples.petclinic.ui;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.time.LocalDate;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
@@ -36,8 +37,7 @@ public class CreatePacienteUITest {
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		String pathToGeckoDriver = "D:\\Alvaro\\Downloads";
-		System.setProperty("webdriver.gecko.driver", pathToGeckoDriver + "\\geckodriver.exe");
+		
 		this.driver = new FirefoxDriver();
 		this.baseUrl = "https://www.google.com/";
 		this.driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
@@ -74,7 +74,7 @@ public class CreatePacienteUITest {
 		this.driver.findElement(By.xpath("//form[@id='add-paciente-form']/div[2]/div/button")).click();
 		assertEquals("Jesus Romero Martin", this.driver.findElement(By.xpath("//td")).getText());
 		assertEquals("2003-04-30", this.driver.findElement(By.xpath("//tr[2]/td")).getText());
-		assertEquals("2020-04-20", this.driver.findElement(By.xpath("//tr[3]/td")).getText());
+		assertEquals(LocalDate.now().toString(), this.driver.findElement(By.xpath("//tr[3]/td")).getText());
 		assertEquals("Calle Castillo Alcala de Guadaira, 19 5 D, Sevilla, Sevilla 41013", this.driver.findElement(By.xpath("//tr[4]/td")).getText());
 		assertEquals("12345678A", this.driver.findElement(By.xpath("//tr[5]/td")).getText());
 		assertEquals("689810233", this.driver.findElement(By.xpath("//tr[6]/td")).getText());
