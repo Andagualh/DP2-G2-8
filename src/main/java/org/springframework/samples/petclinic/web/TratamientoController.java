@@ -55,7 +55,6 @@ public class TratamientoController {
 			tratamiento.setId(tratamiento.getId());
 			tratamiento.setInforme(this.informeService.findInformeById(tratamiento.getInforme().getId()).get());
 			this.tratamientoService.save(tratamiento);
-			//modelMap.addAttribute("message", "Tratamiento successfully edited");
 			return "redirect:/pacientes";
 		}
 	}
