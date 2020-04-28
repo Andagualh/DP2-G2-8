@@ -36,6 +36,14 @@
 		<a href="${fn:escapeXml(deleteUrl)}" class="btn btn-default">Borrar Informe</a>
 	</c:if>
 	
+	<c:if test="${canbeedited==true}">
+			<spring:url value="/citas/{citaId}/informes/{informeId}/edit" var="editUrl">
+			<spring:param name="informeId" value="${informe.id}" />
+			<spring:param name="citaId" value="${informe.cita.id}"/>
+		</spring:url>
+		<a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Editar Informe</a>
+	</c:if>
+	
 	<c:if test="${informe.historiaClinica == null}">
 		<spring:url value="/citas/{citaId}/informes/{informeId}/addtohistoriaclinica" var="addToHistoriaClinicaUrl">
 			<spring:param name="informeId" value="${informe.id}" />

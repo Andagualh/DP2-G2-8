@@ -107,6 +107,9 @@ public class InformeController {
 		//		Boolean informeInHistoriaClinica = informe.getHistoriaClinica() != null;
 		//		mav.getModel().put("informeInHistoriaClinica", informeInHistoriaClinica);
 
+		Boolean canBeEdited = informe.getCita().getFecha().equals(LocalDate.now());
+		mav.getModel().put("canbeedited", canBeEdited);
+
 		return mav;
 	}
 
@@ -150,4 +153,31 @@ public class InformeController {
 		this.informeService.deleteInformeToHistoriaClinica(informe);
 		return "redirect:/citas/" + informe.getCita().getPaciente().getMedico().getId() + "/informes/" + informe.getId();
 	}
+
+	@GetMapping(value = "/informes/{informeId}/edit")
+	public String initUpdateInformeForm(@PathVariable("informeId") final int informeId, final ModelMap model) {
+
+		Informe informe = this.informeService.findInformeById(informeId).get();
+		model.put("informe", informe);
+		model.put("motivo_consulta", informe.getMotivo_consulta());
+		model.put("diagnostico", informe.getDiagnostico());
+		model.put("cita", informe.getCita());
+
+		return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
+	}
+
+	@PostMapping(value = "/informes/{informeId}/edit")
+	public String processUpdateInformeForm(final Cita cita, @Valid final Informe informe, @PathVariable("informeId") final int informeId, final BindingResult result, final ModelMap model) throws DataAccessException, IllegalAccessException {
+		if (result.hasErrors()) {
+			model.put("informe", informe);
+			return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
+		} else {
+			System.out.println(informe.getCita().getFecha());
+			System.out.println(LocalDate.now());
+			informe.setId(informeId);
+			this.informeService.saveInforme(informe);
+		}
+		return "redirect:/citas/" + informe.getCita().getPaciente().getMedico().getId();
+	}
+
 }
