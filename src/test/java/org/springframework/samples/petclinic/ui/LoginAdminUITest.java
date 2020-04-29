@@ -14,7 +14,7 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
-public class LoginUITestAdmin {
+public class LoginAdminUITest {
 
 	private String			username;
 	private WebDriver		driver;
@@ -41,11 +41,11 @@ public class LoginUITestAdmin {
 
 	}
 
-	private LoginUITestAdmin whenIamLoggedIntheSystem() {
+	private LoginAdminUITest whenIamLoggedIntheSystem() {
 		return this;
 	}
 
-	private LoginUITestAdmin as(final String username) {
+	private LoginAdminUITest as(final String username) {
 		this.username = username;
 		this.driver.get("http://localhost:8080");
 		this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
