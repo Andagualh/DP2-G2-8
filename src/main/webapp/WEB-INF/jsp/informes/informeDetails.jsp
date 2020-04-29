@@ -82,7 +82,10 @@
                         </thead>
                         <tr>
                             <td>
-								<c:out value="TODO Editar tratamiento"/>
+								<spring:url value="/tratamientos/{tratamientoId}/edit" var="editUrl">
+									<spring:param name="tratamientoId" value="${paciente.id}" />
+								</spring:url>
+								<a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Editar Tratamiento</a>
                             </td>
                             <td>
 								<c:out value="TODO Borrar tratamiento"/>
