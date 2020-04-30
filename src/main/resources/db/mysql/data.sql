@@ -88,8 +88,6 @@ INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,e
 VALUES (5,'Christian','Ochoa Moran','1956-03-11','35162318X',701219208,'Gran Vía Iglesia, 23, Camarillas, Teruel','christian_56@gmail.com','2020-03-20',2);
 INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
 VALUES (6,'Blanca','Leal Pineda','1945-03-29','24921447G',688657684,'Ronda Iglesia, 77, Santa Fe De Mondújar, Almería','blanca_45@gmail.com','2020-03-20',2);
-INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
-VALUES (7,'Blanca','Leal Pineda','1945-03-29','24921447B',688657684,'Ronda Iglesia, 77, Santa Fe De Mondújar, Almería','blanca_45@gmail.com','2020-03-20',2);
 
 
 INSERT INTO cita VALUES (1, 'nombre4','2020-03-09','Consulta 1',1);
