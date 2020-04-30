@@ -142,7 +142,7 @@ public class CitaServiceTest {
 	@Test
 	public void testCountWithInitialData() {
 		int count = this.citaService.citaCount();
-		Assertions.assertEquals(count, 7);
+		Assertions.assertEquals(count, 8);
 	}
 
 	@Test
@@ -165,7 +165,7 @@ public class CitaServiceTest {
 
 		int countCitas = this.citaService.citaCount();
 
-		Assertions.assertEquals(countCitas, 8);
+		Assertions.assertEquals(countCitas, 9);
 
 	}
 	
@@ -174,7 +174,7 @@ public class CitaServiceTest {
 		
 		this.citaService.delete(this.citaService.findCitaById(3).get());
 
-		Assertions.assertEquals(this.citaService.citaCount(),6);
+		Assertions.assertEquals(this.citaService.citaCount(),7);
 
 	}
 	
@@ -208,7 +208,7 @@ public class CitaServiceTest {
 		
 		int countCita = this.citaService.citaCount();
 
-		Assertions.assertEquals(countCita, 10);
+		Assertions.assertEquals(countCita, 11);
 
 		Assertions.assertNotNull(cita.getPaciente().getId());
 		Assertions.assertNotNull(cita2.getPaciente().getId());

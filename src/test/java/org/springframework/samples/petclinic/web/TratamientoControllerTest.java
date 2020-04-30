@@ -140,7 +140,7 @@ public class TratamientoControllerTest {
         this.informe1.setDiagnostico("diagnostico test");
         this.informe1.setHistoriaClinica(null);
         this.informe1.setMotivo_consulta("motivo test");
-        this.informe1.setName("informeTest");
+        
 
 		this.tratamiento = new Tratamiento();
 		this.tratamiento.setId(TEST_TRATAMIENTO_ID);

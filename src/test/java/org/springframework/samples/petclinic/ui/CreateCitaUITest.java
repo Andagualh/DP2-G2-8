@@ -25,7 +25,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CreateCitaUITest {
+  
+  @LocalServerPort 
+  private int port = 8080;
+  
   private WebDriver driver;
   private String baseUrl;
   private boolean acceptNextAlert = true;
@@ -40,7 +46,7 @@ public class CreateCitaUITest {
 
   @Test
   public void testCrearCita() throws Exception {
-    driver.get("http://localhost:8080/");
+    driver.get("http://localhost:" + this.port);
     driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
     driver.findElement(By.id("username")).clear();
     driver.findElement(By.id("username")).sendKeys("andresMedico");
