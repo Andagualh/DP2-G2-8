@@ -75,7 +75,7 @@ public class PacienteController {
 			canBeDeleted = hoy.compareTo(ultimaCita) >= 6 || hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() >= hoy.getDayOfYear();
 		}
 
-		canBeDeleted = canBeDeleted && this.historiaClinicaService.findHistoriaClinicaByPaciente(paciente).getDescripcion().isEmpty();
+		canBeDeleted = canBeDeleted && this.historiaClinicaService.findHistoriaClinicaByPaciente(paciente) == null;
 
 		if (SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("admin"))) {
 			canBeDeleted = true;
