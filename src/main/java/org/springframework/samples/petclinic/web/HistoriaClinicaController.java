@@ -68,9 +68,12 @@ public class HistoriaClinicaController {
 	@PostMapping(value = "/pacientes/{pacienteId}/historiaclinica/new")
 	public String processCreationForm(@PathVariable("pacienteId") final int pacienteId, final HistoriaClinica historiaclinica, final BindingResult result, final ModelMap model) {
 		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
-		if (result.hasErrors()) {
+		boolean descripcionVacia = historiaclinica.getDescripcion() == "";
+
+		if (result.hasErrors() || descripcionVacia) {
 			model.addAttribute("historiaclinica", historiaclinica);
 			model.addAttribute("paciente", paciente);
+			model.put("errord", "La descripcion no puede estar vacia.");
 			return HistoriaClinicaController.VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM;
 		} else if (this.pacienteService.findHistoriaClinicaByPaciente(paciente) != null) {
 			return "redirect:/oups";
@@ -94,11 +97,15 @@ public class HistoriaClinicaController {
 
 	@PostMapping(value = "/pacientes/{pacienteId}/historiaclinica/edit")
 	public String processUpdateHistoriaClinicaForm(@Valid final HistoriaClinica historiaclinica, final BindingResult result, @PathVariable("pacienteId") final int pacienteId, final ModelMap model) {
-		if (result.hasErrors()) {
-			model.addAttribute("historiaclinica", historiaclinica);
+		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
+		boolean descripcionVacia = historiaclinica.getDescripcion() == "";
+		if (result.hasErrors() || descripcionVacia) {
+			model.addAttribute("historiaclinica", this.pacienteService.findHistoriaClinicaByPaciente(paciente));
+			model.addAttribute("paciente", paciente);
+			model.put("errord", "La descripcion no puede estar vacia.");
 			return HistoriaClinicaController.VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM;
 		} else {
-			Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
+
 			historiaclinica.setId(this.pacienteService.findHistoriaClinicaByPaciente(paciente).getId());
 			this.historiaclinicaService.saveHistoriaClinica(historiaclinica);
 			return "redirect:/pacientes/{pacienteId}";
