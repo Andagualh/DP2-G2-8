@@ -75,7 +75,8 @@ public class InformeController {
 		dataBinder.setDisallowedFields("id");
 	}
 	@GetMapping(path = "informes/delete/{informeId}")
-	public String borrarInforme(@PathVariable("informeId") final int informeId, final ModelMap modelMap) {
+	public String borrarInforme(@PathVariable("informeId") final int informeId, final ModelMap modelMap)
+			throws DataAccessException, IllegalAccessException {
 		Optional<Informe> informe = this.informeService.findInformeById(informeId);
 
 		if (informe.get().getHistoriaClinica() == null) {
@@ -98,8 +99,8 @@ public class InformeController {
 		Paciente paciente = cita.getPaciente();
 		mav.addObject(paciente);
 
-		Boolean canBeDeleted = informe.getCita().getFecha().isBefore(LocalDate.now().plusDays(1)) && informe.getHistoriaClinica() == null;
-		mav.getModel().put("cannotbedeleted", canBeDeleted);
+		Boolean canBeDeleted = informe.getCita().getFecha().plusDays(1).equals(LocalDate.now().plusDays(1)) && informe.getHistoriaClinica() == null;
+		mav.getModel().put("cannotbedeleted", !canBeDeleted);
 
 		Collection<Tratamiento> tratamientos = this.tratamientoService.findTratamientosByInforme(informe);
 		mav.getModel().put("tratamientos", tratamientos);
