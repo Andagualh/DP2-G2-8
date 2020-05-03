@@ -193,7 +193,9 @@ public class PacienteController {
 		if (result.hasErrors() || noTieneContacto) {
 			modelMap.addAttribute("medicoList", this.medicoService.getMedicos());
 			modelMap.addAttribute("isNewPaciente", false);
-			result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
+			if (noTieneContacto) {
+				result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
+			}
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else if (isAdmin) {
 			paciente.setId(pacienteId);
