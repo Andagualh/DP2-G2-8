@@ -192,7 +192,7 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testCreateInformeforFutureDate() throws DataAccessException, IllegalAccessException {
+    public void testCreateInformeforNotCurrentDate() throws DataAccessException, IllegalAccessException {
         Medico medico = createDummyMedico();
         Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCitaFuturo(paciente);
@@ -229,6 +229,6 @@ public class InformeServiceTest {
         informeService.saveInformeWithHistoriaClinica(informe);
     }
 
-    //TODO: DeleteInformeToHistoriaclinica y DeleteInforme
+    //TODO: DeleteInformeToHistoriaclinica, DeleteInforme, Editar Informe
     
 }
