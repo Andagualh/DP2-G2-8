@@ -98,4 +98,9 @@
         </c:forEach>
     </table>
     </c:if>
+    
+    <spring:url value="/tratamientos/new/{informeId}" var="createTratUrl">
+				<spring:param name="informeId" value="${informe.id}" />
+	</spring:url>
+	<a href="${fn:escapeXml(createTratUrl)}" class="btn btn-default">Crear Tratamiento</a>
 </petclinic:layout>
