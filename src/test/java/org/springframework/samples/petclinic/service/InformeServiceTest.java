@@ -189,7 +189,7 @@ public class InformeServiceTest {
         es casi el mismo caso que con las counts que 
         se cambian día si y día también.
         Además el método está probado en un test anterior*/
-        assertEquals(3, informeService.findInformeById(3).get().getId());
+        assertEquals(7, informeService.findInformeById(informe.getId()).get().getId());
     }
 
     @Test
