@@ -220,7 +220,8 @@ class InformeControllerTests {
         .flashAttr("informe", informe)
         )
         .andExpect(status().isOk())
-        .andExpect(view().name("informes/createOrUpdateInformeForm")
+        .andExpect(view().name("informes/createOrUpdateInformeForm"))
+        .andExpect(model().attributeExists("informe")        
         );
     }
     
