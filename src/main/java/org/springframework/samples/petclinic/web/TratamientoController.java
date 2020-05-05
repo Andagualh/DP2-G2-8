@@ -38,6 +38,15 @@ public class TratamientoController {
 		model.addAttribute("tratamiento", tratamiento);
 		return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
 	}
+	
+	@GetMapping(value = "/new/{informeId}")
+	public String initCreateTratamientosForm(@PathVariable("informeId") final int informeId, final Model model) {
+		Tratamiento tratamiento = new Tratamiento();
+		Informe informe = this.informeService.findInformeById(informeId).get();
+		model.addAttribute("informe", informe);
+		model.addAttribute("tratamiento", tratamiento);
+		return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
+	}
 
 	@PostMapping(value = "/save")
 	public String saveTratamiento(@Valid final Tratamiento tratamiento, final BindingResult result) {
@@ -52,10 +61,11 @@ public class TratamientoController {
 			this.tratamientoService.save(tratamiento);
 			return "redirect:/tratamientos/{tratamientoId}";
 		} else {
+			Informe informe = this.informeService.findInformeById(tratamiento.getInforme().getId()).get();
 			tratamiento.setId(tratamiento.getId());
-			tratamiento.setInforme(this.informeService.findInformeById(tratamiento.getInforme().getId()).get());
+			tratamiento.setInforme(informe);
 			this.tratamientoService.save(tratamiento);
-			return "redirect:/pacientes";
+			return "redirect:/citas/" + String.valueOf(informe.getCita().getId()) + "/informes/" + String.valueOf(informe.getId());
 		}
 	}
 
