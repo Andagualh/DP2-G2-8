@@ -3,6 +3,8 @@ package org.springframework.samples.petclinic.service;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
@@ -144,6 +146,32 @@ public class PacienteServiceTests {
 	}
 
 	@Test
+	public void testGetPacientes() {
+		int countPacientes = this.pacienteService.pacienteCount();
+		Medico medico1 = this.createDummyMedico();
+		Medico medico2 = this.createDummyMedico2();
+		Paciente paciente1 = this.createDummyPaciente(medico1, new HistoriaClinica());
+		Paciente paciente2 = this.createDummyPaciente(medico2, new HistoriaClinica());
+		Paciente paciente3 = this.createDummyPaciente(medico1, new HistoriaClinica());
+
+		int idPaciente1 = paciente1.getId();
+		int idPaciente2 = paciente2.getId();
+		int idPaciente3 = paciente3.getId();
+
+		int count = this.pacienteService.pacienteCount();
+		Assertions.assertEquals(count, countPacientes + 3);
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPaciente1));
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPaciente2));
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPaciente3));
+
+		Collection<Paciente> pacientes = this.pacienteService.getPacientes();
+
+		Assertions.assertTrue(pacientes.contains(paciente1));
+		Assertions.assertTrue(pacientes.contains(paciente2));
+		Assertions.assertTrue(pacientes.contains(paciente3));
+	}
+
+	@Test
 	public void testFindPacientesByMedicoId() {
 		int countPacientes = this.pacienteService.pacienteCount();
 		Medico medico1 = this.createDummyMedico();
@@ -177,9 +205,35 @@ public class PacienteServiceTests {
 	@Test
 	public void testFindPacienteByNonExistentMedico() {
 		Assertions.assertFalse(!this.pacienteService.findPacienteByMedicoId(109209).isEmpty());
-
 	}
 
+	@Test
+	public void testFindPacienteByApellidos() {
+		int countPacientes = this.pacienteService.pacienteCount();
+		Medico medico = this.createDummyMedico();
+		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
+
+		int count = this.pacienteService.pacienteCount();
+		Assertions.assertEquals(count, countPacientes + 1);
+
+		Collection<Paciente> pacientesByApellidos = new ArrayList<Paciente>();
+		pacientesByApellidos.add(paciente);
+		Assertions.assertEquals(this.pacienteService.findPacienteByApellidos(paciente.getApellidos()), pacientesByApellidos);
+	}
+
+	@Test
+	public void testGetPacienteById() {
+		int countPacientes = this.pacienteService.pacienteCount();
+		Medico medico = this.createDummyMedico();
+		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
+
+		int count = this.pacienteService.pacienteCount();
+		Assertions.assertEquals(count, countPacientes + 1);
+
+		Assertions.assertEquals(this.pacienteService.getPacienteById(paciente.getId()), paciente);
+	}
+
+	@Test
 	public void testUpdatePaciente() {
 		Medico medico = this.createDummyMedico();
 		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
@@ -209,6 +263,7 @@ public class PacienteServiceTests {
 
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
 		paciente.setN_telefono(1);
+		Assertions.assertEquals(paciente.getN_telefono(), 1);
 
 		Assertions.assertThrows(IllegalArgumentException.class, () -> {
 			this.pacienteService.savePacienteByMedico(paciente, idMedicoPacienteCreado);
@@ -250,6 +305,54 @@ public class PacienteServiceTests {
 	}
 
 	@Test
+	public void testUpdatePacienteWithFormaContactoWithoutTelefono() {
+		Medico medico = this.createDummyMedico();
+		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
+
+		int idMedicoPacienteCreado = medico.getId();
+		int idPacienteCreado = paciente.getId();
+
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
+		paciente.setN_telefono(null);
+
+		this.pacienteService.savePacienteByMedico(paciente, idMedicoPacienteCreado);
+
+		Assert.assertTrue(this.pacienteService.findPacienteById(paciente.getId()).get().getN_telefono() == null);
+	}
+
+	@Test
+	public void testUpdatePacienteWithFormaContactoWithoutDomicilio() {
+		Medico medico = this.createDummyMedico();
+		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
+
+		int idMedicoPacienteCreado = medico.getId();
+		int idPacienteCreado = paciente.getId();
+
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
+		paciente.setDomicilio("");
+
+		this.pacienteService.savePacienteByMedico(paciente, idMedicoPacienteCreado);
+
+		Assert.assertTrue(this.pacienteService.findPacienteById(paciente.getId()).get().getDomicilio().equals(""));
+	}
+
+	@Test
+	public void testUpdatePacienteWithFormaContactoWithoutEmail() {
+		Medico medico = this.createDummyMedico();
+		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
+
+		int idMedicoPacienteCreado = medico.getId();
+		int idPacienteCreado = paciente.getId();
+
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
+		paciente.setEmail("");
+
+		this.pacienteService.savePacienteByMedico(paciente, idMedicoPacienteCreado);
+
+		Assert.assertTrue(this.pacienteService.findPacienteById(paciente.getId()).get().getEmail().equals(""));
+	}
+
+	@Test
 	public void testDeletePacienteByMedico() {
 		int countPacientes = this.pacienteService.pacienteCount();
 		Medico medico = this.createDummyMedico();
@@ -267,7 +370,7 @@ public class PacienteServiceTests {
 	}
 
 	@Test
-	public void testDeletePacienteWrongMedico() {
+	public void testDeletePacienteMedico() {
 		int countPacientes = this.pacienteService.pacienteCount();
 		Medico medico1 = this.createDummyMedico();
 		Medico medico2 = this.createDummyMedico2();
@@ -283,6 +386,25 @@ public class PacienteServiceTests {
 
 		Assertions.assertThrows(IllegalAccessError.class, () -> {
 			this.pacienteService.deletePacienteByMedico(idPacienteCreado, idMedico2);
+		});
+	}
+
+	@Test
+	public void testDeletePacienteMedicoDisabled() {
+		int countPacientes = this.pacienteService.pacienteCount();
+		Medico medico = this.createDummyMedico();
+		medico.getUser().setEnabled(false);
+		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
+
+		int idMedicoPacienteCreado = medico.getId();
+		int idPacienteCreado = paciente.getId();
+
+		int count = this.pacienteService.pacienteCount();
+		Assertions.assertEquals(count, countPacientes + 1);
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
+
+		Assertions.assertThrows(IllegalAccessError.class, () -> {
+			this.pacienteService.deletePacienteByMedico(idPacienteCreado, idMedicoPacienteCreado);
 		});
 	}
 
@@ -354,6 +476,52 @@ public class PacienteServiceTests {
 	}
 
 	@Test
+	public void testDeleteCoverage1() {
+		int countPacientes = this.pacienteService.pacienteCount();
+		Medico medico = this.createDummyMedico();
+		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
+		Cita cita = new Cita();
+		cita.setFecha(LocalDate.now().minus(Period.ofYears(5)));
+		cita.setLugar("Hospital Virgen del Rocio");
+		cita.setPaciente(paciente);
+		this.citaService.save(cita);
+		int idMedicoPacienteCreado = medico.getId();
+		int idPacienteCreado = paciente.getId();
+
+		int count = this.pacienteService.pacienteCount();
+		Assertions.assertEquals(count, countPacientes + 1);
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
+
+		this.pacienteService.deletePacienteByMedico(idPacienteCreado, idMedicoPacienteCreado);
+		Assert.assertFalse(this.pacienteService.existsPacienteById(idPacienteCreado).isPresent());
+	}
+
+	@Test
+	public void testDeleteCoverage2() {
+		int countPacientes = this.pacienteService.pacienteCount();
+		Medico medico = this.createDummyMedico();
+		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
+		Cita cita = new Cita();
+		cita.setFecha(LocalDate.now().minus(Period.ofYears(5).minusDays(1)));
+		System.out.println("fechadelxd");
+		System.out.println(cita.getFecha());
+		cita.setLugar("Hospital Virgen del Rocio");
+		cita.setPaciente(paciente);
+		this.citaService.save(cita);
+
+		int idMedicoPacienteCreado = medico.getId();
+		int idPacienteCreado = paciente.getId();
+
+		int count = this.pacienteService.pacienteCount();
+		Assertions.assertEquals(count, countPacientes + 1);
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
+
+		Assertions.assertThrows(IllegalStateException.class, () -> {
+			this.pacienteService.deletePacienteByMedico(idPacienteCreado, idMedicoPacienteCreado);
+		});
+	}
+
+	@Test
 	public void testDeletePacienteWithHistoriaClinica() {
 		int countPacientes = this.pacienteService.pacienteCount();
 		Medico medico = this.createDummyMedico();
@@ -391,21 +559,21 @@ public class PacienteServiceTests {
 		Assert.assertFalse(this.pacienteService.existsPacienteById(idPacienteCreado).isPresent());
 		//Assertions.assert(this.pacienteService.findPacienteById(idPacienteCreado));
 	}
-	
+
 	@Test
 	public void testPacienteCreate() {
 		int countPacientes = this.pacienteService.pacienteCount();
-		
+
 		Medico medico = this.createDummyMedico();
 		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
-		
+
 		this.pacienteService.savePaciente(paciente);
-		
+
 		Assertions.assertEquals(countPacientes + 1, 7);
 		Assertions.assertNotNull(paciente);
 		Assertions.assertNotNull(paciente.getMedico());
 	}
-	
+
 	@Test
 	public void testPacienteSaveByMedico() {
 		int countPacientes = this.pacienteService.pacienteCount();
