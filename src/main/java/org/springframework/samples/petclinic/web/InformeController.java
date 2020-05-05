@@ -174,8 +174,7 @@ public class InformeController {
 			model.put("informe", informe);
 			return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
 		} else {
-			System.out.println(informe.getCita().getFecha());
-			System.out.println(LocalDate.now());
+			
 			informe.setId(informeId);
 			this.informeService.saveInforme(informe);
 		}
