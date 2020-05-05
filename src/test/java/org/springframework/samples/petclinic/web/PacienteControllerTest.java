@@ -241,10 +241,8 @@ public class PacienteControllerTest {
         @WithMockUser(value = "spring")
 	@Test
 	void testProcessUpdatePacienteFormSuccess() throws Exception {
-    	Medico medic = new Medico();
-    	medic.setId(PacienteControllerTest.TEST_MEDICO_ID);
-    	BDDMockito.given(this.userService.getCurrentMedico()).willReturn(medic);
-        
+    	BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+
     	mockMvc.perform(post("/pacientes/{pacienteId}/edit", TEST_PACIENTE_ID)
 							.with(csrf())
 							.param("nombre", "Javier")
@@ -261,7 +259,7 @@ public class PacienteControllerTest {
 							.param("medico.DNI", "12345678Z")
 							.param("medico.n_telefono", "123456789")
 							.param("medico.domicilio", "Domicilio")
-							.param("medico.user.username", TEST_MEDICOUSER_ID)
+							.param("medico.user.username", "medico1")
 							.param("medico.user.password", "medico1")
 							.param("medico.user.enabled", "true"))
 				.andExpect(status().is3xxRedirection())
@@ -273,7 +271,7 @@ public class PacienteControllerTest {
 	@Test
 	void testProcessUpdatePacienteFormHasErrors() throws Exception {
 	    	BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
-			
+
 			mockMvc.perform(post("/pacientes/{pacienteId}/edit", TEST_PACIENTE_ID)
 							.with(csrf())
 							.param("nombre", "Javier")
@@ -284,13 +282,11 @@ public class PacienteControllerTest {
 							.param("n_telefono", "")
 							.param("email", "")
 							.param("f_alta", "2020/03/25")
-							.param("medico.id", Integer.toString(TEST_MEDICO_ID))
 							.param("medico.nombre", "Medico 2")
 							.param("medico.apellidos", "Apellidos")
 							.param("medico.DNI", "12345678Z")
 							.param("medico.n_telefono", "123456789")
 							.param("medico.domicilio", "Domicilio")
-							.param("medico.user.username", TEST_MEDICOUSER_ID)
 							.param("medico.user.password", "medico1")
 							.param("medico.user.enabled", "true"))
 				.andExpect(status().isOk())

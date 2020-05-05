@@ -100,7 +100,7 @@ public class UserService {
 			username = principal.toString();
 		}
 		Medico medico = this.medicoService.findMedicoByUsername(username);
-		System.out.println("medico:" + medico);
+
 		return medico;
 	}
 }

@@ -18,6 +18,7 @@ import org.springframework.samples.petclinic.service.HistoriaClinicaService;
 import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
+import org.springframework.samples.petclinic.util.DniValidator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -177,7 +178,7 @@ public class PacienteController {
 	@GetMapping(value = "/pacientes/{pacienteId}/edit")
 	public String initUpdatePacientesForm(@PathVariable("pacienteId") final int pacientesId, final Model model) {
 		Paciente paciente = this.pacienteService.findPacienteById(pacientesId).get();
-		//Paciente paciente = this.pacienteService.getPacienteById(pacientesId);
+
 		model.addAttribute("paciente", paciente);
 		model.addAttribute("medicoList", this.medicoService.getMedicos());
 		model.addAttribute("isNewPaciente", false);
@@ -189,10 +190,12 @@ public class PacienteController {
 
 		boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("admin"));
 		boolean noTieneContacto = paciente.getN_telefono() == null && paciente.getDomicilio().isEmpty() && paciente.getEmail().isEmpty();
+		boolean dniOk = new DniValidator(paciente.getDNI()).validar();
+
+		modelMap.addAttribute("medicoList", this.medicoService.getMedicos());
+		modelMap.addAttribute("isNewPaciente", false);
 
 		if (result.hasErrors() || noTieneContacto) {
-			modelMap.addAttribute("medicoList", this.medicoService.getMedicos());
-			modelMap.addAttribute("isNewPaciente", false);
 			result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else if (isAdmin) {
@@ -200,11 +203,25 @@ public class PacienteController {
 			this.pacienteService.savePaciente(paciente);
 			return "redirect:/pacientes/{pacienteId}";
 		} else {
-			int currentMedico = this.userService.getCurrentMedico().getId();
-			paciente.setId(pacienteId);
-			this.pacienteService.savePacienteByMedico(paciente, currentMedico);
-			return "redirect:/pacientes/{pacienteId}";
+			if (!dniOk) {
+				result.rejectValue("DNI", "error.Dni", "Dni incorrecto.");
+				return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
+			} else if (!(paciente.getN_telefono().toString().length() == 9)) {
+				result.rejectValue("n_telefono", "error.n_telefono", "Numero de telefono incorrecto, debe contener 9 dígitos.");
+				return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
+			} else if (!paciente.getMedico().equals(this.userService.getCurrentMedico())) {
+				paciente.setMedico(this.userService.getCurrentMedico());
+				result.rejectValue("medico", "error.medico", "No puede asignar el paciente a otro medico.");
+				return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
+			} else {
+				int currentMedico = this.userService.getCurrentMedico().getId();
+				paciente.setId(pacienteId);
+				System.out.println("asdfpacienteasdf" + paciente);
+				this.pacienteService.savePacienteByMedico(paciente, currentMedico);
+				return "redirect:/pacientes/{pacienteId}";
+			}
 		}
+
 	}
 
 	@GetMapping(value = "/pacientes/new")
