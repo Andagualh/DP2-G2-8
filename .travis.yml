@@ -2,7 +2,7 @@ dist: trusty
 language: java
 jdk: oraclejdk8
 services:
-  mysql
+  - mysql
 before_install:
-  -mysql -e 'CREATE DATABASE medical;'
+  - mysql -e 'CREATE DATABASE medical;'
 script: mvn test -Dspring.profiles.active=mysql-travis
