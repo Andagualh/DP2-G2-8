@@ -160,6 +160,7 @@ public class InformeServiceTest {
         citaService.save(cita);
         return cita;
     }
+
     @Test
     public void testFindInformeById(){
         //Informe Existente en BD, comprobamos que tiene la ID esperada
@@ -169,7 +170,7 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testCreateInforme() throws DataAccessException, IllegalAccessException {
+    public void testSaveInforme() throws DataAccessException, IllegalAccessException {
         Medico medico = createDummyMedico();
 		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCita1(paciente);
@@ -188,11 +189,11 @@ public class InformeServiceTest {
         es casi el mismo caso que con las counts que 
         se cambian día si y día también.
         Además el método está probado en un test anterior*/
-        assertEquals(3, informeService.findInformeById(3).get().getId());
+        assertEquals(informe.getId(), informeService.findInformeById(informe.getId()).get().getId());
     }
 
     @Test
-    public void testCreateInformeforNotCurrentDate() throws DataAccessException, IllegalAccessException {
+    public void testSaveInformeforNotCurrentDate() throws DataAccessException, IllegalAccessException {
         Medico medico = createDummyMedico();
         Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCitaFuturo(paciente);
@@ -211,24 +212,131 @@ public class InformeServiceTest {
 
     }
 
-    //TODO: Realizar correctamente este test, detecta como transient algún objeto
     @Test
-    public void TestSaveInformeWithHC() throws DataAccessException, IllegalAccessException {
+    public void testSaveInformeWithHC() throws DataAccessException, IllegalAccessException {
         Medico medico = createDummyMedico();
         Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
-        Cita cita = createDummyCitaFuturo(paciente);
+        Cita cita = createDummyCita1(paciente);
 
         Informe informe = new Informe();
         informe.setCita(cita);
         cita.setInforme(informe);
         informe.setDiagnostico("Dermatitis");
         informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
         informe.setHistoriaClinica(historiaClinicaService.findHistoriaClinicaByPaciente(paciente));
         Assertions.assertNotNull(informe);
 
         informeService.saveInformeWithHistoriaClinica(informe);
+
+        Assertions.assertNotNull(informeService.findInformeById(informe.getId()).get().getHistoriaClinica());
+        Assertions.assertFalse(informeService.findInformeById(informe.getId()).get().getHistoriaClinica().getDescripcion().isEmpty());
     }
 
-    //TODO: DeleteInformeToHistoriaclinica, DeleteInforme, Editar Informe
+    @Test
+    public void testDeleteInformeSuccess() throws DataAccessException, IllegalAccessException{
+        Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        Cita cita = createDummyCita1(paciente);
+        
+        Informe informe = new Informe();
+        informe.setCita(cita);
+        cita.setInforme(informe);
+        informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+       
+        Assertions.assertNotNull(informe);
+        Assertions.assertNull(informe.getHistoriaClinica());
+        Assertions.assertEquals(LocalDate.now(), cita.getFecha());
+        
+        informeService.saveInforme(informe);
+        informeService.deleteInforme(informe.getId());
+
+        Assertions.assertEquals(Optional.empty(), informeService.findInformeById(informe.getId()));
+    }
+
+    @Test
+    public void testDeleteInformeWithHC() throws DataAccessException, IllegalAccessException {
+        Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        Cita cita = createDummyCita1(paciente);
+        
+        Informe informe = new Informe();
+        informe.setCita(cita);
+        cita.setInforme(informe);
+        informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
+        informe.setHistoriaClinica(historiaClinicaService.findHistoriaClinicaByPaciente(paciente));
+        informeService.saveInformeWithHistoriaClinica(informe);
+
+
+        Assertions.assertNotNull(informe);
+        Assertions.assertNotNull(informe.getHistoriaClinica());
+        Assertions.assertEquals(LocalDate.now(), cita.getFecha());
+        
+        IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+        () -> informeService.deleteInforme(informe.getId()), "No se puede borrar este informe");
+
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede borrar este informe"));
+    }
+
+    @Test
+    public void testDeleteInformePast() throws DataAccessException, IllegalAccessException {
+        Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        
+        
+        Informe informe = informeService.findInformeById(3).get();
+
+        Assertions.assertNotNull(informe);
+        Assertions.assertTrue(LocalDate.now().isAfter(informe.getCita().getFecha()));
+        
+        IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+        () -> informeService.deleteInforme(informe.getId()), "No se puede borrar este informe");
+
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede borrar este informe"));
+    }
+
+    @Test
+    public void testDeleteInformePastHist() throws DataAccessException, IllegalAccessException{
+		Paciente paciente = pacienteService.getPacienteById(1);
+        Informe informe = informeService.findInformeById(3).get();
+
+        informe.setHistoriaClinica(historiaClinicaService.findHistoriaClinicaByPaciente(paciente));
+        informeService.saveInformeWithHistoriaClinica(informe);
+        Assertions.assertNotNull(informe);
+        Assertions.assertNotNull(informe.getHistoriaClinica());
+
+        IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+        () -> informeService.deleteInforme(informe.getId()), "No se puede borrar este informe");
+
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede borrar este informe"));
+    
+    }
+
+    @Test
+    public void testDeleteInformeFromHC() throws DataAccessException, IllegalAccessException{
+        Medico medico = createDummyMedico();
+        Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        Cita cita = createDummyCita1(paciente);
+
+        Informe informe = new Informe();
+        informe.setCita(cita);
+        cita.setInforme(informe);
+        informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
+        informe.setHistoriaClinica(historiaClinicaService.findHistoriaClinicaByPaciente(paciente));
+        Assertions.assertNotNull(informe);
+        informeService.saveInformeWithHistoriaClinica(informe);
+        
+        Assertions.assertNotNull(informeService.findInformeById(informe.getId()).get().getHistoriaClinica());
+        Assertions.assertFalse(informeService.findInformeById(informe.getId()).get().getHistoriaClinica().getDescripcion().isEmpty());
+
+        informeService.deleteInformeToHistoriaClinica(informe);
+        Assertions.assertNull(informeService.findInformeById(informe.getId()).get().getHistoriaClinica());
+
+    }
     
 }

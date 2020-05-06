@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -82,7 +83,7 @@ public class InformeController {
 		if (informe.get().getHistoriaClinica() == null) {
 			this.informeService.deleteInforme(informeId);
 			modelMap.addAttribute("message", "Informe succesfully deleted");
-		} else if (!(informe.get().getHistoriaClinica() == null)) {
+		} else {
 			modelMap.addAttribute("message", "Informe has not a clinic history");
 		}
 		return "redirect:/";
@@ -168,13 +169,12 @@ public class InformeController {
 	}
 
 	@PostMapping(value = "/informes/{informeId}/edit")
-	public String processUpdateInformeForm(final Cita cita, @Valid final Informe informe, @PathVariable("informeId") final int informeId, final BindingResult result, final ModelMap model) throws DataAccessException, IllegalAccessException {
+	public String processUpdateInformeForm(final Cita cita, @Valid final Informe informe, final BindingResult result ,@PathVariable("informeId") final int informeId, final ModelMap model) throws DataAccessException, IllegalAccessException {
 		if (result.hasErrors()) {
 			model.put("informe", informe);
 			return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
 		} else {
-			System.out.println(informe.getCita().getFecha());
-			System.out.println(LocalDate.now());
+			
 			informe.setId(informeId);
 			this.informeService.saveInforme(informe);
 		}

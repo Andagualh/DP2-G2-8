@@ -140,7 +140,7 @@ public class PacienteServiceTests {
 	@Test
 	public void testCountWithInitialData() {
 		int countPacientes = this.pacienteService.pacienteCount();
-		Assertions.assertEquals(countPacientes, 6);
+		Assertions.assertEquals(countPacientes, 8);
 	}
 
 	@Test
@@ -401,7 +401,7 @@ public class PacienteServiceTests {
 		
 		this.pacienteService.savePaciente(paciente);
 		
-		Assertions.assertEquals(countPacientes + 1, 7);
+		Assertions.assertEquals(countPacientes + 1, 9);
 		Assertions.assertNotNull(paciente);
 		Assertions.assertNotNull(paciente.getMedico());
 	}
