@@ -153,7 +153,7 @@ public class CitaServiceTest {
 
 		int count = this.pacienteService.pacienteCount();
 		int countCit = this.citaService.citaCount();
-		Assertions.assertEquals(count, 9);
+		Assertions.assertEquals(count, 7);
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(paciente.getId()));
 
 		Cita cita = new Cita();
@@ -191,7 +191,7 @@ public class CitaServiceTest {
 		Cita cita3 = new Cita();
 		int count = this.pacienteService.pacienteCount();
 		int countCit = this.citaService.citaCount();
-		Assertions.assertEquals(count, 11);
+		Assertions.assertEquals(count, 9);
 		
 		cita.setFecha(LocalDate.of(2020, 8, 8));
 		cita.setLugar("Sevilla");
