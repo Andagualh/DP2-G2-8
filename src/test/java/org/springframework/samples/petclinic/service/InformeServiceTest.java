@@ -282,8 +282,37 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testDeleteInformePast()throws DataAccessException, IllegalAccessException {
-        //TODO: How do I even create a Cita in the past?!?!?!
+    public void testDeleteInformePast() throws DataAccessException, IllegalAccessException {
+        Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        
+        
+        Informe informe = informeService.findInformeById(3).get();
+
+        Assertions.assertNotNull(informe);
+        Assertions.assertTrue(LocalDate.now().isAfter(informe.getCita().getFecha()));
+        
+        IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+        () -> informeService.deleteInforme(informe.getId()), "No se puede borrar este informe");
+
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede borrar este informe"));
+    }
+
+    @Test
+    public void testDeleteInformePastHist() throws DataAccessException, IllegalAccessException{
+		Paciente paciente = pacienteService.getPacienteById(1);
+        Informe informe = informeService.findInformeById(3).get();
+
+        informe.setHistoriaClinica(historiaClinicaService.findHistoriaClinicaByPaciente(paciente));
+        informeService.saveInformeWithHistoriaClinica(informe);
+        Assertions.assertNotNull(informe);
+        Assertions.assertNotNull(informe.getHistoriaClinica());
+
+        IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+        () -> informeService.deleteInforme(informe.getId()), "No se puede borrar este informe");
+
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede borrar este informe"));
+    
     }
 
     @Test
