@@ -287,7 +287,6 @@ class InformeControllerTests {
         );
     }
     
-    //TODO: No funciona
 
     @WithMockUser(value = "spring")
         @Test
@@ -296,8 +295,8 @@ class InformeControllerTests {
         Informe informe = new Informe();
         informe.setCita(cita1);
         informe.setId(TEST_INFORME_ID);
-        informe.setDiagnostico("Diag");
-        
+        informe.setMotivo_consulta("motivo");
+        informe.setDiagnostico("");
 
         mockMvc.perform(post("/citas/{citaId}/informes/{informeId}/edit", TEST_CITA_ID, TEST_INFORME_ID)
         .with(csrf())
@@ -351,6 +350,44 @@ class InformeControllerTests {
 
     @WithMockUser(value = "spring")
         @Test
+    void testBorrarInformeCantDeletePastHC() throws Exception{
+        Informe informe = new Informe();
+        informe.setCita(cita3);
+        informe.setId(TEST_INFORME_ID);
+        informe.setDiagnostico("Diag");
+        informe.setMotivo_consulta("motivo");
+        informe.setHistoriaClinica(new HistoriaClinica());
+
+        given(informeService.findInformeById(TEST_INFORME_ID)).willReturn(Optional.of(informe));
+        
+        mockMvc.perform(get("/citas/{citaId}/informes/delete/{informeId}", TEST_CITA3_ID, TEST_INFORME_ID))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/")
+        );
+
+    }
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testBorrarInformeCantDeletePast() throws Exception{
+        Informe informe = new Informe();
+        informe.setCita(cita3);
+        informe.setId(TEST_INFORME_ID);
+        informe.setDiagnostico("Diag");
+        informe.setMotivo_consulta("motivo");
+        
+
+        given(informeService.findInformeById(TEST_INFORME_ID)).willReturn(Optional.of(informe));
+        
+        mockMvc.perform(get("/citas/{citaId}/informes/delete/{informeId}", TEST_CITA3_ID, TEST_INFORME_ID))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/")
+        );
+
+    }
+
+    @WithMockUser(value = "spring")
+        @Test
     void testShowInforme() throws Exception{
 
         Informe informe = new Informe();
@@ -391,6 +428,64 @@ class InformeControllerTests {
         .andExpect(model().attributeExists("informe"))
         .andExpect(model().attribute("cannotbedeleted", true))
         .andExpect(model().attribute("canbeedited", false)
+        );
+    }
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testShowInformeWithHCPast() throws Exception{
+
+        Informe informe = new Informe();
+        //Cita con LocalDate now minus 2 days
+        informe.setCita(cita3);
+        informe.setId(TEST_INFORME_ID);
+        informe.setDiagnostico("Diag");
+        informe.setMotivo_consulta("motivo");
+        HistoriaClinica hist = new HistoriaClinica();
+        hist.setDescripcion("desc");
+        hist.setPaciente(this.javier);
+        hist.setId(30);
+        
+        given(historiaClinicaService.findHistoriaClinicaByPaciente(this.javier)).willReturn(hist);
+        informe.setHistoriaClinica(hist);
+
+        given(informeService.findInformeById(TEST_INFORME_ID)).willReturn(Optional.of(informe));
+
+        mockMvc.perform(get("/citas/{citaId}/informes/{informeId}", TEST_CITA3_ID, TEST_INFORME_ID))
+        .andExpect(status().isOk())
+        .andExpect(view().name("informes/informeDetails"))
+        .andExpect(model().attributeExists("informe"))
+        .andExpect(model().attribute("cannotbedeleted", true))
+        .andExpect(model().attribute("canbeedited", false)
+        );
+    }
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testShowInformeWithHC() throws Exception{
+
+        Informe informe = new Informe();
+        //Cita con LocalDate now minus 2 days
+        informe.setCita(cita1);
+        informe.setId(TEST_INFORME_ID);
+        informe.setDiagnostico("Diag");
+        informe.setMotivo_consulta("motivo");
+        HistoriaClinica hist = new HistoriaClinica();
+        hist.setDescripcion("desc");
+        hist.setPaciente(this.javier);
+        hist.setId(30);
+        
+        given(historiaClinicaService.findHistoriaClinicaByPaciente(this.javier)).willReturn(hist);
+        informe.setHistoriaClinica(hist);
+
+        given(informeService.findInformeById(TEST_INFORME_ID)).willReturn(Optional.of(informe));
+
+        mockMvc.perform(get("/citas/{citaId}/informes/{informeId}", TEST_CITA_ID, TEST_INFORME_ID))
+        .andExpect(status().isOk())
+        .andExpect(view().name("informes/informeDetails"))
+        .andExpect(model().attributeExists("informe"))
+        .andExpect(model().attribute("cannotbedeleted", true))
+        .andExpect(model().attribute("canbeedited", true)
         );
     }
     
