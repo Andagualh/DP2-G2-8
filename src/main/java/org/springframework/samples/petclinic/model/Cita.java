@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.validation.Valid;
+import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -18,7 +19,6 @@ import lombok.Data;
 @Entity
 public class Cita extends NamedEntity {
 
-	//@Future
 	@NotNull
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	@NotNull

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.management.InvalidAttributeValueException;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +28,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class CitaController {
 
 	@Autowired
-	private CitaService		citaService;
+	private CitaService citaService;
 	@Autowired
-	private PacienteService	pacienteService;
+	private PacienteService pacienteService;
 	@Autowired
-	private UserService		userService;
+	private UserService userService;
 
-
-	//CUANDO ALGUIEN HAGA EL CITADETAILS POR FAVOR QUE USE ESTA URL EN EL MAPPING: "/citas/citaDetails/{citaId}"
+	// CUANDO ALGUIEN HAGA EL CITADETAILS POR FAVOR QUE USE ESTA URL EN EL MAPPING:
+	// "/citas/citaDetails/{citaId}"
 
 	@GetMapping()
 	public String initList(final ModelMap modelMap) {
@@ -47,7 +48,8 @@ public class CitaController {
 		String vista = "citas/listCitas";
 		Collection<Cita> citas = this.citaService.findCitasByMedicoId(medicoId);
 		if (citas.isEmpty()) {
-			//TODO: Si no se han encontrado citas devuelve al index, pensad en una alternativa a esto como un popup o pagina que indique no se ha encontrado
+			// TODO: Si no se han encontrado citas devuelve al index, pensad en una
+			// alternativa a esto como un popup o pagina que indique no se ha encontrado
 			return "redirect:/";
 		} else {
 			modelMap.put("selections", citas);
@@ -61,18 +63,25 @@ public class CitaController {
 	public String crearCita(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 		Cita cita = new Cita();
 		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
-		//cita.setPaciente(paciente);
-		//cita.setName("paciente");
+		// cita.setPaciente(paciente);
+		// cita.setName("paciente");
 		modelMap.addAttribute("paciente", paciente);
 		modelMap.addAttribute("cita", cita);
 		return "citas/createOrUpdateCitaForm";
 	}
 
 	@PostMapping(path = "/save")
-	public String salvarCita(@Valid final Cita cita, final BindingResult result, final ModelMap modelMap) {
+	public String salvarCita(@Valid final Cita cita, final BindingResult result, final ModelMap modelMap)
+			throws InvalidAttributeValueException {
 		if (result.hasErrors()) {
 			modelMap.addAttribute("cita", cita);
 			modelMap.addAttribute("paciente", cita.getPaciente());
+			return "citas/createOrUpdateCitaForm";
+		} else if (cita.getFecha().isBefore(LocalDate.now())) {
+			System.out.println("entraalerror");
+			modelMap.addAttribute("cita", cita);
+			modelMap.addAttribute("paciente", cita.getPaciente());
+			modelMap.addAttribute("message", "La fecha debe estar en presente o futuro");
 			return "citas/createOrUpdateCitaForm";
 		} else {
 			this.citaService.save(cita);
@@ -86,11 +95,11 @@ public class CitaController {
 
 		Optional<Cita> cita = this.citaService.findCitaById(citaId);
 
-		if (cita.isPresent()) {
-			this.citaService.delete(cita.get());
+		if (cita.isPresent() && cita.get().getInforme() == null) {
 			modelMap.addAttribute("message", "Cita successfully deleted");
+			this.citaService.delete(cita.get());
 		} else {
-			modelMap.addAttribute("message", "Cita not found");
+			modelMap.addAttribute("message", "Cita cant be deleted");
 		}
 		return "redirect:/citas";
 	}
@@ -103,8 +112,9 @@ public class CitaController {
 		return "citas/findCitas";
 	}
 
-	//TODO: Falta el caso para una sola cita, que muestre directamente los detalles, no se ha incluido porque genera conflicto con otro método
-	//TODO: Cuando este hecho el details se incluye
+	// TODO: Falta el caso para una sola cita, que muestre directamente los
+	// detalles, no se ha incluido porque genera conflicto con otro método
+	// TODO: Cuando este hecho el details se incluye
 	@GetMapping(value = "/porfecha")
 	public String processFindForm(final Cita cita, final BindingResult result, final Map<String, Object> model) {
 
@@ -114,14 +124,15 @@ public class CitaController {
 		}
 
 		// find citas by fecha
-		Collection<Cita> results = this.citaService.findCitasByFecha(cita.getFecha());
-		if (results.isEmpty()) {
+		Collection<Cita> citas = this.citaService.findCitasByFecha(cita.getFecha());
+
+		if (citas.isEmpty()) {
 			// no citas found
 			result.rejectValue("fecha", "notFound", "not found");
 			return "citas/findCitas";
 		} else {
 			// multiple citas found
-			model.put("selections", results);
+			model.put("selections", citas);
 			return "citas/listCitas";
 		}
 	}

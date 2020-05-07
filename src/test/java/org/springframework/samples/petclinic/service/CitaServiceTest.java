@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.time.LocalDate;
 import java.util.Collection;
 
+import javax.management.InvalidAttributeValueException;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,16 +146,18 @@ public class CitaServiceTest {
 		int count = this.citaService.citaCount();
 		Assertions.assertEquals(count, 9);
 	}
+	
+	int citaInitalCountData = 9;
 
 	@Test
-	public void testCreateCita() {
+	public void testCreateCita() throws InvalidAttributeValueException {
 
 		Medico medico = createDummyMedico();
 		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
 
 		int count = this.pacienteService.pacienteCount();
 		int countCit = this.citaService.citaCount();
-		Assertions.assertEquals(count, 7);
+		Assertions.assertEquals(count, 10);
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(paciente.getId()));
 
 		Cita cita = new Cita();
@@ -191,7 +195,7 @@ public class CitaServiceTest {
 		Cita cita3 = new Cita();
 		int count = this.pacienteService.pacienteCount();
 		int countCit = this.citaService.citaCount();
-		Assertions.assertEquals(count, 9);
+		Assertions.assertEquals(count, 12);
 		
 		cita.setFecha(LocalDate.of(2020, 8, 8));
 		cita.setLugar("Sevilla");

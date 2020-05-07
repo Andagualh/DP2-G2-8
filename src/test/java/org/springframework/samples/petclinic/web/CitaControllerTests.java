@@ -1,5 +1,7 @@
 package org.springframework.samples.petclinic.web;
 
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -18,6 +20,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.apache.tomcat.jni.Local;
 import org.assertj.core.util.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -37,6 +40,8 @@ import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 
 import org.springframework.context.annotation.FilterType;
 
@@ -78,8 +83,6 @@ class CitaControllerTests{
 
     @BeforeEach
     void setup(){
-
-
         this.medico1 = new Medico();
         this.medico1.setId(TEST_MEDICO_ID);
         this.medico1.setNombre("Medico 2");
@@ -150,20 +153,82 @@ class CitaControllerTests{
             .andExpect(view().name("redirect:/citas")
         );
     }
-    
+
     @WithMockUser(value = "spring")
         @Test
     void testSalvarCitaHasErrors() throws Exception{
         mockMvc.perform(post("/citas/save")
         .with(csrf())
         .param("paciente.id", Integer.toString(TEST_PACIENTE_ID))
-        .param("fecha", "2020/09/09")
-        .param("lugar","Seville"))
+        .param("paciente.nombre", "test")
+        .param("paciente.apellidos", "test")
+        .param("paciente.f_nacimiento", "1997/09/09")
+        .param("paciente.f_alta", "2020/08/08")
+        .param("paciente.DNI", "12345689Q")
+        .param("paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
+        .param("paciente.medico.nombre", "test")
+        .param("paciente.medico.apellidos", "test")
+        .param("paciente.medico.domicilio", "test")
+        .param("paciente.medico.user.username", "test")
+        .param("paciente.medico.user.password", "test")
+        .param("fecha", "2020-09-09")
+        .param("lugar",""))
         .andExpect(model().attributeHasErrors("cita"))
         .andExpect(status().isOk())
         .andExpect(view().name("citas/createOrUpdateCitaForm")
         );
     }
+    
+    @WithMockUser(value = "spring")
+	    @Test
+	void testSalvarCitaPastDate() throws Exception{
+	    mockMvc.perform(post("/citas/save")
+	    .with(csrf())
+        .param("paciente.id", Integer.toString(TEST_PACIENTE_ID))
+        .param("paciente.nombre", "test")
+        .param("paciente.apellidos", "test")
+        .param("paciente.f_nacimiento", "1997/09/09")
+        .param("paciente.f_alta", "2020/08/08")
+        .param("paciente.DNI", "12345689Q")
+        .param("paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
+        .param("paciente.medico.nombre", "test")
+        .param("paciente.medico.apellidos", "test")
+        .param("paciente.medico.domicilio", "test")
+        .param("paciente.medico.user.username", "test")
+        .param("paciente.medico.user.password", "test")
+	    .param("fecha", "2019-01-01")
+	    .param("lugar","Seville"))
+	    .andExpect(model().attribute("message", "La fecha debe estar en presente o futuro"))
+	    .andExpect(status().isOk())
+	    .andExpect(view().name("citas/createOrUpdateCitaForm")
+	    );
+	}
+    	    
+    @WithMockUser(value = "spring")
+	    @Test
+	void testSalvarCitaHasErrorsCoverage() throws Exception{
+	    mockMvc.perform(post("/citas/save")
+	    .with(csrf())
+        .param("paciente.id", Integer.toString(TEST_PACIENTE_ID))
+        .param("paciente.nombre", "test")
+        .param("paciente.apellidos", "test")
+        .param("paciente.f_nacimiento", "1997/09/09")
+        .param("paciente.f_alta", "2020/08/08")
+        .param("paciente.DNI", "12345689Q")
+        .param("paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
+        .param("paciente.medico.nombre", "test")
+        .param("paciente.medico.apellidos", "test")
+        .param("paciente.medico.domicilio", "test")
+        .param("paciente.medico.user.username", "test")
+        .param("paciente.medico.user.password", "test")
+	    .param("fecha", "2019-01-01")
+	    .param("lugar",""))
+	    .andExpect(model().attributeHasErrors("cita"))
+	    .andExpect(model().attributeHasFieldErrors("cita", "lugar"))
+	    .andExpect(status().isOk())
+	    .andExpect(view().name("citas/createOrUpdateCitaForm")
+	    );
+	}
     
     @WithMockUser(value = "spring")
         @Test
@@ -178,7 +243,6 @@ class CitaControllerTests{
     @WithMockUser(value = "spring")
         @Test
     void testBorrarCitaNoPresente() throws Exception{
-        //No existe ningún objeto CITA con ID 2 cuando se ejecuta este Test.
         mockMvc.perform(get("/citas/delete/{citaId}", 2))
       //  .andExpect(model().attributeExists("message"))
         .andExpect(status().is3xxRedirection())
@@ -216,6 +280,25 @@ class CitaControllerTests{
         );
     }
 
+    @WithMockUser(value = "spring")
+	    @Test
+	void testProcessFindFormNoDate() throws Exception{
+	    Cita dum1 = new Cita();
+	    Cita dum2 = new Cita();
+	    dum1.setFecha(LocalDate.now());
+	    dum2.setFecha(LocalDate.now());
+	   
+	    given(this.citaService.findCitasByFecha(LocalDate.now())).willReturn(Lists.newArrayList(dum1, dum2));
+	    
+	    mockMvc.perform(
+	    get("/citas/porfecha")
+	    .param("fecha", "null"))
+	    .andExpect(status().isOk())
+	    .andExpect(model().attributeExists("selections"))
+	    .andExpect(view().name("citas/listCitas")
+	    );
+	}
+    
     @WithMockUser(value = "spring")
         @Test
     void testProcessFindFormNoCitaFound() throws Exception{

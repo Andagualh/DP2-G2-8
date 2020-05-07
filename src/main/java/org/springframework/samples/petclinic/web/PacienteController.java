@@ -167,13 +167,32 @@ public class PacienteController {
 		Optional<Paciente> paciente = this.pacienteService.findPacienteById(pacienteId);
 
 		if (paciente.isPresent()) {
-			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("admin"))) {
-				this.pacienteService.pacienteDelete(pacienteId);
-			} else {
-				this.pacienteService.deletePacienteByMedico(pacienteId, this.userService.getCurrentMedico().getId());
+			Collection<Cita> citas = this.citaService.findAllByPaciente(paciente.get());
+
+			boolean puedeBorrarse = citas.isEmpty();
+			if (!citas.isEmpty()) {
+				LocalDate ultimaCita = citas.stream().map(Cita::getFecha).max(LocalDate::compareTo).get();
+				LocalDate hoy = LocalDate.now();
+				puedeBorrarse = hoy.compareTo(ultimaCita) >= 6
+						|| hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
 			}
-			modelMap.addAttribute("message", "Paciente borrado exitosamiente");
-			view = "redirect:/pacientes";
+
+			HistoriaClinica hs = this.pacienteService.findHistoriaClinicaByPaciente(paciente.get());
+			puedeBorrarse = puedeBorrarse && hs == null;
+
+			if (puedeBorrarse) {
+				if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("admin"))) {
+					this.pacienteService.pacienteDelete(pacienteId);
+				} else if (paciente.get().getMedico().equals(this.userService.getCurrentMedico())) {
+					this.pacienteService.deletePacienteByMedico(pacienteId,
+							this.userService.getCurrentMedico().getId());
+				}
+				modelMap.addAttribute("message", "Paciente borrado exitosamiente");
+				view = "redirect:/pacientes";
+			} else {
+				modelMap.addAttribute("message", "Paciente no puede borrarse");
+				view = "redirect:/pacientes/" + pacienteId;
+			}
 		} else {
 			modelMap.addAttribute("message", "Paciente no encontrado");
 		}
@@ -234,22 +253,26 @@ public class PacienteController {
 		boolean noTieneContacto = paciente.getN_telefono() == null && paciente.getDomicilio().isEmpty()
 				&& paciente.getEmail().isEmpty();
 		boolean dniOk = new DniValidator(paciente.getDNI()).validar();
-		boolean pacienteValid = noTieneContacto && !dniOk;
+		boolean pacienteValid = noTieneContacto == false && dniOk == true;
 
-		if (result.hasErrors() || pacienteValid) {
+		if (result.hasErrors() || !pacienteValid) {
 			modelMap.addAttribute("medicoList", this.medicoService.getMedicos());
 			modelMap.addAttribute("isNewPaciente", true);
 			if (noTieneContacto) {
 				result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
 			}
-			if (!dniOk)
+			if (dniOk == false) {
 				result.rejectValue("DNI", "error.DNI", "DNI invalido.");
+			}
+
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else {
+			System.out.println("intenta guardar");
 			this.pacienteService.savePacienteByMedico(paciente, this.userService.getCurrentMedico().getId());
-			HistoriaClinica hc = new HistoriaClinica();
-			hc.setPaciente(paciente);
-			this.historiaClinicaService.saveHistoriaClinica(hc);
+//			HistoriaClinica hc = new HistoriaClinica();
+//			hc.setPaciente(paciente);
+//			this.historiaClinicaService.saveHistoriaClinica(hc);
+			System.out.println("llegaalredirect");
 			return "redirect:/pacientes/" + paciente.getId();
 		}
 	}

@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 
+import javax.management.InvalidAttributeValueException;
+
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -143,7 +145,7 @@ public class InformeServiceTest {
         return paciente;
     }
 
-    public Cita createDummyCita1(final Paciente paciente) {
+    public Cita createDummyCita1(final Paciente paciente) throws InvalidAttributeValueException {
         Cita cita = new Cita();
         cita.setPaciente(paciente);
         cita.setFecha(LocalDate.now());
@@ -152,7 +154,7 @@ public class InformeServiceTest {
         return cita;
     }
 
-    public Cita createDummyCitaFuturo(final Paciente paciente) {
+    public Cita createDummyCitaFuturo(final Paciente paciente) throws InvalidAttributeValueException {
         Cita cita = new Cita();
         cita.setPaciente(paciente);
         cita.setFecha(LocalDate.now().plusDays(1));
@@ -170,7 +172,7 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testSaveInforme() throws DataAccessException, IllegalAccessException {
+    public void testSaveInforme() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
         Medico medico = createDummyMedico();
 		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCita1(paciente);
@@ -193,7 +195,7 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testSaveInformeforNotCurrentDate() throws DataAccessException, IllegalAccessException {
+    public void testSaveInformeforNotCurrentDate() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
         Medico medico = createDummyMedico();
         Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCitaFuturo(paciente);
@@ -213,7 +215,7 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testSaveInformeWithHC() throws DataAccessException, IllegalAccessException {
+    public void testSaveInformeWithHC() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
         Medico medico = createDummyMedico();
         Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCita1(paciente);
@@ -234,7 +236,7 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testDeleteInformeSuccess() throws DataAccessException, IllegalAccessException{
+    public void testDeleteInformeSuccess() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException{
         Medico medico = createDummyMedico();
 		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCita1(paciente);
@@ -256,7 +258,7 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testDeleteInformeWithHC() throws DataAccessException, IllegalAccessException {
+    public void testDeleteInformeWithHC() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
         Medico medico = createDummyMedico();
 		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCita1(paciente);
@@ -316,7 +318,7 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testDeleteInformeFromHC() throws DataAccessException, IllegalAccessException{
+    public void testDeleteInformeFromHC() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException{
         Medico medico = createDummyMedico();
         Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCita1(paciente);

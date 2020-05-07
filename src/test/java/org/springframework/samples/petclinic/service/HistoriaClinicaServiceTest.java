@@ -70,9 +70,11 @@ public class HistoriaClinicaServiceTest {
 	@Test
 	void testCountWithInitialData() {
 		int count = historiaClinicaService.historiaClinicaCount();
-		assertEquals(count,6);
+		assertEquals(count,7);
 	}
 
+	int historiaClinicaInitalCountData = 7;
+	
 	@Test
 	void testCreateHistoriaClinica() throws Exception{
 		
@@ -100,8 +102,9 @@ public class HistoriaClinicaServiceTest {
 		Paciente paciente2 = createDummyPaciente(medico);
 		
 		int count = this.pacienteService.pacienteCount();
-		Assertions.assertEquals(count, 8);
-		
+		Assertions.assertEquals(paciente, this.pacienteService.getPacienteById(paciente.getId()));
+		Assertions.assertEquals(paciente2, this.pacienteService.getPacienteById(paciente2.getId()));
+
 		Assertions.assertNotNull(paciente);
 		Assertions.assertNotNull(paciente2);
 		
@@ -126,8 +129,8 @@ public class HistoriaClinicaServiceTest {
 		Paciente paciente = createDummyPaciente(medico);
 		Paciente paciente2 = createDummyPaciente(medico);
 		
-		int count = this.pacienteService.pacienteCount();
-		Assertions.assertEquals(count, 8);
+		Assertions.assertEquals(paciente, this.pacienteService.getPacienteById(paciente.getId()));
+		Assertions.assertEquals(paciente2, this.pacienteService.getPacienteById(paciente2.getId()));
 		
 		Assertions.assertNotNull(paciente);
 		Assertions.assertNotNull(paciente2);

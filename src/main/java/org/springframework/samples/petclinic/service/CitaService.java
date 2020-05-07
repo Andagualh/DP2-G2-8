@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
+import javax.management.InvalidAttributeValueException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Cita;
@@ -20,7 +22,7 @@ public class CitaService {
 	private CitaRepository citaRepo;
 
 	@Autowired
-	public CitaService(CitaRepository citaRepo){
+	public CitaService(CitaRepository citaRepo) {
 		this.citaRepo = citaRepo;
 	}
 
@@ -40,7 +42,7 @@ public class CitaService {
 		return this.citaRepo.save(cita).getId();
 	}
 
-	//No esta terminada
+	// No esta terminada
 	@Transactional
 	public Iterable<Cita> findAllByMedicoId(final int medicoId) {
 		return this.citaRepo.findAll();
@@ -52,7 +54,16 @@ public class CitaService {
 	}
 
 	@Transactional
-	public Cita save(final Cita cita) {
+	public Cita save(final Cita cita) throws InvalidAttributeValueException {
+		if (cita.getFecha().isBefore(LocalDate.now())) {
+			throw new InvalidAttributeValueException();
+		} else {
+			return this.citaRepo.save(cita);
+		}
+	}
+
+	@Transactional
+	public Cita saveOldDate(final Cita cita) {
 		return this.citaRepo.save(cita);
 	}
 

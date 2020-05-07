@@ -20,14 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class PacienteService {
 
 	@Autowired
-	private PacienteRepository		pacienteRepo;
+	private PacienteRepository pacienteRepo;
 	@Autowired
-	private CitaService				citaService;
+	private CitaService citaService;
 	@Autowired
-	private MedicoService			medicoService;
+	private MedicoService medicoService;
 	@Autowired
-	private HistoriaClinicaService	historiaClinicaService;
-
+	private HistoriaClinicaService historiaClinicaService;
 
 	@Autowired
 	public PacienteService(final PacienteRepository pacienteRepo) {
@@ -72,11 +71,11 @@ public class PacienteService {
 	}
 
 	@Transactional
-	public void savePacienteByMedico(final Paciente paciente, final int idMedico) {
+	public int savePacienteByMedico(final Paciente paciente, final int idMedico) {
 		boolean tieneTelefono = paciente.getN_telefono() != null;
 		boolean tieneContacto = tieneTelefono || !paciente.getDomicilio().isEmpty() || !paciente.getEmail().isEmpty();
 		boolean dniOk = new DniValidator(paciente.getDNI()).validar();
-		System.out.println("dniok"+ dniOk);
+
 		if (paciente.getMedico().getId() == idMedico) {
 			if (!dniOk) {
 				throw new IllegalArgumentException("Dni incorrecto");
@@ -90,7 +89,7 @@ public class PacienteService {
 			} else {
 				throw new IllegalArgumentException("No tiene forma de contacto");
 			}
-			this.pacienteRepo.save(paciente);
+			return this.pacienteRepo.save(paciente).getId();
 		} else {
 			throw new IllegalAccessError();
 		}
@@ -105,7 +104,7 @@ public class PacienteService {
 	public void deletePacienteByMedico(final int idPaciente, final int idMedico) {
 		Paciente paciente = this.pacienteRepo.findById(idPaciente).get();
 		boolean medicoEnabled = this.medicoService.getMedicoById(idMedico).getUser().isEnabled();
-
+		
 		if (paciente.getMedico().getId() == idMedico && medicoEnabled) {
 			Collection<Cita> citas = this.citaService.findAllByPaciente(paciente);
 			boolean puedeBorrarse = citas.isEmpty();
@@ -116,15 +115,16 @@ public class PacienteService {
 			}
 
 			HistoriaClinica hs = this.findHistoriaClinicaByPaciente(paciente);
-
-			puedeBorrarse = puedeBorrarse && hs.getDescripcion().isEmpty();
-
-			if (citas.isEmpty() && hs.getDescripcion().isEmpty()) {
-				this.historiaClinicaService.deleteHistoriaClinica(hs);
+			
+//			puedeBorrarse = puedeBorrarse && hs == null;
+			
+			if (citas.isEmpty() && hs == null) {
 				this.citaService.deleteAllByPaciente(paciente);
 				this.pacienteRepo.deleteById(idPaciente);
 			} else if (puedeBorrarse) {
-				this.historiaClinicaService.deleteHistoriaClinica(hs);
+				if (hs != null) {
+					this.historiaClinicaService.deleteHistoriaClinica(hs);
+				}
 				this.citaService.deleteAllByPaciente(paciente);
 				this.pacienteRepo.deleteById(idPaciente);
 			} else {

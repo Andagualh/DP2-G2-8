@@ -130,6 +130,9 @@ public class InformeController {
 
 	@PostMapping(value = "/informes/new")
 	public String processCreationForm(final Cita cita, @Valid final Informe informe, final BindingResult result, final ModelMap model) throws DataAccessException, IllegalAccessException {
+		
+		System.out.println("citahola"+cita);
+		System.out.println("informehola"+informe.getDiagnostico()+"-"+informe.getMotivo_consulta());
 		if (result.hasErrors()) {
 			model.put("informe", informe);
 			return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
