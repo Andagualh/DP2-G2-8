@@ -76,6 +76,7 @@ public class PacienteService {
 		boolean tieneTelefono = paciente.getN_telefono() != null;
 		boolean tieneContacto = tieneTelefono || !paciente.getDomicilio().isEmpty() || !paciente.getEmail().isEmpty();
 		boolean dniOk = new DniValidator(paciente.getDNI()).validar();
+		System.out.println("dniok"+ dniOk);
 		if (paciente.getMedico().getId() == idMedico) {
 			if (!dniOk) {
 				throw new IllegalArgumentException("Dni incorrecto");
@@ -93,29 +94,6 @@ public class PacienteService {
 		} else {
 			throw new IllegalAccessError();
 		}
-
-		//		if (paciente.getMedico().getId() == idMedico) {
-		//			if (dniOk) {
-		//				if (tieneContacto) {
-		//					if (tieneTelefono) {
-		//						if (!paciente.getN_telefono().toString().isEmpty() && !(paciente.getN_telefono().toString().length() == 9)) {
-		//							throw new IllegalArgumentException("Número de teléfono incorrecto");
-		//						} else {
-		//							this.pacienteRepo.save(paciente);
-		//						}
-		//					} else {
-		//						this.pacienteRepo.save(paciente);
-		//					}
-		//				} else {
-		//					throw new IllegalArgumentException("No tiene forma de contacto");
-		//				}
-		//			} else {
-		//				throw new IllegalArgumentException("Dni incorrecto");
-		//
-		//			}
-		//		} else {
-		//			throw new IllegalAccessError();
-		//		}
 	}
 
 	@Transactional
