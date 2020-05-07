@@ -1,4 +1,4 @@
-package org.springframework.samples.petclinic.ui;
+package org.springframework.samples.petclinic.ui.tratamiento;
 
 
 import static org.junit.Assert.fail;
@@ -21,7 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CreateTratamientoUITest {
+public class CreateSuccessTratamientoUITest {
 	
 	@LocalServerPort
 	private int				port				= 8080;

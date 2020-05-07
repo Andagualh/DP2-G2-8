@@ -43,7 +43,7 @@ public class EditHistoriaClinicaEmptyUITest {
 		this.driver.get("http://localhost:" + this.port);
 		this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 		this.driver.findElement(By.id("username")).clear();
-		this.driver.findElement(By.id("username")).sendKeys("pabloMedico");
+		this.driver.findElement(By.id("username")).sendKeys("alvaroMedico");
 		this.driver.findElement(By.id("password")).clear();
 		this.driver.findElement(By.id("password")).sendKeys("entrar");
 		this.driver.findElement(By.xpath("//button[@type='submit']")).click();
