@@ -158,13 +158,11 @@ public class TestInformeControladorE2E {
         informe.setMotivo_consulta("motivo");
         informeService.saveInforme(informe);
         TEST_INFORME_ID = informe.getId();
+        informe.setDiagnostico("diagnosticoTest");
+        informe.setMotivo_consulta("motivoTest");
 
         mockMvc.perform(post("/citas/{citaId}/informes/{informeId}/edit", TEST_CITA_ID, TEST_INFORME_ID)
         .with(csrf())
-        /*.param("id", Integer.toString(TEST_INFORME_ID))
-        .param("motivo_consulta", "Consulta")
-        .param("diagnostico", "diagnostico")
-        .param("cita", "${cita}")*/
         .flashAttr("informe", informe)
         )
         .andExpect(status().is3xxRedirection())
