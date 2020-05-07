@@ -100,12 +100,12 @@ INSERT INTO cita VALUES (7, 'Cita Test Informe','2020-04-18','Consulta Test Info
 INSERT INTO cita VALUES (8, 'Cita Test Edit Informe', '2020-04-20', 'Consulta Test 7', 1);
 INSERT INTO cita VALUES (9, 'Cita Test Pasado Informes', '2020-04-20', 'ConsultaTEST', 1);
 
-INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (1,'Descripcion',1);
-INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (2,'Descripcion 2',2);
-INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (3,'Descripcion 3',3);
-INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (4,'Descripcion 4',4);
-INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (5,'Descripcion 5',5);
-INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (6,'Descripcion 6',6);
+INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (1,'Descripcion',1);
+INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (2,'Descripcion 2',2);
+INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (3,'Descripcion 3',3);
+INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (4,'Descripcion 4',4);
+INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (5,'Descripcion 5',5);
+INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (6,'Descripcion 6',6);
 
 INSERT INTO informe VALUES (1,'motivo','diagnostico',1,null);
 INSERT INTO informe VALUES (2, 'motivo test', 'diagnostico test', 8, null);
