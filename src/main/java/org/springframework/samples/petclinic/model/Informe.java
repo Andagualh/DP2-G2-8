@@ -9,19 +9,17 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 // @Data
 
-@EqualsAndHashCode
 @RequiredArgsConstructor
 @Getter
 @Setter
 @Entity
-public class Informe extends NamedEntity {
+public class Informe extends BaseEntity {
 
 	@NotEmpty
 	private String			motivo_consulta;

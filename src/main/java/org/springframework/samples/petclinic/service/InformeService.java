@@ -29,7 +29,7 @@ public class InformeService {
 		if (informe.getCita().getFecha().equals(LocalDate.now())) {
 			this.informeRepository.save(informe);
 		} else {
-			throw new IllegalAccessException();
+			throw new IllegalAccessException("No se puede crear un informe para una cita futura");
 		}
 	}
 
@@ -45,8 +45,14 @@ public class InformeService {
 	}
 
 	@Transactional
-	public void deleteInforme(final int id) {
+	public void deleteInforme(final int id) throws DataAccessException, IllegalAccessException{
+		Informe informe = findInformeById(id).get();
+		
+		if(informe.getCita().getFecha().equals(LocalDate.now()) && informe.getHistoriaClinica() == null){
 		this.informeRepository.deleteById(id);
+		} else {
+			throw new IllegalAccessException("No se puede borrar este informe");
+		}
 	}
 
 }

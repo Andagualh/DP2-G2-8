@@ -4,9 +4,8 @@ package org.springframework.samples.petclinic.model;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
-import javax.validation.Valid;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import lombok.Data;
@@ -29,12 +28,12 @@ public class HistoriaClinica extends BaseEntity {
 		this.descripcion = descripcion;
 	}
 
+
 	@NotNull
 	@Valid
 	@OneToOne(optional = false)
 	@JoinColumn(name = "paciente_id")
 	private Paciente paciente;
-
 
 	//	@OneToMany(mappedBy = "informe")
 	//	private Collection<Informe>	informes;

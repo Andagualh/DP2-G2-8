@@ -140,7 +140,7 @@ public class TratamientoControllerTest {
         this.informe1.setDiagnostico("diagnostico test");
         this.informe1.setHistoriaClinica(null);
         this.informe1.setMotivo_consulta("motivo test");
-        this.informe1.setName("informeTest");
+        
 
 		this.tratamiento = new Tratamiento();
 		this.tratamiento.setId(TEST_TRATAMIENTO_ID);
@@ -158,7 +158,7 @@ public class TratamientoControllerTest {
 		BDDMockito.given(this.tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
 
 	}
-	
+	 
 	@WithMockUser(value = "spring")
 	@Test
 	void testInit() throws Exception {
@@ -177,6 +177,16 @@ public class TratamientoControllerTest {
 				.andExpect(model().attribute("tratamiento", hasProperty("f_inicio_tratamiento", is(LocalDate.parse("2020-04-22")))))
 				.andExpect(model().attribute("tratamiento", hasProperty("f_fin_tratamiento", is(LocalDate.parse("2020-10-22")))))
 				.andExpect(model().attribute("tratamiento", hasProperty("informe", is(this.informe1))))
+				.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"));
+		
+	}
+	
+	@WithMockUser(value = "spring")
+	@Test
+	void testInitCreateTratamientoForm() throws Exception {
+		mockMvc.perform(get("/tratamientos/new/{informeId}", TEST_INFORME_ID))
+				.andExpect(status().isOk())
+				.andExpect(model().attributeExists("tratamiento"))
 				.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"));
 		
 	}
