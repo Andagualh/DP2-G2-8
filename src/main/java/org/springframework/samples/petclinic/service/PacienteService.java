@@ -73,34 +73,24 @@ public class PacienteService {
 
 	@Transactional
 	public void savePacienteByMedico(final Paciente paciente, final int idMedico) {
-		boolean tieneTelefono = false;
-
-		if (paciente.getN_telefono() != null) {
-			tieneTelefono = true;
-		}
-
+		boolean tieneTelefono = paciente.getN_telefono() != null;
 		boolean tieneContacto = tieneTelefono || !paciente.getDomicilio().isEmpty() || !paciente.getEmail().isEmpty();
 		boolean dniOk = new DniValidator(paciente.getDNI()).validar();
-
+		System.out.println("dniok"+ dniOk);
 		if (paciente.getMedico().getId() == idMedico) {
-			if (dniOk) {
-				if (tieneContacto) {
-					if (tieneTelefono) {
-						if (!paciente.getN_telefono().toString().isEmpty() && !(paciente.getN_telefono().toString().length() == 9)) {
-							throw new IllegalArgumentException("Número de teléfono incorrecto");
-						} else {
-							this.pacienteRepo.save(paciente).getId();
-						}
-					} else {
-						this.pacienteRepo.save(paciente).getId();
+			if (!dniOk) {
+				throw new IllegalArgumentException("Dni incorrecto");
+			}
+			if (tieneContacto) {
+				if (tieneTelefono) {
+					if (!(paciente.getN_telefono().toString().length() == 9)) {
+						throw new IllegalArgumentException("Número de teléfono incorrecto");
 					}
-				} else {
-					throw new IllegalArgumentException("No tiene forma de contacto");
 				}
 			} else {
-				throw new IllegalArgumentException("Dni incorrecto");
-
+				throw new IllegalArgumentException("No tiene forma de contacto");
 			}
+			this.pacienteRepo.save(paciente);
 		} else {
 			throw new IllegalAccessError();
 		}
@@ -122,7 +112,7 @@ public class PacienteService {
 			if (!citas.isEmpty()) {
 				LocalDate ultimaCita = citas.stream().map(Cita::getFecha).max(LocalDate::compareTo).get();
 				LocalDate hoy = LocalDate.now();
-				puedeBorrarse = hoy.compareTo(ultimaCita) >= 6 || hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() >= hoy.getDayOfYear();
+				puedeBorrarse = hoy.compareTo(ultimaCita) >= 6 || hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
 			}
 
 			HistoriaClinica hs = this.findHistoriaClinicaByPaciente(paciente);

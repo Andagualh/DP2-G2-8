@@ -107,10 +107,9 @@ INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (4,'Descripcion 4
 INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (5,'Descripcion 5',5);
 INSERT INTO historiaClinica(id,descripcion,paciente_id) VALUES (6,'Descripcion 6',6);
 
-INSERT INTO informe VALUES (1,'motivo','diagnostico',1,null);
-INSERT INTO informe VALUES (2, 'motivo test', 'diagnostico test', 8, null);
-INSERT INTO informe VALUES(3, 'cita pasada', 'cita past',9,null);
-
+INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (1,'motivo','diagnostico',1,null);
+INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (2, 'motivo test', 'diagnostico test', 8, null);
+INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (3, 'cita pasada', 'cita past',9,null);
 
 INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tratamiento,informe_id) 
 VALUES (1, 'nombre1','paracetamol','1 pastilla cada 4 horas','2020-03-09','2020-12-24',1);
