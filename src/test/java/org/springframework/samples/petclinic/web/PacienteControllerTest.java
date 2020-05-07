@@ -76,6 +76,7 @@ public class PacienteControllerTest {
 	private MockMvc				mockMvc;
 
 	private Paciente			javier;
+	private Paciente			sara;
 
 	private Medico				medico1;
 
@@ -117,7 +118,7 @@ public class PacienteControllerTest {
 		this.javier.setEmail("javier_silva@gmail.com");
 		this.javier.setF_alta(LocalDate.now());
 		this.javier.setMedico(this.medico1);
-	
+			
 		BDDMockito.given(this.userService.findUserByUsername(TEST_MEDICOUSER_ID)).willReturn(Optional.of(this.medico1User));
 		BDDMockito.given(this.medicoService.getMedicoById(TEST_MEDICO_ID)).willReturn(this.medico1);
 		BDDMockito.given(this.pacienteService.findPacienteById(TEST_PACIENTE_ID)).willReturn(Optional.of(this.javier));
@@ -169,6 +170,33 @@ public class PacienteControllerTest {
 			mockMvc.perform(get("/pacientes").param("apellidos", "Silva"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/pacientes/" + TEST_PACIENTE_ID));
+	}
+		
+		@WithMockUser(value = "spring")
+	@Test
+	void testProcessFindFormFindMany() throws Exception {
+			this.sara = new Paciente();
+			this.sara.setId(2);
+			this.sara.setNombre("Sara");
+			this.sara.setApellidos("Silva");
+			this.sara.setF_nacimiento(LocalDate.of(2000, 1, 12));
+			this.sara.setDNI("12345678Z");
+			this.sara.setDomicilio("Ecija");
+			this.sara.setN_telefono(612345987);
+			this.sara.setEmail("sara_silva@gmail.com");
+			this.sara.setF_alta(LocalDate.now());
+			this.sara.setMedico(this.medico1);
+
+			BDDMockito.given(this.pacienteService.findPacienteById(2)).willReturn(Optional.of(this.sara));
+			
+			
+			BDDMockito.given(this.pacienteService.findPacienteByApellidos("Silva"))
+				.willReturn(Lists.newArrayList(javier,sara));
+
+			mockMvc.perform(get("/pacientes").param("apellidos", "Silva"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("pacientes/pacientesList"))
+				.andExpect(model().attribute("selections", Lists.newArrayList(javier,sara)));
 	}
 	
         @WithMockUser(value = "spring")

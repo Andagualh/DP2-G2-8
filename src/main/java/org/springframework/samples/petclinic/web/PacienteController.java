@@ -142,23 +142,6 @@ public class PacienteController {
 		}
 	}
 
-	// @GetMapping(value = "/paciente/save/{pacienteId}")
-	// public String savePaciente(@Valid final Paciente paciente, final
-	// BindingResult result, final ModelMap modelMap) {
-	// String view = "/pacientes";
-	//
-	// if (result.hasErrors()) {
-	// modelMap.addAttribute("paciente", paciente);
-	// return "pacientes/editPaciente";
-	// } else {
-	// this.pacienteService.savePacienteByMedico(paciente,
-	// this.userService.getCurrentMedico().getId());
-	// modelMap.addAttribute("message", "Paciente guardado exitosamente");
-	// }
-	//
-	// return view;
-	// }
-
 	@RequestMapping(value = "/pacientes/{pacienteId}/delete")
 	public String borrarPaciente(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 		String view = "/pacientes";
@@ -213,26 +196,30 @@ public class PacienteController {
 	public String processUpdatePacienteForm(@Valid final Paciente paciente, final BindingResult result,
 			@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 
-		boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-				.contains(new SimpleGrantedAuthority("admin"));
+//		boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+//				.contains(new SimpleGrantedAuthority("admin"));
 		boolean noTieneContacto = paciente.getN_telefono() == null && paciente.getDomicilio().isEmpty()
 				&& paciente.getEmail().isEmpty();
+		boolean dniOk = new DniValidator(paciente.getDNI()).validar();
+		boolean pacienteValid = noTieneContacto == false && dniOk == true;
 
-		if (result.hasErrors() || noTieneContacto) {
+		if (result.hasErrors() || !pacienteValid) {
 			modelMap.addAttribute("medicoList", this.medicoService.getMedicos());
 			modelMap.addAttribute("isNewPaciente", false);
-			result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
+			if (noTieneContacto) {
+				result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
+			}
+			if (dniOk == false) {
+				result.rejectValue("DNI", "error.DNI", "DNI invalido.");
+			}
+
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
-		} else if (isAdmin) {
-			paciente.setId(pacienteId);
-			this.pacienteService.savePaciente(paciente);
-			return "redirect:/pacientes/{pacienteId}";
 		} else {
-			int currentMedico = this.userService.getCurrentMedico().getId();
 			paciente.setId(pacienteId);
-			this.pacienteService.savePacienteByMedico(paciente, currentMedico);
+			this.pacienteService.savePacienteByMedico(paciente, this.userService.getCurrentMedico().getId());
 			return "redirect:/pacientes/{pacienteId}";
 		}
+
 	}
 
 	@GetMapping(value = "/pacientes/new")
@@ -267,12 +254,7 @@ public class PacienteController {
 
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else {
-			System.out.println("intenta guardar");
 			this.pacienteService.savePacienteByMedico(paciente, this.userService.getCurrentMedico().getId());
-//			HistoriaClinica hc = new HistoriaClinica();
-//			hc.setPaciente(paciente);
-//			this.historiaClinicaService.saveHistoriaClinica(hc);
-			System.out.println("llegaalredirect");
 			return "redirect:/pacientes/" + paciente.getId();
 		}
 	}
