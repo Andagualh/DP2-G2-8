@@ -10,12 +10,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.HistoriaClinica;
 import org.springframework.samples.petclinic.model.Informe;
@@ -35,7 +37,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.MOCK)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @Transactional
 public class TestInformeControladorE2E {
@@ -52,17 +54,17 @@ public class TestInformeControladorE2E {
     @Autowired
     private MockMvc mockMvc;
 
-    private static final int TEST_MEDICO_ID = 1; 
+    private static final int TEST_MEDICO_ID = 1;
     private static final int TEST_PACIENTE_ID = 1;
     private static final String TEST_USER_ID = "1";
     private static final String TEST_MEDICOUSER_ID = "1";
-    
+
     private int TEST_INFORME_ID;
     private int TEST_CITA_ID;
     private Cita cita;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         cita = new Cita();
         cita.setFecha(LocalDate.now());
         cita.setLugar("Lugar");
@@ -70,7 +72,12 @@ public class TestInformeControladorE2E {
         citaService.save(cita);
         TEST_CITA_ID = cita.getId();
 
-        
+    }
+
+    @AfterEach
+    void undo() throws DataAccessException, IllegalAccessException {
+        citaService.delete(cita);
+        TEST_INFORME_ID = 0;
     }
 
     @WithMockUser(username="alvaroMedico", authorities={"medico"})
@@ -80,6 +87,63 @@ public class TestInformeControladorE2E {
         .andExpect(status().isOk())
         .andExpect(view().name("informes/createOrUpdateInformeForm"))
         .andExpect(model().attributeExists("informe"));
+    }
+
+    @WithMockUser(username="alvaroMedico", authorities={"medico"})
+        @Test
+    void testCreateInformeForCitaDifferentDateWithInforme() throws Exception{
+
+        Cita citaTemp = citaService.findCitaById(1).get();
+
+        mockMvc.perform(get("/citas/{citaId}/informes/new", citaTemp.getId()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/citas/"+TEST_MEDICO_ID)
+        );
+    }
+
+    @WithMockUser(username="alvaroMedico", authorities={"medico"})
+        @Test
+    void testCreateInformeForCitaDifferentDate() throws Exception{
+
+        Cita cita2 = new Cita();
+        cita2.setFecha(LocalDate.now().minusDays(1));
+        cita2.setLugar("Lugar");
+        cita2.setPaciente(this.pacienteService.findPacienteById(TEST_PACIENTE_ID).get());
+        citaService.save(cita2);
+        int TEST_CITA2_ID = cita2.getId();
+
+        mockMvc.perform(get("/citas/{citaId}/informes/new", TEST_CITA2_ID))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/citas/"+TEST_MEDICO_ID)
+        );
+
+        citaService.delete(cita2);
+    }
+
+    @WithMockUser(username="alvaroMedico", authorities={"medico"})
+        @Test
+    void testCreateInformeCitaWithInforme() throws Exception{
+
+        Cita cita2 = new Cita();
+        cita2.setFecha(LocalDate.now());
+        cita2.setLugar("Lugar");
+        cita2.setPaciente(this.pacienteService.findPacienteById(TEST_PACIENTE_ID).get());
+        citaService.save(cita2);
+        int TEST_CITA2_ID = cita2.getId();
+
+        Informe informe = new Informe();
+        informe.setCita(cita2);
+        informe.setDiagnostico("Diag");
+        informe.setMotivo_consulta("motivo");
+        informeService.saveInforme(informe);
+
+        mockMvc.perform(get("/citas/{citaId}/informes/new", TEST_CITA2_ID))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/citas/"+TEST_MEDICO_ID)
+        );
+
+        informeService.deleteInforme(informe.getId());
+        citaService.delete(cita2);
     }
 
     @WithMockUser(username="alvaroMedico", authorities={"medico"})
@@ -102,6 +166,9 @@ public class TestInformeControladorE2E {
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/citas/"+TEST_MEDICO_ID)
         );
+
+        informeService.deleteInforme(informe.getId());
+            
     }
 
     @WithMockUser(username="alvaroMedico", authorities={"medico"})
@@ -124,6 +191,7 @@ public class TestInformeControladorE2E {
         .andExpect(view().name("informes/createOrUpdateInformeForm"))
         .andExpect(model().attributeExists("informe")        
         );
+
     }
 
     @WithMockUser(username="alvaroMedico", authorities={"medico"})
@@ -168,7 +236,7 @@ public class TestInformeControladorE2E {
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/citas/"+TEST_MEDICO_ID)
         );
-
+        informeService.deleteInforme(TEST_INFORME_ID);
         TEST_INFORME_ID = 0;
     }
 
@@ -196,8 +264,8 @@ public class TestInformeControladorE2E {
         .andExpect(view().name("informes/createOrUpdateInformeForm"))
         .andExpect(model().attributeExists("informe")   
         );
-
-        TEST_INFORME_ID = 0;
+        informeService.deleteInforme(TEST_INFORME_ID);
+        TEST_INFORME_ID = 0;    
     }
 
     @WithMockUser(username="alvaroMedico", authorities={"medico"})
@@ -215,7 +283,7 @@ public class TestInformeControladorE2E {
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/")
         );
-        TEST_INFORME_ID = 0;
+        TEST_INFORME_ID = 0;   
     }
 
     @WithMockUser(username="alvaroMedico", authorities={"medico"})
@@ -233,7 +301,7 @@ public class TestInformeControladorE2E {
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/")
         );
-        TEST_INFORME_ID = 0;
+        TEST_INFORME_ID = 0; 
     }
 
     @WithMockUser(username="alvaroMedico", authorities={"medico"})
@@ -275,6 +343,8 @@ public class TestInformeControladorE2E {
         .andExpect(model().attribute("canbeedited", true)
 
         );
+        informeService.deleteInforme(TEST_INFORME_ID);
+        TEST_INFORME_ID = 0;
     }
 
     @WithMockUser(username="alvaroMedico", authorities={"medico"})
@@ -293,8 +363,8 @@ public class TestInformeControladorE2E {
         .andExpect(model().attribute("cannotbedeleted", true))
         .andExpect(model().attribute("canbeedited", false)
         );
-
         TEST_INFORME_ID = 0;
+        
     }
 
     @WithMockUser(username="alvaroMedico", authorities={"medico"})
@@ -316,8 +386,8 @@ public class TestInformeControladorE2E {
         .andExpect(model().attribute("cannotbedeleted", true))
         .andExpect(model().attribute("canbeedited", false)
         );
-
         TEST_INFORME_ID = 0;
+        
     }
 
     @WithMockUser(username="alvaroMedico", authorities={"medico"})
@@ -342,7 +412,10 @@ public class TestInformeControladorE2E {
         .andExpect(model().attribute("canbeedited", true)
         );
 
+        informeService.deleteInformeToHistoriaClinica(informe);
+        informeService.deleteInforme(TEST_INFORME_ID);
         TEST_INFORME_ID = 0;
+        
     }
 
     @WithMockUser(username="alvaroMedico", authorities={"medico"})
@@ -364,6 +437,8 @@ public class TestInformeControladorE2E {
         .andExpect(view().name("redirect:/pacientes/"+TEST_PACIENTE_ID + "/historiaclinica")
         );
 
+        informeService.deleteInformeToHistoriaClinica(informe);
+        informeService.deleteInforme(TEST_INFORME_ID);
         TEST_INFORME_ID = 0;
     }
 
@@ -386,8 +461,9 @@ public class TestInformeControladorE2E {
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/citas/"+TEST_MEDICO_ID+ "/informes/" + TEST_INFORME_ID)
         );
-
-        TEST_INFORME_ID = 0;
+        
+        informeService.deleteInforme(TEST_INFORME_ID);
+        TEST_INFORME_ID = 0;    
     }
 
 }

@@ -180,7 +180,6 @@ public class InformeServiceTest {
         
         Informe informe = new Informe();
         informe.setCita(cita);
-        cita.setInforme(informe);
         informe.setDiagnostico("Dermatitis");
         informe.setMotivo_consulta("Picor en frente");
         Assertions.assertNotNull(informe);
@@ -196,6 +195,31 @@ public class InformeServiceTest {
     }
 
     @Test
+    public void testSaveInformeForCitaWithInforme() throws DataAccessException, IllegalAccessException {
+        Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        Cita cita = createDummyCita1(paciente);
+        
+        Informe informe = new Informe();
+        informe.setCita(cita);
+        informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        Assertions.assertNotNull(informe);
+        informeService.saveInforme(informe);
+
+        Informe informe2 = new Informe();
+        informe2.setCita(cita);
+        informe2.setDiagnostico("Dermatitis");
+        informe2.setMotivo_consulta("Picor en frente");
+        Assertions.assertNotNull(informe2);
+
+        IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+        () -> informeService.saveInforme(informe2), "No se puede crear un informe para esta cita");
+
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede crear un informe para esta cita"));
+    }
+
+    @Test
     public void testSaveInformeforNotCurrentDate() throws DataAccessException, IllegalAccessException {
         Medico medico = createDummyMedico();
         Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
@@ -203,15 +227,78 @@ public class InformeServiceTest {
 
         Informe informe = new Informe();
         informe.setCita(cita);
-        cita.setInforme(informe);
         informe.setDiagnostico("this will not enter");
         informe.setMotivo_consulta("this will not enter");
         
 
         IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
-        () -> informeService.saveInforme(informe), "No se puede crear un informe para una cita futura");
+        () -> informeService.saveInforme(informe), "No se puede crear un informe para esta cita");
 
-        Assertions.assertTrue(thrown.getMessage().contains("No se puede crear un informe para una cita futura"));
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede crear un informe para esta cita"));
+
+    }
+
+    @Test
+    public void testUpdateInforme() throws DataAccessException, IllegalAccessException {
+        Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        Cita cita = createDummyCita1(paciente);
+        
+        Informe informe = new Informe();
+        informe.setCita(cita);
+        informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        Assertions.assertNotNull(informe);
+        informeService.saveInforme(informe);
+
+        informe.setDiagnostico("Diag2");
+        informe.setMotivo_consulta("Picor2");
+        informeService.updateInforme(informe);
+
+        /*Probamos que la cita existe por su presunto ID en la BD.
+        Cambiar el valor si se añaden más informes a Data.sql.
+        Me vais a venir a protestar por esto y lo sé, pero 
+        es casi el mismo caso que con las counts que 
+        se cambian día si y día también.
+        Además el método está probado en un test anterior*/
+        assertEquals(informe.getId(), informeService.findInformeById(informe.getId()).get().getId());
+        assertEquals("Diag2", informeService.findInformeById(informe.getId()).get().getDiagnostico());
+    }
+
+    @Test
+    public void testUpdateInformeForCitaWithNoInforme() throws DataAccessException, IllegalAccessException {
+        Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        Cita cita = createDummyCita1(paciente);
+        
+        Informe informe = new Informe();
+        informe.setCita(cita);
+        informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        Assertions.assertNotNull(informe);
+
+        IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+        () -> informeService.updateInforme(informe), "No se puede editar este informe");
+
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede editar este informe"));
+    }
+
+    @Test
+    public void testUpdateInformeforNotCurrentDate() throws DataAccessException, IllegalAccessException {
+        Medico medico = createDummyMedico();
+        Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        Cita cita = createDummyCitaFuturo(paciente);
+
+        Informe informe2 = new Informe();
+        informe2.setCita(cita);
+        informe2.setDiagnostico("this will not enter");
+        informe2.setMotivo_consulta("this will not enter");
+        
+
+        IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+        () -> informeService.updateInforme(informe2), "No se puede editar este informe");
+
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede editar este informe"));
 
     }
 
@@ -223,7 +310,6 @@ public class InformeServiceTest {
 
         Informe informe = new Informe();
         informe.setCita(cita);
-        cita.setInforme(informe);
         informe.setDiagnostico("Dermatitis");
         informe.setMotivo_consulta("Picor en frente");
         informeService.saveInforme(informe);
@@ -244,7 +330,6 @@ public class InformeServiceTest {
         
         Informe informe = new Informe();
         informe.setCita(cita);
-        cita.setInforme(informe);
         informe.setDiagnostico("Dermatitis");
         informe.setMotivo_consulta("Picor en frente");
        
@@ -266,7 +351,6 @@ public class InformeServiceTest {
         
         Informe informe = new Informe();
         informe.setCita(cita);
-        cita.setInforme(informe);
         informe.setDiagnostico("Dermatitis");
         informe.setMotivo_consulta("Picor en frente");
         informeService.saveInforme(informe);
@@ -326,7 +410,6 @@ public class InformeServiceTest {
 
         Informe informe = new Informe();
         informe.setCita(cita);
-        cita.setInforme(informe);
         informe.setDiagnostico("Dermatitis");
         informe.setMotivo_consulta("Picor en frente");
         informeService.saveInforme(informe);

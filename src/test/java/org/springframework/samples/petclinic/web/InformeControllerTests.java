@@ -174,12 +174,36 @@ class InformeControllerTests {
 
     @WithMockUser(value = "spring")
         @Test
-    void testCreateInformeForFutureDate() throws Exception{
+    void testCreateInformeForCitaWithInforme() throws Exception{
+
+        given(informeService.citaHasInforme(cita2)).willReturn(true);
+
         mockMvc.perform(get("/citas/{citaId}/informes/new", TEST_CITA2_ID))
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/citas/"+TEST_MEDICO_ID)
         );
     }
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testCreateInformeForFutureDateForCitaWithInforme() throws Exception{
+
+        given(informeService.citaHasInforme(cita1)).willReturn(true);
+
+        mockMvc.perform(get("/citas/{citaId}/informes/new", TEST_CITA_ID))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/citas/"+TEST_MEDICO_ID)
+        );
+    }
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testCreateInformeForFutureDate() throws Exception{
+        mockMvc.perform(get("/citas/{citaId}/informes/new", TEST_CITA2_ID))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/citas/"+TEST_MEDICO_ID)
+    );
+}
 
     /*TODO: Comprobar que esta forma de hacer
     el test de Controlador es correcta
@@ -206,6 +230,7 @@ class InformeControllerTests {
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/citas/"+TEST_MEDICO_ID)
         );
+
     }
 
     /*TODO: Mismo caso que el anterior
@@ -256,14 +281,6 @@ class InformeControllerTests {
         .andExpect(model().attributeExists("diagnostico"))
         .andExpect(model().attributeExists("cita"));
     }
-
-   
-    @WithMockUser(value = "spring")
-        @Test
-    void TestInitUpdateInformeFutureDate(){
-         /*No existe restricción para evitar editar un informe
-        con fecha futura*/     
-    } 
     
     @WithMockUser(value = "spring")
         @Test
