@@ -173,6 +173,16 @@ public class InformeServiceTest {
     }
 
     @Test
+    public void testCitaHasInforme(){
+        //Cita con Informe Existente en BD
+        Cita cita = citaService.findCitaById(1).get();
+        Assertions.assertTrue(informeService.citaHasInforme(cita));
+        //Cita sin Informe Existente en BD
+        Cita cita2 = citaService.findCitaById(2).get();
+        Assertions.assertFalse(informeService.citaHasInforme(cita2));
+    }
+
+    @Test
     public void testSaveInforme() throws DataAccessException, IllegalAccessException {
         Medico medico = createDummyMedico();
 		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
