@@ -207,7 +207,7 @@ public class PacienteControllerTest {
 		
 		Collection<Cita> citas = new ArrayList<Cita>();
 		Cita newCita = new Cita();
-		newCita.setFecha(LocalDate.now().plusDays(20));
+		newCita.setFecha(LocalDate.now().plusDays(1));
 		newCita.setLugar("Hospital Virgen del Rocio");
 		newCita.setPaciente(this.javier);
 		
@@ -236,7 +236,7 @@ public class PacienteControllerTest {
 		
 		Collection<Cita> citas = new ArrayList<Cita>();
 		Cita newCita = new Cita();
-		newCita.setFecha(LocalDate.now().minusDays(20));
+		newCita.setFecha(LocalDate.now().minusDays(1));
 		newCita.setLugar("Hospital Virgen del Rocio");
 		newCita.setPaciente(this.javier);
 		
@@ -296,7 +296,36 @@ public class PacienteControllerTest {
 		
 		Collection<Cita> citas = new ArrayList<Cita>();
 		Cita newCita = new Cita();
-		newCita.setFecha(LocalDate.now().plusDays(20).minusYears(5));
+		newCita.setFecha(LocalDate.now().minusYears(5).plusDays(1));
+		newCita.setLugar("Hospital Virgen del Rocio");
+		newCita.setPaciente(this.javier);
+		
+		citas.add(newCita);
+		
+		BDDMockito.given(this.citaService.findAllByPaciente(javier)).willReturn(citas);
+		
+		mockMvc.perform(get("/pacientes/{pacienteId}", TEST_PACIENTE_ID)).andExpect(status().isOk())
+				.andExpect(model().attributeExists("paciente"))
+				.andExpect(model().attribute("paciente", hasProperty("nombre", is("Javier"))))
+				.andExpect(model().attribute("paciente", hasProperty("apellidos", is("Silva"))))
+				.andExpect(model().attribute("paciente", hasProperty("f_nacimiento", is(LocalDate.of(1997, 6, 8)))))
+				.andExpect(model().attribute("paciente", hasProperty("DNI", is("12345678Z"))))
+				.andExpect(model().attribute("paciente", hasProperty("domicilio", is("Ecija"))))
+				.andExpect(model().attribute("paciente", hasProperty("n_telefono", is(612345987))))
+				.andExpect(model().attribute("paciente", hasProperty("email", is("javier_silva@gmail.com"))))
+				.andExpect(model().attribute("paciente", hasProperty("f_alta", is(LocalDate.now()))))
+				.andExpect(model().attribute("paciente", hasProperty("medico", is(this.medico1))))
+				.andExpect(view().name("pacientes/pacienteDetails"));
+	}
+		
+		@WithMockUser(value = "spring")
+	@Test
+	void testShowPacienteInactivo3() throws Exception {	
+		BDDMockito.given(this.historiaClinicaService.findHistoriaClinicaByPaciente(this.javier)).willReturn(new HistoriaClinica());
+		
+		Collection<Cita> citas = new ArrayList<Cita>();
+		Cita newCita = new Cita();
+		newCita.setFecha(LocalDate.now().minusYears(5));
 		newCita.setLugar("Hospital Virgen del Rocio");
 		newCita.setPaciente(this.javier);
 		
@@ -746,7 +775,7 @@ public class PacienteControllerTest {
     							.param("f_nacimiento", "1997/06/08")
     							.param("DNI", "12345678A")
     							.param("domicilio", "")
-    							.param("n_telefono", "")
+    							.param("n_telefono", "123123123")
     							.param("email", "")
     							.param("f_alta", "2020/03/25")
 								.param("medico.id", Integer.toString(TEST_MEDICO_ID))

@@ -75,6 +75,8 @@ public class PacienteController {
 					.max(LocalDate::compareTo).get();
 			LocalDate hoy = LocalDate.now();
 			canBeDeleted = hoy.compareTo(ultimaCita) >= 6 || hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
+			
+			System.out.println("coverage"+(hoy.compareTo(ultimaCita) >= 6)+" - "+(hoy.compareTo(ultimaCita) == 5)+" - "+(hoy.getDayOfYear() > ultimaCita.getDayOfYear()));
 		}
 
 //		canBeDeleted = canBeDeleted && this.historiaClinicaService.findHistoriaClinicaByPaciente(paciente) == null;
@@ -242,7 +244,6 @@ public class PacienteController {
 				&& paciente.getEmail().isEmpty();
 		boolean dniOk = new DniValidator(paciente.getDNI()).validar();
 		boolean pacienteValid = noTieneContacto == false && dniOk == true;
-		System.out.println("coverage"+(noTieneContacto == false)+" - "+(dniOk ==true));
 		boolean telefonoOk = ((paciente.getN_telefono() == null) ? true	: (paciente.getN_telefono().toString().length() == 9));
 		boolean currentMedico = paciente.getMedico().equals(this.userService.getCurrentMedico());
 
