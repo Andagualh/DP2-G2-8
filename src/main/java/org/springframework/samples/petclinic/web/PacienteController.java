@@ -74,9 +74,7 @@ public class PacienteController {
 			LocalDate ultimaCita = this.citaService.findAllByPaciente(paciente).stream().map(Cita::getFecha)
 					.max(LocalDate::compareTo).get();
 			LocalDate hoy = LocalDate.now();
-			canBeDeleted = hoy.compareTo(ultimaCita) >= 6;
-			canBeDeleted = canBeDeleted
-					|| hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
+			canBeDeleted = hoy.compareTo(ultimaCita) >= 6 || hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
 		}
 
 //		canBeDeleted = canBeDeleted && this.historiaClinicaService.findHistoriaClinicaByPaciente(paciente) == null;
@@ -86,7 +84,7 @@ public class PacienteController {
 //			canBeDeleted = true;
 //		} else {
 		boolean medicoCheck = paciente.getMedico().equals(this.userService.getCurrentMedico());
-		canBeDeleted = medicoCheck && medicoCheck;
+		canBeDeleted = canBeDeleted && medicoCheck;
 //		}
 
 		mav.getModel().put("canBeDeleted", canBeDeleted);
@@ -244,18 +242,11 @@ public class PacienteController {
 				&& paciente.getEmail().isEmpty();
 		boolean dniOk = new DniValidator(paciente.getDNI()).validar();
 		boolean pacienteValid = noTieneContacto == false && dniOk == true;
-		boolean telefonoOk = (paciente.getN_telefono() == null) ? true	: (paciente.getN_telefono().toString().length() == 9) ? true : false;
+		System.out.println("coverage"+(noTieneContacto == false)+" - "+(dniOk ==true));
+		boolean telefonoOk = ((paciente.getN_telefono() == null) ? true	: (paciente.getN_telefono().toString().length() == 9));
 		boolean currentMedico = paciente.getMedico().equals(this.userService.getCurrentMedico());
 
-//		System.out.println("createok-"+(result.hasErrors())+"-"+(!pacienteValid)+"-"+(!telefonoOk));
-//		System.out.println(noTieneContacto);
-//		System.out.println(dniOk);
-//		if(paciente.getN_telefono() != null) {
-//		System.out.println(paciente.getN_telefono().toString().length() == 9);
-//		System.out.println(telefonoOk);
-//		}
 		if (result.hasErrors() || !pacienteValid || !telefonoOk) {
-//			System.out.println("entraerrores");
 			model.addAttribute("medicoList", this.medicoService.getMedicos());
 			model.addAttribute("isNewPaciente", false);
 			if (noTieneContacto) {
@@ -269,21 +260,11 @@ public class PacienteController {
 			}
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else if (!currentMedico) {
-//			System.out.println("entrawrongmedico");
 			result.rejectValue("medico", "error.medico", "No puedes crear un paciente para otro medico.");
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else {
-//			System.out.println("entraok");
 			int pacienteId = this.pacienteService.savePacienteByMedico(paciente, this.userService.getCurrentMedico().getId());
 			
-			
-			
-			
-//			System.out.println(paciente);
-//			System.out.println(this.userService.getCurrentMedico().getId());
-//			System.out.println("pacienteid"+pacienteId);
-//			System.out.println(this.userService.getCurrentMedico().getId());
-//			System.out.println(paciente.getId());
 			return "redirect:/pacientes/"+pacienteId;
 		}
 	}

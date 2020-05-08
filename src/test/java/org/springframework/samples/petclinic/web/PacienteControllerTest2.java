@@ -137,7 +137,7 @@ public class PacienteControllerTest2 {
 			
 		BDDMockito.given(this.medicoService.getMedicos()).willReturn(medicos);
 		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
-		BDDMockito.given(this.pacienteService.savePacienteByMedico(BDDMockito.any(Paciente.class), BDDMockito.any(Medico.class).getId())).willReturn(TEST_PACIENTE_ID);
+		BDDMockito.when(this.pacienteService.savePacienteByMedico(BDDMockito.any(Paciente.class), BDDMockito.anyInt())).thenReturn(1);
 		
 		mockMvc.perform(post("/pacientes/new")
 							.with(csrf())
@@ -149,7 +149,6 @@ public class PacienteControllerTest2 {
 							.param("n_telefono", "")
 							.param("email", "javier_silva@gmail.com")
 							.param("f_alta", "2020/03/25")
-							.param("medico.id", Integer.toString(TEST_MEDICO_ID))
 							.param("medico.nombre", "Medico")
 							.param("medico.apellidos", "Apellidos")
 							.param("medico.DNI", "12345678Z")

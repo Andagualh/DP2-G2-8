@@ -38,7 +38,6 @@ public class CitaService {
 
 	@Transactional
 	public int citaCreate(final Cita cita) {
-		System.out.println("cita: " + cita);
 		return this.citaRepo.save(cita).getId();
 	}
 

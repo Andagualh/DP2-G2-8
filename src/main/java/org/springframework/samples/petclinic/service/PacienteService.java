@@ -104,18 +104,19 @@ public class PacienteService {
 	public void deletePacienteByMedico(final int idPaciente, final int idMedico) {
 		Paciente paciente = this.pacienteRepo.findById(idPaciente).get();
 		boolean medicoEnabled = this.medicoService.getMedicoById(idMedico).getUser().isEnabled();
-		
+
 		if (paciente.getMedico().getId() == idMedico && medicoEnabled) {
 			Collection<Cita> citas = this.citaService.findAllByPaciente(paciente);
 			boolean puedeBorrarse = citas.isEmpty();
 			if (!citas.isEmpty()) {
 				LocalDate ultimaCita = citas.stream().map(Cita::getFecha).max(LocalDate::compareTo).get();
 				LocalDate hoy = LocalDate.now();
-				puedeBorrarse = hoy.compareTo(ultimaCita) >= 6 || (hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear());
+				puedeBorrarse = hoy.compareTo(ultimaCita) >= 6
+						|| (hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear());
 			}
 
 			HistoriaClinica hs = this.findHistoriaClinicaByPaciente(paciente);
-						
+
 			if (citas.isEmpty() && hs == null) {
 				this.citaService.deleteAllByPaciente(paciente);
 				this.pacienteRepo.deleteById(idPaciente);
