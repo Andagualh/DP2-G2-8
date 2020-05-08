@@ -311,7 +311,7 @@ public class TestInformeControladorE2E {
         TEST_INFORME_ID = informe.getId();
         Cita pastCita = informe.getCita();
         int TEST_CITA3_ID = pastCita.getId();
-        informe.setHistoriaClinica(hcService.findHistoriaClinicaByPaciente(cita.getPaciente()));
+        informe.setHistoriaClinica(hcService.findHistoriaClinicaByPaciente(pastCita.getPaciente()));
         informeService.saveInformeWithHistoriaClinica(informe);
 
         mockMvc.perform(get("/citas/{citaId}/informes/delete/{informeId}", TEST_CITA3_ID, TEST_INFORME_ID))
@@ -375,7 +375,7 @@ public class TestInformeControladorE2E {
         TEST_INFORME_ID = informe.getId();
         Cita pastCita = informe.getCita();
         int TEST_CITA3_ID = pastCita.getId();
-        informe.setHistoriaClinica(hcService.findHistoriaClinicaByPaciente(cita.getPaciente()));
+        informe.setHistoriaClinica(hcService.findHistoriaClinicaByPaciente(pastCita.getPaciente()));
         informeService.saveInformeWithHistoriaClinica(informe);
 
 
