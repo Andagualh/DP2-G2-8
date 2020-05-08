@@ -53,27 +53,36 @@
 		</tr>
 	</table>
 
-	<spring:url value="/pacientes/{pacienteId}/edit" var="editUrl">
-		<spring:param name="pacienteId" value="${paciente.id}" />
-	</spring:url>
-	<a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Editar Paciente</a>
+	<c:if test="${medicoCheck==true}">
+		<spring:url value="/pacientes/{pacienteId}/edit" var="editUrl">
+			<spring:param name="pacienteId" value="${paciente.id}" />
+		</spring:url>
+		<a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Editar
+			Paciente</a>
+	</c:if>
 
 	<c:if test="${canBeDeleted==true}">
 		<spring:url value="/pacientes/{pacienteId}/delete" var="deleteUrl">
 			<spring:param name="pacienteId" value="${paciente.id}" />
 		</spring:url>
-		<a href="${fn:escapeXml(deleteUrl)}" class="btn btn-default">Borrar Paciente</a>
+		<a href="${fn:escapeXml(deleteUrl)}" class="btn btn-default">Borrar
+			Paciente</a>
 	</c:if>
 
-	<spring:url value="/citas/new/{pacienteId}" var="createCitaUrl">
+	<c:if test="${medicoCheck==true}">
+		<spring:url value="/citas/new/{pacienteId}" var="createCitaUrl">
+			<spring:param name="pacienteId" value="${paciente.id}" />
+		</spring:url>
+		<a href="${fn:escapeXml(createCitaUrl)}" class="btn btn-default">Crear
+			Cita</a>
+	</c:if>
+
+	<spring:url value="/pacientes/{pacienteId}/historiaclinica"
+		var="historiaClinicaUrl">
 		<spring:param name="pacienteId" value="${paciente.id}" />
 	</spring:url>
-	<a href="${fn:escapeXml(createCitaUrl)}" class="btn btn-default">Crear Cita</a>
-    
-    <spring:url value="/pacientes/{pacienteId}/historiaclinica" var="historiaClinicaUrl">
-   		<spring:param name="pacienteId" value="${paciente.id}"/>
-    </spring:url>
-    <a href="${fn:escapeXml(historiaClinicaUrl)}" class="btn btn-default">Historia Clinica</a>
-    
+	<a href="${fn:escapeXml(historiaClinicaUrl)}" class="btn btn-default">Historia
+		Clinica</a>
+
 
 </petclinic:layout>

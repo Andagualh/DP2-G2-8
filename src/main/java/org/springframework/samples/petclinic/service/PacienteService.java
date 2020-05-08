@@ -112,7 +112,6 @@ public class PacienteService {
 				LocalDate ultimaCita = citas.stream().map(Cita::getFecha).max(LocalDate::compareTo).get();
 				LocalDate hoy = LocalDate.now();
 				puedeBorrarse = hoy.compareTo(ultimaCita) >= 6 || (hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear());
-				System.out.println("testpuedeborrarse"+(hoy.compareTo(ultimaCita) >= 6) + " - "+(hoy.compareTo(ultimaCita)== 5) + "-"+ (hoy.getDayOfYear() > ultimaCita.getDayOfYear()));
 			}
 
 			HistoriaClinica hs = this.findHistoriaClinicaByPaciente(paciente);

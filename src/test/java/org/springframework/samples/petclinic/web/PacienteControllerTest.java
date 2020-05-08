@@ -12,9 +12,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import javax.swing.text.AbstractDocument.Content;
 
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +30,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
 import org.springframework.samples.petclinic.model.Authorities;
+import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.HistoriaClinica;
 import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.Paciente;
@@ -40,6 +44,9 @@ import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.result.ContentResultMatchers;
+import org.springframework.validation.BindingResult;
 
 
 @WebMvcTest(controllers = PacienteController.class,
@@ -74,7 +81,7 @@ public class PacienteControllerTest {
 
 	@Autowired
 	private MockMvc				mockMvc;
-
+	
 	private Paciente			javier;
 	private Paciente			sara;
 
@@ -84,12 +91,11 @@ public class PacienteControllerTest {
 
 	private Authorities			authorities;
 
-
 	@BeforeEach
 	void setup() {
 		this.medico1 = new Medico();
 		this.medico1.setId(TEST_MEDICO_ID);
-		this.medico1.setNombre("Medico 2");
+		this.medico1.setNombre("Medico");
 		this.medico1.setApellidos("Apellidos");
 		this.medico1.setDNI("12345678Z");
 		this.medico1.setN_telefono("123456789");
@@ -140,15 +146,184 @@ public class PacienteControllerTest {
 				.andExpect(model().attribute("paciente", hasProperty("email", is("javier_silva@gmail.com"))))
 				.andExpect(model().attribute("paciente", hasProperty("f_alta", is(LocalDate.now()))))
 				.andExpect(model().attribute("paciente", hasProperty("medico", is(this.medico1))))
+				.andExpect(model().attribute("paciente", hasProperty("medico", is(this.medico1))))
+				.andExpect(view().name("pacientes/pacienteDetails"));
+	}
+		
+		@WithMockUser(value = "spring")
+	@Test
+	void testShowPacienteWithCitas() throws Exception {	
+		BDDMockito.given(this.historiaClinicaService.findHistoriaClinicaByPaciente(this.javier)).willReturn(new HistoriaClinica());
+		
+		Collection<Cita> citas = new ArrayList<Cita>();
+		Cita newCita = new Cita();
+		newCita.setFecha(LocalDate.now());
+		newCita.setLugar("Hospital Virgen del Rocio");
+		newCita.setPaciente(this.javier);
+		
+		citas.add(newCita);
+		
+		BDDMockito.given(this.citaService.findAllByPaciente(javier)).willReturn(citas);
+		
+		mockMvc.perform(get("/pacientes/{pacienteId}", TEST_PACIENTE_ID)).andExpect(status().isOk())
+				.andExpect(model().attributeExists("paciente"))
+				.andExpect(model().attribute("paciente", hasProperty("nombre", is("Javier"))))
+				.andExpect(model().attribute("paciente", hasProperty("apellidos", is("Silva"))))
+				.andExpect(model().attribute("paciente", hasProperty("f_nacimiento", is(LocalDate.of(1997, 6, 8)))))
+				.andExpect(model().attribute("paciente", hasProperty("DNI", is("12345678Z"))))
+				.andExpect(model().attribute("paciente", hasProperty("domicilio", is("Ecija"))))
+				.andExpect(model().attribute("paciente", hasProperty("n_telefono", is(612345987))))
+				.andExpect(model().attribute("paciente", hasProperty("email", is("javier_silva@gmail.com"))))
+				.andExpect(model().attribute("paciente", hasProperty("f_alta", is(LocalDate.now()))))
+				.andExpect(model().attribute("paciente", hasProperty("medico", is(this.medico1))))
+				.andExpect(view().name("pacientes/pacienteDetails"));
+	}
+		
+		@WithMockUser(value = "spring")
+	@Test
+	void testShowPacienteNew() throws Exception {
+			BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+
+			mockMvc.perform(get("/pacientes/{pacienteId}", TEST_PACIENTE_ID)).andExpect(status().isOk())
+					.andExpect(model().attributeExists("paciente"))
+					.andExpect(model().attribute("paciente", hasProperty("nombre", is("Javier"))))
+					.andExpect(model().attribute("paciente", hasProperty("apellidos", is("Silva"))))
+					.andExpect(model().attribute("paciente", hasProperty("f_nacimiento", is(LocalDate.of(1997, 6, 8)))))
+					.andExpect(model().attribute("paciente", hasProperty("DNI", is("12345678Z"))))
+					.andExpect(model().attribute("paciente", hasProperty("domicilio", is("Ecija"))))
+					.andExpect(model().attribute("paciente", hasProperty("n_telefono", is(612345987))))
+					.andExpect(model().attribute("paciente", hasProperty("email", is("javier_silva@gmail.com"))))
+					.andExpect(model().attribute("paciente", hasProperty("f_alta", is(LocalDate.now()))))
+					.andExpect(model().attribute("paciente", hasProperty("medico", is(this.medico1))))
+					.andExpect(model().attribute("medicoCheck", true))
+					.andExpect(model().attribute("canBeDeleted", true))
+					.andExpect(view().name("pacientes/pacienteDetails"));
+	}
+		
+		@WithMockUser(value = "spring")
+	@Test
+	void testShowPacienteWithCitasFuturo() throws Exception {	
+		BDDMockito.given(this.historiaClinicaService.findHistoriaClinicaByPaciente(this.javier)).willReturn(new HistoriaClinica());
+		
+		Collection<Cita> citas = new ArrayList<Cita>();
+		Cita newCita = new Cita();
+		newCita.setFecha(LocalDate.now().plusDays(20));
+		newCita.setLugar("Hospital Virgen del Rocio");
+		newCita.setPaciente(this.javier);
+		
+		citas.add(newCita);
+		
+		BDDMockito.given(this.citaService.findAllByPaciente(javier)).willReturn(citas);
+		
+		mockMvc.perform(get("/pacientes/{pacienteId}", TEST_PACIENTE_ID)).andExpect(status().isOk())
+				.andExpect(model().attributeExists("paciente"))
+				.andExpect(model().attribute("paciente", hasProperty("nombre", is("Javier"))))
+				.andExpect(model().attribute("paciente", hasProperty("apellidos", is("Silva"))))
+				.andExpect(model().attribute("paciente", hasProperty("f_nacimiento", is(LocalDate.of(1997, 6, 8)))))
+				.andExpect(model().attribute("paciente", hasProperty("DNI", is("12345678Z"))))
+				.andExpect(model().attribute("paciente", hasProperty("domicilio", is("Ecija"))))
+				.andExpect(model().attribute("paciente", hasProperty("n_telefono", is(612345987))))
+				.andExpect(model().attribute("paciente", hasProperty("email", is("javier_silva@gmail.com"))))
+				.andExpect(model().attribute("paciente", hasProperty("f_alta", is(LocalDate.now()))))
+				.andExpect(model().attribute("paciente", hasProperty("medico", is(this.medico1))))
+				.andExpect(view().name("pacientes/pacienteDetails"));
+	}
+		
+		@WithMockUser(value = "spring")
+	@Test
+	void testShowPacienteWithCitasRecientes() throws Exception {	
+		BDDMockito.given(this.historiaClinicaService.findHistoriaClinicaByPaciente(this.javier)).willReturn(new HistoriaClinica());
+		
+		Collection<Cita> citas = new ArrayList<Cita>();
+		Cita newCita = new Cita();
+		newCita.setFecha(LocalDate.now().minusDays(20));
+		newCita.setLugar("Hospital Virgen del Rocio");
+		newCita.setPaciente(this.javier);
+		
+		citas.add(newCita);
+		
+		BDDMockito.given(this.citaService.findAllByPaciente(javier)).willReturn(citas);
+		
+		mockMvc.perform(get("/pacientes/{pacienteId}", TEST_PACIENTE_ID)).andExpect(status().isOk())
+				.andExpect(model().attributeExists("paciente"))
+				.andExpect(model().attribute("paciente", hasProperty("nombre", is("Javier"))))
+				.andExpect(model().attribute("paciente", hasProperty("apellidos", is("Silva"))))
+				.andExpect(model().attribute("paciente", hasProperty("f_nacimiento", is(LocalDate.of(1997, 6, 8)))))
+				.andExpect(model().attribute("paciente", hasProperty("DNI", is("12345678Z"))))
+				.andExpect(model().attribute("paciente", hasProperty("domicilio", is("Ecija"))))
+				.andExpect(model().attribute("paciente", hasProperty("n_telefono", is(612345987))))
+				.andExpect(model().attribute("paciente", hasProperty("email", is("javier_silva@gmail.com"))))
+				.andExpect(model().attribute("paciente", hasProperty("f_alta", is(LocalDate.now()))))
+				.andExpect(model().attribute("paciente", hasProperty("medico", is(this.medico1))))
+				.andExpect(view().name("pacientes/pacienteDetails"));
+	}
+		
+		@WithMockUser(value = "spring")
+	@Test
+	void testShowPacienteInactivo() throws Exception {	
+		BDDMockito.given(this.historiaClinicaService.findHistoriaClinicaByPaciente(this.javier)).willReturn(new HistoriaClinica());
+		
+		Collection<Cita> citas = new ArrayList<Cita>();
+		Cita newCita = new Cita();
+		newCita.setFecha(LocalDate.now().minusYears(6));
+		newCita.setLugar("Hospital Virgen del Rocio");
+		newCita.setPaciente(this.javier);
+		
+		citas.add(newCita);
+		
+		BDDMockito.given(this.citaService.findAllByPaciente(javier)).willReturn(citas);
+		
+		mockMvc.perform(get("/pacientes/{pacienteId}", TEST_PACIENTE_ID)).andExpect(status().isOk())
+				.andExpect(model().attributeExists("paciente"))
+				.andExpect(model().attribute("paciente", hasProperty("nombre", is("Javier"))))
+				.andExpect(model().attribute("paciente", hasProperty("apellidos", is("Silva"))))
+				.andExpect(model().attribute("paciente", hasProperty("f_nacimiento", is(LocalDate.of(1997, 6, 8)))))
+				.andExpect(model().attribute("paciente", hasProperty("DNI", is("12345678Z"))))
+				.andExpect(model().attribute("paciente", hasProperty("domicilio", is("Ecija"))))
+				.andExpect(model().attribute("paciente", hasProperty("n_telefono", is(612345987))))
+				.andExpect(model().attribute("paciente", hasProperty("email", is("javier_silva@gmail.com"))))
+				.andExpect(model().attribute("paciente", hasProperty("f_alta", is(LocalDate.now()))))
+				.andExpect(model().attribute("paciente", hasProperty("medico", is(this.medico1))))
+				.andExpect(view().name("pacientes/pacienteDetails"));
+	}
+		
+
+		
+		@WithMockUser(value = "spring")
+	@Test
+	void testShowPacienteInactivo2() throws Exception {	
+		BDDMockito.given(this.historiaClinicaService.findHistoriaClinicaByPaciente(this.javier)).willReturn(new HistoriaClinica());
+		
+		Collection<Cita> citas = new ArrayList<Cita>();
+		Cita newCita = new Cita();
+		newCita.setFecha(LocalDate.now().plusDays(20).minusYears(5));
+		newCita.setLugar("Hospital Virgen del Rocio");
+		newCita.setPaciente(this.javier);
+		
+		citas.add(newCita);
+		
+		BDDMockito.given(this.citaService.findAllByPaciente(javier)).willReturn(citas);
+		
+		mockMvc.perform(get("/pacientes/{pacienteId}", TEST_PACIENTE_ID)).andExpect(status().isOk())
+				.andExpect(model().attributeExists("paciente"))
+				.andExpect(model().attribute("paciente", hasProperty("nombre", is("Javier"))))
+				.andExpect(model().attribute("paciente", hasProperty("apellidos", is("Silva"))))
+				.andExpect(model().attribute("paciente", hasProperty("f_nacimiento", is(LocalDate.of(1997, 6, 8)))))
+				.andExpect(model().attribute("paciente", hasProperty("DNI", is("12345678Z"))))
+				.andExpect(model().attribute("paciente", hasProperty("domicilio", is("Ecija"))))
+				.andExpect(model().attribute("paciente", hasProperty("n_telefono", is(612345987))))
+				.andExpect(model().attribute("paciente", hasProperty("email", is("javier_silva@gmail.com"))))
+				.andExpect(model().attribute("paciente", hasProperty("f_alta", is(LocalDate.now()))))
+				.andExpect(model().attribute("paciente", hasProperty("medico", is(this.medico1))))
 				.andExpect(view().name("pacientes/pacienteDetails"));
 	}
 	
 		@WithMockUser(value = "spring")
 	@Test
 	void testInitFindForm() throws Exception {
-		mockMvc.perform(get("/pacientes")).andExpect(status().isOk())
+		mockMvc.perform(get("/pacientes/find"))
+				.andExpect(status().isOk())
 				.andExpect(model().attributeExists("paciente"))
-				.andExpect(model().attribute("paciente", hasProperty("apellidos", is(""))))
 				.andExpect(view().name("pacientes/findPacientes"));
 	}
 		
@@ -284,7 +459,7 @@ public class PacienteControllerTest {
 							.param("email", "javier_silva@gmail.com")
 							.param("f_alta", "2020/03/25")
 							.param("medico.id", Integer.toString(TEST_MEDICO_ID))
-							.param("medico.nombre", "Medico 2")
+							.param("medico.nombre", "Medico")
 							.param("medico.apellidos", "Apellidos")
 							.param("medico.DNI", "12345678Z")
 							.param("medico.n_telefono", "123456789")
@@ -295,11 +470,73 @@ public class PacienteControllerTest {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/pacientes/{pacienteId}"));
 	}
+        
+        @WithMockUser(value = "spring")
+	@Test
+	void testProcessUpdatePacienteFormSuccess2() throws Exception {
+    	Medico medic = new Medico();
+    	medic.setId(PacienteControllerTest.TEST_MEDICO_ID);
+    	BDDMockito.given(this.userService.getCurrentMedico()).willReturn(medic);
+        
+    	mockMvc.perform(post("/pacientes/{pacienteId}/edit", TEST_PACIENTE_ID)
+							.with(csrf())
+							.param("nombre", "Javier")
+							.param("apellidos", "Silva")
+							.param("f_nacimiento", "1997/06/08")
+							.param("DNI", "12345678A")
+							.param("domicilio", "Ecija")
+							.param("n_telefono", "")
+							.param("email", "javier_silva@gmail.com")
+							.param("f_alta", "2020/03/25")
+							.param("medico.id", Integer.toString(TEST_MEDICO_ID))
+							.param("medico.nombre", "Medico")
+							.param("medico.apellidos", "Apellidos")
+							.param("medico.DNI", "12345678Z")
+							.param("medico.n_telefono", "123456789")
+							.param("medico.domicilio", "Domicilio")
+							.param("medico.user.username", TEST_MEDICOUSER_ID)
+							.param("medico.user.password", "medico1")
+							.param("medico.user.enabled", "true"))
+		.andExpect(status().isOk())
+		.andExpect(model().attributeHasErrors("paciente"))
+		.andExpect(model().attributeHasFieldErrors("paciente", "DNI"))
+		.andExpect(view().name("pacientes/createOrUpdatePacientesForm"));
+	}
     
-
 		@WithMockUser(value = "spring")
 	@Test
 	void testProcessUpdatePacienteFormHasErrors() throws Exception {
+	    	BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+			
+			mockMvc.perform(post("/pacientes/{pacienteId}/edit", TEST_PACIENTE_ID)
+							.with(csrf())
+							.param("nombre", "")
+							.param("apellidos", "Silva")
+							.param("f_nacimiento", "1997/06/08")
+							.param("DNI", "12345678Z")
+							.param("domicilio", "")
+							.param("n_telefono", "")
+							.param("email", "javier_silva@gmail.com")
+							.param("f_alta", "2020/03/25")
+							.param("medico.id", Integer.toString(TEST_MEDICO_ID))
+							.param("medico.nombre", "Medico")
+							.param("medico.apellidos", "Apellidos")
+							.param("medico.DNI", "12345678Z")
+							.param("medico.n_telefono", "123456789")
+							.param("medico.domicilio", "Domicilio")
+							.param("medico.user.username", TEST_MEDICOUSER_ID)
+							.param("medico.user.password", "medico1")
+							.param("medico.user.enabled", "true"))
+				.andExpect(status().isOk())
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeExists("paciente"))
+				.andExpect(model().attributeHasFieldErrorCode("paciente", "nombre", "NotBlank"))
+				.andExpect(view().name("pacientes/createOrUpdatePacientesForm"));
+	}   
+
+		@WithMockUser(value = "spring")
+	@Test
+	void testProcessUpdatePacienteFormSinFormaContacto() throws Exception {
 	    	BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
 			
 			mockMvc.perform(post("/pacientes/{pacienteId}/edit", TEST_PACIENTE_ID)
@@ -313,7 +550,7 @@ public class PacienteControllerTest {
 							.param("email", "")
 							.param("f_alta", "2020/03/25")
 							.param("medico.id", Integer.toString(TEST_MEDICO_ID))
-							.param("medico.nombre", "Medico 2")
+							.param("medico.nombre", "Medico")
 							.param("medico.apellidos", "Apellidos")
 							.param("medico.DNI", "12345678Z")
 							.param("medico.n_telefono", "123456789")
@@ -326,6 +563,98 @@ public class PacienteControllerTest {
 				.andExpect(model().attributeHasFieldErrors("paciente", "domicilio"))
 				.andExpect(view().name("pacientes/createOrUpdatePacientesForm"));
 	}
+		
+		@WithMockUser(value = "spring")
+	@Test
+	void testProcessUpdatePacienteFormWrongDNI() throws Exception {
+	    	BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+			
+			mockMvc.perform(post("/pacientes/{pacienteId}/edit", TEST_PACIENTE_ID)
+							.with(csrf())
+							.param("nombre", "Javier")
+							.param("apellidos", "Silva")
+							.param("f_nacimiento", "1997/06/08")
+							.param("DNI", "12345678A")
+							.param("domicilio", "")
+							.param("n_telefono", "")
+							.param("email", "")
+							.param("f_alta", "2020/03/25")
+							.param("medico.id", Integer.toString(TEST_MEDICO_ID))
+							.param("medico.nombre", "Medico")
+							.param("medico.apellidos", "Apellidos")
+							.param("medico.DNI", "12345678Z")
+							.param("medico.n_telefono", "123456789")
+							.param("medico.domicilio", "Domicilio")
+							.param("medico.user.username", TEST_MEDICOUSER_ID)
+							.param("medico.user.password", "medico1")
+							.param("medico.user.enabled", "true"))
+				.andExpect(status().isOk())
+				.andExpect(model().attributeHasErrors("paciente"))
+				.andExpect(model().attributeHasFieldErrors("paciente", "domicilio"))
+				.andExpect(model().attributeHasFieldErrors("paciente", "DNI"))
+				.andExpect(view().name("pacientes/createOrUpdatePacientesForm"));
+	}
+		
+		@WithMockUser(value = "spring")
+	@Test
+	void testProcessUpdatePacienteFormNumeroTelefonoInvalid() throws Exception {
+	    	BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+			
+			mockMvc.perform(post("/pacientes/{pacienteId}/edit", TEST_PACIENTE_ID)
+							.with(csrf())
+							.param("nombre", "Javier")
+							.param("apellidos", "Silva")
+							.param("f_nacimiento", "1997/06/08")
+							.param("DNI", "12345678Z")
+							.param("domicilio", "")
+							.param("n_telefono", "123123")
+							.param("email", "")
+							.param("f_alta", "2020/03/25")
+							.param("medico.id", Integer.toString(TEST_MEDICO_ID))
+							.param("medico.nombre", "Medico")
+							.param("medico.apellidos", "Apellidos")
+							.param("medico.DNI", "12345678Z")
+							.param("medico.n_telefono", "123456789")
+							.param("medico.domicilio", "Domicilio")
+							.param("medico.user.username", TEST_MEDICOUSER_ID)
+							.param("medico.user.password", "medico1")
+							.param("medico.user.enabled", "true"))
+				.andExpect(status().isOk())
+				.andExpect(model().attributeHasErrors("paciente"))
+				.andExpect(model().attributeHasFieldErrors("paciente", "n_telefono"))
+				.andExpect(view().name("pacientes/createOrUpdatePacientesForm"));
+	}
+	
+//		@WithMockUser(value = "spring")
+//	@Test
+//	void testProcessUpdatePacienteFormNumeroTelefonoInvalid2() throws Exception {
+//	    	BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+//			
+//			mockMvc.perform(post("/pacientes/{pacienteId}/edit", TEST_PACIENTE_ID)
+//							.with(csrf())
+//							.param("nombre", "Javier")
+//							.param("apellidos", "Silva")
+//							.param("f_nacimiento", "1997/06/08")
+//							.param("DNI", "12345678Z")
+//							.param("domicilio", "")
+//							.param("n_telefono", "123123")
+//							.param("email", "")
+//							.param("f_alta", "2020/03/25")
+//							.param("medico.id", Integer.toString(TEST_MEDICO_ID))
+//		.param("medico.nombre", "Medico")
+//							.param("medico.apellidos", "Apellidos")
+//							.param("medico.DNI", "12345678Z")
+//							.param("medico.n_telefono", "123456789")
+//							.param("medico.domicilio", "Domicilio")
+//							.param("medico.user.username", TEST_MEDICOUSER_ID)
+//							.param("medico.user.password", "medico1")
+//							.param("medico.user.enabled", "true"))
+//				.andExpect(status().isOk())
+//				.andExpect(model().attributeHasErrors("paciente"))
+//				.andExpect(model().attributeHasFieldErrors("paciente", "n_telefono"))
+//				.andExpect(view().name("pacientes/createOrUpdatePacientesForm"));
+//	}	
+	
 		
 //        @WithMockUser(value = "spring")
 //	@Test
@@ -368,30 +697,245 @@ public class PacienteControllerTest {
     	}
     	
     	@WithMockUser(value = "spring")
-    	@Test
-    	void testCreatePacienteFormHasErrors() throws Exception {
+    @Test
+    void testCreatePacienteFormHasErrors() throws Exception {
     			
-    		ArrayList<Medico> medicos = new ArrayList<Medico>();
-    		medicos.add(this.medico1);
+    	ArrayList<Medico> medicos = new ArrayList<Medico>();
+    	medicos.add(this.medico1);
     		
-    		BDDMockito.given(this.medicoService.getMedicos()).willReturn(medicos);
-    		
-    			mockMvc.perform(post("/pacientes/new")
-    							.with(csrf())
-    							.param("nombre", "")
-    							.param("apellidos", "Silva")
-    							.param("f_nacimiento", "1997/06/08")
-    							.param("DNI", "12345678Z")
-    							.param("domicilio", "")
-    							.param("n_telefono", "")
-    							.param("email", "")
-    							.param("f_alta", "2020/03/25"))
+    	BDDMockito.given(this.medicoService.getMedicos()).willReturn(medicos);
+    	BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+
+    		mockMvc.perform(post("/pacientes/new")
+    						.with(csrf())
+    						.param("nombre", "")
+    						.param("apellidos", "Silva")
+    						.param("f_nacimiento", "1997/06/08")
+    						.param("DNI", "12345678Z")
+    						.param("domicilio", "")
+    						.param("n_telefono", "")
+    						.param("email", "")
+    						.param("f_alta", "2020/03/25")								
+    						.param("medico.id", Integer.toString(TEST_MEDICO_ID))
+							.param("medico.nombre", "Medico")
+							.param("medico.apellidos", "Apellidos")
+							.param("medico.DNI", "12345678Z")
+							.param("medico.n_telefono", "123456789")
+							.param("medico.domicilio", "Domicilio")
+							.param("medico.user.username", TEST_MEDICOUSER_ID)
+							.param("medico.user.password", "medico1")
+							.param("medico.user.enabled", "true"))
     				.andExpect(status().isOk())
     				.andExpect(model().attributeHasErrors("paciente"))
     				.andExpect(model().attributeHasFieldErrors("paciente", "nombre"))
     				.andExpect(view().name("pacientes/createOrUpdatePacientesForm"));
     	}
 
+    	@WithMockUser(value = "spring")
+    	@Test
+    	void testCreatePacienteFormDNIWrong() throws Exception {
+    			
+    		ArrayList<Medico> medicos = new ArrayList<Medico>();
+    		medicos.add(this.medico1);
+    		
+    		BDDMockito.given(this.medicoService.getMedicos()).willReturn(medicos);
+    		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+
+    			mockMvc.perform(post("/pacientes/new")
+    							.with(csrf())
+    							.param("nombre", "Javier")
+    							.param("apellidos", "Silva")
+    							.param("f_nacimiento", "1997/06/08")
+    							.param("DNI", "12345678A")
+    							.param("domicilio", "")
+    							.param("n_telefono", "")
+    							.param("email", "")
+    							.param("f_alta", "2020/03/25")
+								.param("medico.id", Integer.toString(TEST_MEDICO_ID))
+								.param("medico.nombre", "Medico")
+								.param("medico.apellidos", "Apellidos")
+								.param("medico.DNI", "12345678Z")
+								.param("medico.n_telefono", "123456789")
+								.param("medico.domicilio", "Domicilio")
+								.param("medico.user.username", TEST_MEDICOUSER_ID)
+								.param("medico.user.password", "medico1")
+								.param("medico.user.enabled", "true"))
+    				.andExpect(status().isOk())
+    				.andExpect(model().attributeHasErrors("paciente"))
+    				.andExpect(model().attributeHasFieldErrors("paciente", "DNI"))
+    				.andExpect(view().name("pacientes/createOrUpdatePacientesForm"));
+    	}
+    	
+        @WithMockUser(value = "spring")
+	@Test
+	void testCreatePacienteFormSuccess() throws Exception {
+    	ArrayList<Medico> medicos = new ArrayList<Medico>();
+    	medicos.add(this.medico1);
+    		
+    	BDDMockito.given(this.medicoService.getMedicos()).willReturn(medicos);
+    	BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+        
+		mockMvc.perform(post("/pacientes/new")
+							.with(csrf())
+							.param("nombre", "Javier")
+							.param("apellidos", "Silva")
+							.param("f_nacimiento", "1997/06/08")
+							.param("DNI", "12345678A")
+							.param("domicilio", "Ecija")
+							.param("n_telefono", "")
+							.param("email", "javier_silva@gmail.com")
+							.param("f_alta", "2020/03/25")
+							.param("medico.id", Integer.toString(TEST_MEDICO_ID))
+							.param("medico.nombre", "Medico")
+							.param("medico.apellidos", "Apellidos")
+							.param("medico.DNI", "12345678Z")
+							.param("medico.n_telefono", "123456789")
+							.param("medico.domicilio", "Domicilio")
+							.param("medico.user.username", TEST_MEDICOUSER_ID)
+							.param("medico.user.password", "medico1")
+							.param("medico.user.enabled", "true"))
+		.andExpect(status().isOk())
+		.andExpect(model().attributeHasErrors("paciente"))
+		.andExpect(view().name("pacientes/createOrUpdatePacientesForm"));
+	}
+    
+		@WithMockUser(value = "spring")
+	@Test
+	void testCreatePacienteFormHasErrors2() throws Exception {
+    		ArrayList<Medico> medicos = new ArrayList<Medico>();
+    		medicos.add(this.medico1);
+    		
+    		BDDMockito.given(this.medicoService.getMedicos()).willReturn(medicos);
+    		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+			
+			mockMvc.perform(post("/pacientes/new")
+							.with(csrf())
+							.param("nombre", "")
+							.param("apellidos", "Silva")
+							.param("f_nacimiento", "1997/06/08")
+							.param("DNI", "12345678Z")
+							.param("domicilio", "")
+							.param("n_telefono", "")
+							.param("email", "javier_silva@gmail.com")
+							.param("f_alta", "2020/03/25")
+							.param("medico.id", Integer.toString(TEST_MEDICO_ID))
+							.param("medico.nombre", "Medico")
+							.param("medico.apellidos", "Apellidos")
+							.param("medico.DNI", "12345678Z")
+							.param("medico.n_telefono", "123456789")
+							.param("medico.domicilio", "Domicilio")
+							.param("medico.user.username", TEST_MEDICOUSER_ID)
+							.param("medico.user.password", "medico1")
+							.param("medico.user.enabled", "true"))
+				.andExpect(status().isOk())
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeExists("paciente"))
+				.andExpect(model().attributeHasFieldErrorCode("paciente", "nombre", "NotBlank"))
+				.andExpect(view().name("pacientes/createOrUpdatePacientesForm"));
+	}   
+
+		@WithMockUser(value = "spring")
+	@Test
+	void testCreatePacienteFormSinFormaContacto() throws Exception {
+    		ArrayList<Medico> medicos = new ArrayList<Medico>();
+    		medicos.add(this.medico1);
+    		
+    		BDDMockito.given(this.medicoService.getMedicos()).willReturn(medicos);
+    		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+			
+			mockMvc.perform(post("/pacientes/new")
+							.with(csrf())
+							.param("nombre", "Javier")
+							.param("apellidos", "Silva")
+							.param("f_nacimiento", "1997/06/08")
+							.param("DNI", "12345678Z")
+							.param("domicilio", "")
+							.param("n_telefono", "")
+							.param("email", "")
+							.param("f_alta", "2020/03/25")
+							.param("medico.id", Integer.toString(TEST_MEDICO_ID))
+							.param("medico.nombre", "Medico")
+							.param("medico.apellidos", "Apellidos")
+							.param("medico.DNI", "12345678Z")
+							.param("medico.n_telefono", "123456789")
+							.param("medico.domicilio", "Domicilio")
+							.param("medico.user.username", TEST_MEDICOUSER_ID)
+							.param("medico.user.password", "medico1")
+							.param("medico.user.enabled", "true"))
+				.andExpect(status().isOk())
+				.andExpect(model().attributeHasErrors("paciente"))
+				.andExpect(model().attributeHasFieldErrors("paciente", "domicilio"))
+				.andExpect(view().name("pacientes/createOrUpdatePacientesForm"));
+	}
+		
+		@WithMockUser(value = "spring")
+	@Test
+	void testCreatePacienteFormWrongDNI() throws Exception {
+    		ArrayList<Medico> medicos = new ArrayList<Medico>();
+    		medicos.add(this.medico1);
+    		
+    		BDDMockito.given(this.medicoService.getMedicos()).willReturn(medicos);
+    		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+			
+			mockMvc.perform(post("/pacientes/new")
+							.with(csrf())
+							.param("nombre", "Javier")
+							.param("apellidos", "Silva")
+							.param("f_nacimiento", "1997/06/08")
+							.param("DNI", "12345678A")
+							.param("domicilio", "")
+							.param("n_telefono", "")
+							.param("email", "")
+							.param("f_alta", "2020/03/25")
+							.param("medico.id", Integer.toString(TEST_MEDICO_ID))
+							.param("medico.nombre", "Medico")
+							.param("medico.apellidos", "Apellidos")
+							.param("medico.DNI", "12345678Z")
+							.param("medico.n_telefono", "123456789")
+							.param("medico.domicilio", "Domicilio")
+							.param("medico.user.username", TEST_MEDICOUSER_ID)
+							.param("medico.user.password", "medico1")
+							.param("medico.user.enabled", "true"))
+				.andExpect(status().isOk())
+				.andExpect(model().attributeHasErrors("paciente"))
+				.andExpect(model().attributeHasFieldErrors("paciente", "domicilio"))
+				.andExpect(model().attributeHasFieldErrors("paciente", "DNI"))
+				.andExpect(view().name("pacientes/createOrUpdatePacientesForm"));
+	}
+		
+		@WithMockUser(value = "spring")
+	@Test
+	void testCreatePacienteFormNumeroTelefonoInvalid() throws Exception {
+    		ArrayList<Medico> medicos = new ArrayList<Medico>();
+    		medicos.add(this.medico1);
+    		
+    		BDDMockito.given(this.medicoService.getMedicos()).willReturn(medicos);
+    		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+			
+			mockMvc.perform(post("/pacientes/new")
+							.with(csrf())
+							.param("nombre", "Javier")
+							.param("apellidos", "Silva")
+							.param("f_nacimiento", "1997/06/08")
+							.param("DNI", "12345678Z")
+							.param("domicilio", "")
+							.param("n_telefono", "123123")
+							.param("email", "")
+							.param("f_alta", "2020/03/25")
+							.param("medico.id", Integer.toString(TEST_MEDICO_ID))
+							.param("medico.nombre", "Medico")
+							.param("medico.apellidos", "Apellidos")
+							.param("medico.DNI", "12345678Z")
+							.param("medico.n_telefono", "123456789")
+							.param("medico.domicilio", "Domicilio")
+							.param("medico.user.username", TEST_MEDICOUSER_ID)
+							.param("medico.user.password", "medico1")
+							.param("medico.user.enabled", "true"))
+				.andExpect(status().isOk())
+				.andExpect(model().attributeHasErrors("paciente"))
+				.andExpect(model().attributeHasFieldErrors("paciente", "n_telefono"))
+				.andExpect(view().name("pacientes/createOrUpdatePacientesForm"));
+	}
     	//No funciona no se porque xd
     	
 //    	@WithMockUser(value = "spring")
@@ -411,7 +955,7 @@ public class PacienteControllerTest {
 //    							.param("email", "")
 //    							.param("f_alta", "2020/03/25")
 //    							.param("medico.id", Integer.toString(TEST_MEDICO_ID))
-//    							.param("medico.nombre", "Medico 2")
+//    														.param("medico.nombre", "Medico")
 //    							.param("medico.apellidos", "Apellidos")
 //    							.param("medico.DNI", "12345678Z")
 //    							.param("medico.n_telefono", "123456789")
