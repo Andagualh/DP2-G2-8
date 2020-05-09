@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CreateFechaFinPasadoTratamientoUITest {
+public class CreateTratamientoFechaFinPasadoUITest {
 	
 	@LocalServerPort
 	private int				port				= 8080;
@@ -39,7 +40,7 @@ public class CreateFechaFinPasadoTratamientoUITest {
   }
   
   @Test
-  public void testEditTratamiento() throws Exception {
+  public void testCreateTratamientoFechaFinPasado() throws Exception {
 	this.driver.get("http://localhost:" + this.port);
 	this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 	this.driver.findElement(By.id("username")).clear();
@@ -58,11 +59,11 @@ public class CreateFechaFinPasadoTratamientoUITest {
     driver.findElement(By.id("dosis")).clear();
     driver.findElement(By.id("dosis")).sendKeys("1 sobre cada 8 horas");
     driver.findElement(By.id("f_inicio_tratamiento")).click();
-    driver.findElement(By.linkText("29")).click();
+    driver.findElement(By.linkText("5")).click();
     driver.findElement(By.id("f_fin_tratamiento")).click();
-    driver.findElement(By.xpath("//div[@id='ui-datepicker-div']/div/a[2]/span")).click();
-    driver.findElement(By.linkText("15")).click();
+    driver.findElement(By.linkText("2")).click();
     driver.findElement(By.xpath("//button[@type='submit']")).click();
+    Assert.assertEquals("tiene que ser una fecha en el presente o en el futuro", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[4]/div")).getText());
   }
 
   @AfterEach

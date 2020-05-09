@@ -76,6 +76,69 @@ public class TratamientoIntegrationTest {
 		assertEquals(view,"redirect:/citas/" + String.valueOf(informe.getCita().getId()) + "/informes/" + String.valueOf(informe.getId()));
 	}
 	
+	@Test
+	void testSaveTratamientoWithNullInputs() throws Exception {
+		BindingResult result= new MapBindingResult(Collections.emptyMap(),"");
+		Tratamiento tratamiento = new Tratamiento();
+		Informe informe = informeService.findInformeById(TEST_INFORME_ID).get();
+		
+		tratamiento.setName("");
+		tratamiento.setMedicamento("");
+		tratamiento.setDosis("");
+		tratamiento.setF_inicio_tratamiento(null);
+		tratamiento.setF_fin_tratamiento(null);
+		tratamiento.setInforme(informe);
+		
+		result.reject("medicamento", "El campo no debe estar vacio.");
+		result.reject("dosis", "El campo no debe estar vacio.");
+		result.reject("f_inicio_tratamiento", "El campo no debe estar vacio.");
+		result.reject("f_fin_tratamiento", "El campo no debe estar vacio.");
+		
+		String view = tratamientoController.saveTratamiento(tratamiento, result);
+		
+		assertEquals(view,"tratamientos/createOrUpdateTratamientosForm");
+	}
+	
+	@Test
+	void testSaveTratamientoWithFechaFinPasado() throws Exception {
+		BindingResult result= new MapBindingResult(Collections.emptyMap(),"");
+		Tratamiento tratamiento = new Tratamiento();
+		Informe informe = informeService.findInformeById(TEST_INFORME_ID).get();
+		
+		tratamiento.setName("name test");
+		tratamiento.setMedicamento("Medicamento test");
+		tratamiento.setDosis("Dosis Test");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-05-05"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-01-15"));
+		tratamiento.setInforme(informe);
+		
+		result.reject("f_fin_tratamiento", "La fecha debe estar en presente o en futuro.");
+		
+		String view = tratamientoController.saveTratamiento(tratamiento, result);
+		
+		assertEquals(view,"tratamientos/createOrUpdateTratamientosForm");
+	}
+	
+	@Test
+	void testSaveTratamientoWithFechaInicioFuturo() throws Exception {
+		BindingResult result= new MapBindingResult(Collections.emptyMap(),"");
+		Tratamiento tratamiento = new Tratamiento();
+		Informe informe = informeService.findInformeById(TEST_INFORME_ID).get();
+		
+		tratamiento.setName("name test");
+		tratamiento.setMedicamento("Medicamento test");
+		tratamiento.setDosis("Dosis Test");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-10-05"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-09-15"));
+		tratamiento.setInforme(informe);
+		
+		result.reject("f_inicio_tratamiento", "La fecha debe estar en presente o en pasado.");
+		
+		String view = tratamientoController.saveTratamiento(tratamiento, result);
+		
+		assertEquals(view,"tratamientos/createOrUpdateTratamientosForm");
+	}
+	
 	
 	
 }

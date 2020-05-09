@@ -28,7 +28,11 @@ public class TratamientoService {
 
 	@Transactional
 	public Tratamiento save(final Tratamiento tratamiento) {
-		return this.tratamientoRepo.save(tratamiento);
+		try {
+			return this.tratamientoRepo.save(tratamiento);
+		}catch(Exception e) {
+			throw new IllegalArgumentException("El tratamiento no ha podido guardarse.");
+		}
 	}
 
 	@Transactional(readOnly = true)

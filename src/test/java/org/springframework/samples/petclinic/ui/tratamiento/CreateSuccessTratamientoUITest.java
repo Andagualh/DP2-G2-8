@@ -39,7 +39,7 @@ public class CreateSuccessTratamientoUITest {
   }
   
   @Test
-  public void testEditTratamiento() throws Exception {
+  public void testCreateTratamiento() throws Exception {
 	this.driver.get("http://localhost:" + this.port);
 	this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 	this.driver.findElement(By.id("username")).clear();

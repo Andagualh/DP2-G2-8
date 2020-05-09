@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ public class CreateTratamientoFechaInicioFuturoUITest {
   }
   
   @Test
-  public void testEditTratamiento() throws Exception {
+  public void testCreateTratamientoFechaInicioFuturo() throws Exception {
 	this.driver.get("http://localhost:" + this.port);
 	this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 	this.driver.findElement(By.id("username")).clear();
@@ -63,6 +64,7 @@ public class CreateTratamientoFechaInicioFuturoUITest {
     driver.findElement(By.xpath("//div[@id='ui-datepicker-div']/div/a[2]/span")).click();
     driver.findElement(By.linkText("15")).click();
     driver.findElement(By.xpath("//button[@type='submit']")).click();
+    Assert.assertEquals("tiene que ser una fecha en el pasado o en el presente", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[3]/div")).getText());
   }
 
   @AfterEach
