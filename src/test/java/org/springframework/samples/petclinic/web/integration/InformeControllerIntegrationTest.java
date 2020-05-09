@@ -84,7 +84,7 @@ public class InformeControllerIntegrationTest {
         cita2.setFecha(LocalDate.now().minusDays(1));
         cita2.setLugar("Lugar");
         cita2.setPaciente(this.pacienteService.findPacienteById(TEST_PACIENTE_ID).get());
-        citaService.save(cita2);
+        citaService.saveOldDate(cita2);
         int TEST_CITA2_ID = cita2.getId();
 
         ModelMap model = new ModelMap();

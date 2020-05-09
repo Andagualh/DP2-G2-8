@@ -183,7 +183,7 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testSaveInforme() throws DataAccessException, IllegalAccessException {
+    public void testSaveInforme() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
         Medico medico = createDummyMedico();
 		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCita1(paciente);
@@ -205,7 +205,7 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testSaveInformeForCitaWithInforme() throws DataAccessException, IllegalAccessException {
+    public void testSaveInformeForCitaWithInforme() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
         Medico medico = createDummyMedico();
 		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCita1(paciente);
@@ -230,7 +230,7 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testSaveInformeforNotCurrentDate() throws DataAccessException, IllegalAccessException {
+    public void testSaveInformeforNotCurrentDate() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
         Medico medico = createDummyMedico();
         Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCitaFuturo(paciente);
@@ -249,7 +249,7 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testUpdateInforme() throws DataAccessException, IllegalAccessException {
+    public void testUpdateInforme() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
         Medico medico = createDummyMedico();
 		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCita1(paciente);
@@ -276,7 +276,7 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testUpdateInformeForCitaWithNoInforme() throws DataAccessException, IllegalAccessException {
+    public void testUpdateInformeForCitaWithNoInforme() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
         Medico medico = createDummyMedico();
 		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCita1(paciente);
@@ -294,7 +294,7 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testUpdateInformeforNotCurrentDate() throws DataAccessException, IllegalAccessException {
+    public void testUpdateInformeforNotCurrentDate() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
         Medico medico = createDummyMedico();
         Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCitaFuturo(paciente);

@@ -10,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 
+import javax.management.InvalidAttributeValueException;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,7 +66,7 @@ public class TestInformeControladorE2E {
     private Cita cita;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws InvalidAttributeValueException {
         cita = new Cita();
         cita.setFecha(LocalDate.now());
         cita.setLugar("Lugar");
@@ -109,7 +111,7 @@ public class TestInformeControladorE2E {
         cita2.setFecha(LocalDate.now().minusDays(1));
         cita2.setLugar("Lugar");
         cita2.setPaciente(this.pacienteService.findPacienteById(TEST_PACIENTE_ID).get());
-        citaService.save(cita2);
+        citaService.saveOldDate(cita2);
         int TEST_CITA2_ID = cita2.getId();
 
         mockMvc.perform(get("/citas/{citaId}/informes/new", TEST_CITA2_ID))
