@@ -523,7 +523,7 @@ public class PacienteServiceTests {
 	}
 	
 	@Test
-	public void testDeletePacienteInactivoWithHistoriaClinica() {
+	public void testDeletePacienteWithHistoriaClinica() {
 		int countPacientes = this.pacienteService.pacienteCount();
 		Medico medico = this.createDummyMedico();
 		Paciente paciente = this.createDummyPaciente(medico, new HistoriaClinica());
@@ -540,7 +540,7 @@ public class PacienteServiceTests {
 	}
 	
 	@Test
-	public void testDeletePacienteActive() throws InvalidAttributeValueException {
+	public void testDeletePacienteActivo() throws InvalidAttributeValueException {
 		int countPacientes = this.pacienteService.pacienteCount();
 		Medico medico = this.createDummyMedico();
 		Paciente paciente = this.createDummyPaciente2(medico);
@@ -584,6 +584,7 @@ public class PacienteServiceTests {
 		this.pacienteService.deletePacienteByMedico(idPacienteCreado, idMedicoPacienteCreado);
 		Assert.assertFalse(this.pacienteService.existsPacienteById(idPacienteCreado).isPresent());
 	}
+	
 	@Test
 	public void testDeletePacienteCita5YearsApartTomorrow() throws InvalidAttributeValueException {
 		int countPacientes = this.pacienteService.pacienteCount();
