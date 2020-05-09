@@ -12,5 +12,7 @@ import org.springframework.samples.petclinic.model.Informe;
 
 public interface InformeRepository extends CrudRepository<Informe, Integer> {
 
+    @Query("SELECT ALL i from Informe i where i.cita.id =:id")
+    Informe findInformeByCita(@Param("id") int id) throws DataAccessException;
 	
 }

@@ -118,7 +118,8 @@ public class InformeController {
 	@GetMapping(value = "/informes/new")
 	public String initCreationForm(final Cita cita, final ModelMap model) {
 		LocalDate today = LocalDate.now();
-		if (cita.getFecha().equals(today)) {
+		Boolean hasCitaInforme = informeService.citaHasInforme(cita);
+		if (cita.getFecha().equals(today) && !hasCitaInforme) {
 			Informe informe = new Informe();
 			informe.setCita(cita);
 			model.put("informe", informe);
@@ -139,7 +140,7 @@ public class InformeController {
 		} else {
 			informe.setCita(cita);
 			this.informeService.saveInforme(informe);
-		}
+			}
 		return "redirect:/citas/" + informe.getCita().getPaciente().getMedico().getId();
 	}
 
@@ -177,9 +178,8 @@ public class InformeController {
 			model.put("informe", informe);
 			return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
 		} else {
-			
 			informe.setId(informeId);
-			this.informeService.saveInforme(informe);
+			this.informeService.updateInforme(informe);
 		}
 		return "redirect:/citas/" + informe.getCita().getPaciente().getMedico().getId();
 	}

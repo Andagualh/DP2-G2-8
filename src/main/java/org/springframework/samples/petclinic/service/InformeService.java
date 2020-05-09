@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Informe;
 import org.springframework.samples.petclinic.repository.InformeRepository;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ public class InformeService {
 	@Autowired
 	private InformeRepository		informeRepository;
 	private HistoriaClinicaService	historiaClinicaService;
+	
 
 
 	@Transactional(readOnly = true)
@@ -26,10 +28,19 @@ public class InformeService {
 
 	@Transactional
 	public void saveInforme(final Informe informe) throws DataAccessException, IllegalAccessException {
-		if (informe.getCita().getFecha().equals(LocalDate.now())) {
+		if (informe.getCita().getFecha().equals(LocalDate.now()) && !citaHasInforme(informe.getCita())){
 			this.informeRepository.save(informe);
 		} else {
-			throw new IllegalAccessException("No se puede crear un informe para una cita futura");
+			throw new IllegalAccessException("No se puede crear un informe para esta cita");
+		}
+	}
+
+	@Transactional
+	public void updateInforme(final Informe informe) throws DataAccessException, IllegalAccessException{
+		if(informe.getCita().getFecha().equals(LocalDate.now()) && citaHasInforme(informe.getCita())){
+			this.informeRepository.save(informe);
+		} else {
+			throw new IllegalAccessException("No se puede editar este informe");
 		}
 	}
 
@@ -53,6 +64,17 @@ public class InformeService {
 		} else {
 			throw new IllegalAccessException("No se puede borrar este informe");
 		}
+	}
+
+	@Transactional
+	public Boolean citaHasInforme (final Cita cita){
+		Boolean citaHasInforme;
+		if(this.informeRepository.findInformeByCita(cita.getId()) == null){
+			citaHasInforme = false;
+		} else {
+			citaHasInforme = true;
+		}
+		return citaHasInforme;
 	}
 
 }
