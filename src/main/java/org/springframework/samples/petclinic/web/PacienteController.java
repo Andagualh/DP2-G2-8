@@ -194,7 +194,7 @@ public class PacienteController {
 			model.addAttribute("isNewPaciente", false);
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else {
-			return "redirect:/pacientes/{pacienteId}";
+			return "redirect:/pacientes/" + pacientesId;
 
 		}
 	}
@@ -226,7 +226,7 @@ public class PacienteController {
 		} else {
 			paciente.setId(pacienteId);
 			this.pacienteService.savePacienteByMedico(paciente, this.userService.getCurrentMedico().getId());
-			return "redirect:/pacientes/{pacienteId}";
+			return "redirect:/pacientes/" + pacienteId;
 		}
 	}
 
