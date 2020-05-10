@@ -20,14 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class PacienteService {
 
 	@Autowired
-	private PacienteRepository		pacienteRepo;
+	private PacienteRepository pacienteRepo;
 	@Autowired
-	private CitaService				citaService;
+	private CitaService citaService;
 	@Autowired
-	private MedicoService			medicoService;
+	private MedicoService medicoService;
 	@Autowired
-	private HistoriaClinicaService	historiaClinicaService;
-
+	private HistoriaClinicaService historiaClinicaService;
 
 	@Autowired
 	public PacienteService(final PacienteRepository pacienteRepo) {
@@ -72,35 +71,25 @@ public class PacienteService {
 	}
 
 	@Transactional
-	public void savePacienteByMedico(final Paciente paciente, final int idMedico) {
-		boolean tieneTelefono = false;
-
-		if (paciente.getN_telefono() != null) {
-			tieneTelefono = true;
-		}
-
+	public int savePacienteByMedico(final Paciente paciente, final int idMedico) {
+		boolean tieneTelefono = paciente.getN_telefono() != null;
 		boolean tieneContacto = tieneTelefono || !paciente.getDomicilio().isEmpty() || !paciente.getEmail().isEmpty();
 		boolean dniOk = new DniValidator(paciente.getDNI()).validar();
 
 		if (paciente.getMedico().getId() == idMedico) {
-			if (dniOk) {
-				if (tieneContacto) {
-					if (tieneTelefono) {
-						if (!paciente.getN_telefono().toString().isEmpty() && !(paciente.getN_telefono().toString().length() == 9)) {
-							throw new IllegalArgumentException("Número de teléfono incorrecto");
-						} else {
-							this.pacienteRepo.save(paciente).getId();
-						}
-					} else {
-						this.pacienteRepo.save(paciente).getId();
+			if (!dniOk) {
+				throw new IllegalArgumentException("Dni incorrecto");
+			}
+			if (tieneContacto) {
+				if (tieneTelefono) {
+					if (!(paciente.getN_telefono().toString().length() == 9)) {
+						throw new IllegalArgumentException("Número de teléfono incorrecto");
 					}
-				} else {
-					throw new IllegalArgumentException("No tiene forma de contacto");
 				}
 			} else {
-				throw new IllegalArgumentException("Dni incorrecto");
-
+				throw new IllegalArgumentException("No tiene forma de contacto");
 			}
+			return this.pacienteRepo.save(paciente).getId();
 		} else {
 			throw new IllegalAccessError();
 		}
@@ -122,19 +111,18 @@ public class PacienteService {
 			if (!citas.isEmpty()) {
 				LocalDate ultimaCita = citas.stream().map(Cita::getFecha).max(LocalDate::compareTo).get();
 				LocalDate hoy = LocalDate.now();
-				puedeBorrarse = hoy.compareTo(ultimaCita) >= 6 || hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() >= hoy.getDayOfYear();
+				puedeBorrarse = hoy.compareTo(ultimaCita) >= 6 || (hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear());
 			}
 
 			HistoriaClinica hs = this.findHistoriaClinicaByPaciente(paciente);
 
-			puedeBorrarse = puedeBorrarse && hs.getDescripcion().isEmpty();
-
-			if (citas.isEmpty() && hs.getDescripcion().isEmpty()) {
-				this.historiaClinicaService.deleteHistoriaClinica(hs);
+			if (citas.isEmpty() && hs == null) {
 				this.citaService.deleteAllByPaciente(paciente);
 				this.pacienteRepo.deleteById(idPaciente);
 			} else if (puedeBorrarse) {
-				this.historiaClinicaService.deleteHistoriaClinica(hs);
+				if (hs != null) {
+					this.historiaClinicaService.deleteHistoriaClinica(hs);
+				}
 				this.citaService.deleteAllByPaciente(paciente);
 				this.pacienteRepo.deleteById(idPaciente);
 			} else {

@@ -10,7 +10,6 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Cita;
-import org.springframework.samples.petclinic.model.HistoriaClinica;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.CitaService;
@@ -18,8 +17,8 @@ import org.springframework.samples.petclinic.service.HistoriaClinicaService;
 import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
+import org.springframework.samples.petclinic.util.DniValidator;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,18 +35,18 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class PacienteController {
 
-	private static final String				VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM	= "pacientes/createOrUpdatePacientesForm";
+	private static final String VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM = "pacientes/createOrUpdatePacientesForm";
 	@Autowired
-	private final PacienteService			pacienteService;
-	private final MedicoService				medicoService;
-	private final UserService				userService;
-	private final CitaService				citaService;
-	private final HistoriaClinicaService	historiaClinicaService;
-
+	private final PacienteService pacienteService;
+	private final MedicoService medicoService;
+	private final UserService userService;
+	private final CitaService citaService;
+	private final HistoriaClinicaService historiaClinicaService;
 
 	@Autowired
-	public PacienteController(final PacienteService pacienteService, final MedicoService medicoService, final UserService userService, final AuthoritiesService authoritiesService, final CitaService citaService,
-		final HistoriaClinicaService historiaClinicaService) {
+	public PacienteController(final PacienteService pacienteService, final MedicoService medicoService,
+			final UserService userService, final AuthoritiesService authoritiesService, final CitaService citaService,
+			final HistoriaClinicaService historiaClinicaService) {
 		this.pacienteService = pacienteService;
 		this.medicoService = medicoService;
 		this.userService = userService;
@@ -70,20 +69,25 @@ public class PacienteController {
 		Collection<Cita> citas = this.citaService.findAllByPaciente(paciente);
 		boolean canBeDeleted = citas.isEmpty();
 		if (!citas.isEmpty()) {
-			LocalDate ultimaCita = this.citaService.findAllByPaciente(paciente).stream().map(Cita::getFecha).max(LocalDate::compareTo).get();
+			LocalDate ultimaCita = this.citaService.findAllByPaciente(paciente).stream().map(Cita::getFecha)
+					.max(LocalDate::compareTo).get();
 			LocalDate hoy = LocalDate.now();
-			canBeDeleted = hoy.compareTo(ultimaCita) >= 6 || hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() >= hoy.getDayOfYear();
+			canBeDeleted = hoy.compareTo(ultimaCita) >= 6
+					|| hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
 		}
 
-		canBeDeleted = canBeDeleted && this.historiaClinicaService.findHistoriaClinicaByPaciente(paciente) == null;
+//		canBeDeleted = canBeDeleted && this.historiaClinicaService.findHistoriaClinicaByPaciente(paciente) == null;
 
-		if (SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("admin"))) {
-			canBeDeleted = true;
-		} else {
-			canBeDeleted = canBeDeleted && paciente.getMedico().equals(this.userService.getCurrentMedico());
-		}
+//		if (SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+//				.contains(new SimpleGrantedAuthority("admin"))) {
+//			canBeDeleted = true;
+//		} else {
+		boolean medicoCheck = paciente.getMedico().equals(this.userService.getCurrentMedico());
+		canBeDeleted = canBeDeleted && medicoCheck;
+//		}
 
-		mav.getModel().put("canBeDeleted", true);
+		mav.getModel().put("canBeDeleted", canBeDeleted);
+		mav.getModel().put("medicoCheck", medicoCheck);
 		return mav;
 	}
 
@@ -130,28 +134,13 @@ public class PacienteController {
 
 		Collection<Paciente> results = this.pacienteService.findPacienteByMedicoId(medicoId);
 		if (results.isEmpty()) {
-			//Falta la página de error
+			// Falta la página de error
 			return "redirect:/pacientes/";
 		} else {
 			model.put("selections", results);
 			return "pacientes/pacientesListMedico";
 		}
 	}
-
-	//	@GetMapping(value = "/paciente/save/{pacienteId}")
-	//	public String savePaciente(@Valid final Paciente paciente, final BindingResult result, final ModelMap modelMap) {
-	//		String view = "/pacientes";
-	//
-	//		if (result.hasErrors()) {
-	//			modelMap.addAttribute("paciente", paciente);
-	//			return "pacientes/editPaciente";
-	//		} else {
-	//			this.pacienteService.savePacienteByMedico(paciente, this.userService.getCurrentMedico().getId());
-	//			modelMap.addAttribute("message", "Paciente guardado exitosamente");
-	//		}
-	//
-	//		return view;
-	//	}
 
 	@RequestMapping(value = "/pacientes/{pacienteId}/delete")
 	public String borrarPaciente(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
@@ -161,13 +150,33 @@ public class PacienteController {
 		Optional<Paciente> paciente = this.pacienteService.findPacienteById(pacienteId);
 
 		if (paciente.isPresent()) {
-			if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("admin"))) {
-				this.pacienteService.pacienteDelete(pacienteId);
-			} else {
-				this.pacienteService.deletePacienteByMedico(pacienteId, this.userService.getCurrentMedico().getId());
+			Collection<Cita> citas = this.citaService.findAllByPaciente(paciente.get());
+
+			boolean puedeBorrarse = citas.isEmpty();
+			if (!citas.isEmpty()) {
+				LocalDate ultimaCita = citas.stream().map(Cita::getFecha).max(LocalDate::compareTo).get();
+				LocalDate hoy = LocalDate.now();
+				puedeBorrarse = hoy.compareTo(ultimaCita) >= 6
+						|| hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
 			}
-			modelMap.addAttribute("message", "Paciente borrado exitosamiente");
-			view = "redirect:/pacientes";
+
+			boolean mismoMedico = paciente.get().getMedico().equals(this.userService.getCurrentMedico());
+			boolean medicoEnabled = this.medicoService.getMedicoById(this.userService.getCurrentMedico().getId())
+					.getUser().isEnabled();
+
+			puedeBorrarse = puedeBorrarse && mismoMedico && medicoEnabled;
+
+			if (puedeBorrarse) {
+				this.pacienteService.deletePacienteByMedico(pacienteId, this.userService.getCurrentMedico().getId());
+				modelMap.addAttribute("message", "Paciente borrado exitosamiente");
+				view = "redirect:/pacientes";
+			} else if (mismoMedico == false) {
+				modelMap.addAttribute("message", "No tiene acceso para borrar a este paciente");
+				view = "/pacientes/" + pacienteId;
+			} else {
+				modelMap.addAttribute("message", "Paciente no puede borrarse");
+				view = "redirect:/pacientes/" + pacienteId;
+			}
 		} else {
 			modelMap.addAttribute("message", "Paciente no encontrado");
 		}
@@ -176,33 +185,47 @@ public class PacienteController {
 
 	@GetMapping(value = "/pacientes/{pacienteId}/edit")
 	public String initUpdatePacientesForm(@PathVariable("pacienteId") final int pacientesId, final Model model) {
+
 		Paciente paciente = this.pacienteService.findPacienteById(pacientesId).get();
-		//Paciente paciente = this.pacienteService.getPacienteById(pacientesId);
-		model.addAttribute("paciente", paciente);
-		model.addAttribute("medicoList", this.medicoService.getMedicos());
-		model.addAttribute("isNewPaciente", false);
-		return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
+		// Paciente paciente = this.pacienteService.getPacienteById(pacientesId);
+		if (this.userService.getCurrentMedico().equals(paciente.getMedico())) {
+			model.addAttribute("paciente", paciente);
+			model.addAttribute("medicoList", this.medicoService.getMedicos());
+			model.addAttribute("isNewPaciente", false);
+			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
+		} else {
+			return "redirect:/pacientes/{pacienteId}";
+
+		}
 	}
 
 	@PostMapping(value = "/pacientes/{pacienteId}/edit")
-	public String processUpdatePacienteForm(@Valid final Paciente paciente, final BindingResult result, @PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
+	public String processUpdatePacienteForm(@Valid final Paciente paciente, final BindingResult result,
+			@PathVariable("pacienteId") final int pacienteId, final Model model) {
 
-		boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("admin"));
-		boolean noTieneContacto = paciente.getN_telefono() == null && paciente.getDomicilio().isEmpty() && paciente.getEmail().isEmpty();
+		boolean noTieneContacto = paciente.getN_telefono() == null && paciente.getDomicilio().isEmpty()
+				&& paciente.getEmail().isEmpty();
+		boolean dniOk = new DniValidator(paciente.getDNI()).validar();
+		boolean pacienteValid = noTieneContacto == false && dniOk == true;
+		boolean telefonoOk = ((paciente.getN_telefono() == null) ? true
+				: (paciente.getN_telefono().toString().length() == 9));
 
-		if (result.hasErrors() || noTieneContacto) {
-			modelMap.addAttribute("medicoList", this.medicoService.getMedicos());
-			modelMap.addAttribute("isNewPaciente", false);
-			result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
+		if (result.hasErrors() || !pacienteValid || !telefonoOk) {
+			model.addAttribute("medicoList", this.medicoService.getMedicos());
+			model.addAttribute("isNewPaciente", false);
+			if (noTieneContacto) {
+				result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
+			}
+			if (dniOk == false) {
+				result.rejectValue("DNI", "error.DNI", "DNI invalido.");
+			}
+			if (telefonoOk == false) {
+				result.rejectValue("n_telefono", "error.n_telefono", "Telefono debe tener 9 digitos");
+			}
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
-		} else if (isAdmin) {
-			paciente.setId(pacienteId);
-			this.pacienteService.savePaciente(paciente);
-			return "redirect:/pacientes/{pacienteId}";
 		} else {
-			int currentMedico = this.userService.getCurrentMedico().getId();
 			paciente.setId(pacienteId);
-			this.pacienteService.savePacienteByMedico(paciente, currentMedico);
+			this.pacienteService.savePacienteByMedico(paciente, this.userService.getCurrentMedico().getId());
 			return "redirect:/pacientes/{pacienteId}";
 		}
 	}
@@ -220,21 +243,36 @@ public class PacienteController {
 	}
 
 	@PostMapping(value = "/pacientes/new")
-	public String processCreationForm(@Valid final Paciente paciente, final BindingResult result, final ModelMap modelMap) {
-		boolean noTieneContacto = paciente.getN_telefono() == null && paciente.getDomicilio().isEmpty() && paciente.getEmail().isEmpty();
+	public String processCreationForm(@Valid final Paciente paciente, final BindingResult result, final Model model) {
+		boolean noTieneContacto = paciente.getN_telefono() == null && paciente.getDomicilio().isEmpty()
+				&& paciente.getEmail().isEmpty();
+		boolean dniOk = new DniValidator(paciente.getDNI()).validar();
+		boolean pacienteValid = noTieneContacto == false && dniOk == true;
+		boolean telefonoOk = ((paciente.getN_telefono() == null) ? true
+				: (paciente.getN_telefono().toString().length() == 9));
+		boolean currentMedico = paciente.getMedico().equals(this.userService.getCurrentMedico());
 
-		if (result.hasErrors() || noTieneContacto) {
-			modelMap.addAttribute("medicoList", this.medicoService.getMedicos());
-			modelMap.addAttribute("isNewPaciente", true);
-			result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
+		if (result.hasErrors() || !pacienteValid || !telefonoOk) {
+			model.addAttribute("medicoList", this.medicoService.getMedicos());
+			model.addAttribute("isNewPaciente", false);
+			if (noTieneContacto) {
+				result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
+			}
+			if (dniOk == false) {
+				result.rejectValue("DNI", "error.DNI", "DNI invalido.");
+			}
+			if (telefonoOk == false) {
+				result.rejectValue("n_telefono", "error.n_telefono", "Telefono debe tener 9 digitos");
+			}
+			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
+		} else if (!currentMedico) {
+			result.rejectValue("medico", "error.medico", "No puedes crear un paciente para otro medico.");
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else {
-			//creating owner, user and authorities
-			this.pacienteService.savePaciente(paciente);
-			HistoriaClinica hc = new HistoriaClinica();
-			hc.setPaciente(paciente);
-			this.historiaClinicaService.saveHistoriaClinica(hc);
-			return "redirect:/pacientes/" + paciente.getId();
+			int pacienteId = this.pacienteService.savePacienteByMedico(paciente,
+					this.userService.getCurrentMedico().getId());
+
+			return "redirect:/pacientes/" + pacienteId;
 		}
 	}
 }

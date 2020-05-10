@@ -7,9 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.time.LocalDate;
 import java.util.Collection;
 
+import javax.management.InvalidAttributeValueException;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.Authorities;
@@ -142,17 +146,20 @@ public class CitaServiceTest {
 	@Test
 	public void testCountWithInitialData() {
 		int count = this.citaService.citaCount();
-		Assertions.assertEquals(count, 8);
+		Assertions.assertEquals(count, 9);
 	}
+	
+	int citaInitalCountData = 9;
 
 	@Test
-	public void testCreateCita() {
+	public void testCreateCita() throws InvalidAttributeValueException {
 
 		Medico medico = createDummyMedico();
 		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
 
 		int count = this.pacienteService.pacienteCount();
-		Assertions.assertEquals(count, 7);
+		int countCit = this.citaService.citaCount();
+		Assertions.assertEquals(count, 10);
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(paciente.getId()));
 
 		Cita cita = new Cita();
@@ -165,7 +172,7 @@ public class CitaServiceTest {
 
 		int countCitas = this.citaService.citaCount();
 
-		Assertions.assertEquals(countCitas, 9);
+		Assertions.assertEquals(countCitas, countCit+1);
 
 	}
 	
@@ -174,7 +181,7 @@ public class CitaServiceTest {
 		
 		this.citaService.delete(this.citaService.findCitaById(3).get());
 
-		Assertions.assertEquals(this.citaService.citaCount(),7);
+		Assertions.assertEquals(this.citaService.citaCount(),8);
 
 	}
 	
@@ -189,7 +196,8 @@ public class CitaServiceTest {
 		Cita cita2 = new Cita();
 		Cita cita3 = new Cita();
 		int count = this.pacienteService.pacienteCount();
-		Assertions.assertEquals(count, 9);
+		int countCit = this.citaService.citaCount();
+		Assertions.assertEquals(count, 12);
 		
 		cita.setFecha(LocalDate.of(2020, 8, 8));
 		cita.setLugar("Sevilla");
@@ -208,7 +216,7 @@ public class CitaServiceTest {
 		
 		int countCita = this.citaService.citaCount();
 
-		Assertions.assertEquals(countCita, 11);
+		Assertions.assertEquals(countCita, countCit+3);
 
 		Assertions.assertNotNull(cita.getPaciente().getId());
 		Assertions.assertNotNull(cita2.getPaciente().getId());

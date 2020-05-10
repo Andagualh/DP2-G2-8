@@ -8,10 +8,14 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 
+import javax.management.InvalidAttributeValueException;
+
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.dao.DataAccessException;
@@ -26,7 +30,6 @@ import org.springframework.samples.petclinic.model.User;
 import org.springframework.stereotype.Service;
 
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
-
 public class InformeServiceTest {
 
     @Autowired
@@ -143,7 +146,7 @@ public class InformeServiceTest {
         return paciente;
     }
 
-    public Cita createDummyCita1(final Paciente paciente) {
+    public Cita createDummyCita1(final Paciente paciente) throws InvalidAttributeValueException {
         Cita cita = new Cita();
         cita.setPaciente(paciente);
         cita.setFecha(LocalDate.now());
@@ -152,7 +155,7 @@ public class InformeServiceTest {
         return cita;
     }
 
-    public Cita createDummyCitaFuturo(final Paciente paciente) {
+    public Cita createDummyCitaFuturo(final Paciente paciente) throws InvalidAttributeValueException {
         Cita cita = new Cita();
         cita.setPaciente(paciente);
         cita.setFecha(LocalDate.now().plusDays(1));
@@ -160,6 +163,7 @@ public class InformeServiceTest {
         citaService.save(cita);
         return cita;
     }
+
     @Test
     public void testFindInformeById(){
         //Informe Existente en BD, comprobamos que tiene la ID esperada
@@ -169,14 +173,23 @@ public class InformeServiceTest {
     }
 
     @Test
-    public void testCreateInforme() throws DataAccessException, IllegalAccessException {
+    public void testCitaHasInforme(){
+        //Cita con Informe Existente en BD
+        Cita cita = citaService.findCitaById(1).get();
+        Assertions.assertTrue(informeService.citaHasInforme(cita));
+        //Cita sin Informe Existente en BD
+        Cita cita2 = citaService.findCitaById(2).get();
+        Assertions.assertFalse(informeService.citaHasInforme(cita2));
+    }
+
+    @Test
+    public void testSaveInforme() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
         Medico medico = createDummyMedico();
 		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCita1(paciente);
         
         Informe informe = new Informe();
         informe.setCita(cita);
-        cita.setInforme(informe);
         informe.setDiagnostico("Dermatitis");
         informe.setMotivo_consulta("Picor en frente");
         Assertions.assertNotNull(informe);
@@ -188,47 +201,238 @@ public class InformeServiceTest {
         es casi el mismo caso que con las counts que 
         se cambian día si y día también.
         Además el método está probado en un test anterior*/
-        assertEquals(3, informeService.findInformeById(3).get().getId());
+        assertEquals(informe.getId(), informeService.findInformeById(informe.getId()).get().getId());
     }
 
     @Test
-    public void testCreateInformeforNotCurrentDate() throws DataAccessException, IllegalAccessException {
+    public void testSaveInformeForCitaWithInforme() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
+        Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        Cita cita = createDummyCita1(paciente);
+        
+        Informe informe = new Informe();
+        informe.setCita(cita);
+        informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        Assertions.assertNotNull(informe);
+        informeService.saveInforme(informe);
+
+        Informe informe2 = new Informe();
+        informe2.setCita(cita);
+        informe2.setDiagnostico("Dermatitis");
+        informe2.setMotivo_consulta("Picor en frente");
+        Assertions.assertNotNull(informe2);
+
+        IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+        () -> informeService.saveInforme(informe2), "No se puede crear un informe para esta cita");
+
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede crear un informe para esta cita"));
+    }
+
+    @Test
+    public void testSaveInformeforNotCurrentDate() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
         Medico medico = createDummyMedico();
         Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCitaFuturo(paciente);
 
         Informe informe = new Informe();
         informe.setCita(cita);
-        cita.setInforme(informe);
         informe.setDiagnostico("this will not enter");
         informe.setMotivo_consulta("this will not enter");
         
 
         IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
-        () -> informeService.saveInforme(informe), "No se puede crear un informe para una cita futura");
+        () -> informeService.saveInforme(informe), "No se puede crear un informe para esta cita");
 
-        Assertions.assertTrue(thrown.getMessage().contains("No se puede crear un informe para una cita futura"));
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede crear un informe para esta cita"));
 
     }
 
-    //TODO: Realizar correctamente este test, detecta como transient algún objeto
     @Test
-    public void TestSaveInformeWithHC() throws DataAccessException, IllegalAccessException {
+    public void testUpdateInforme() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
+        Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        Cita cita = createDummyCita1(paciente);
+        
+        Informe informe = new Informe();
+        informe.setCita(cita);
+        informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        Assertions.assertNotNull(informe);
+        informeService.saveInforme(informe);
+
+        informe.setDiagnostico("Diag2");
+        informe.setMotivo_consulta("Picor2");
+        informeService.updateInforme(informe);
+
+        /*Probamos que la cita existe por su presunto ID en la BD.
+        Cambiar el valor si se añaden más informes a Data.sql.
+        Me vais a venir a protestar por esto y lo sé, pero 
+        es casi el mismo caso que con las counts que 
+        se cambian día si y día también.
+        Además el método está probado en un test anterior*/
+        assertEquals(informe.getId(), informeService.findInformeById(informe.getId()).get().getId());
+        assertEquals("Diag2", informeService.findInformeById(informe.getId()).get().getDiagnostico());
+    }
+
+    @Test
+    public void testUpdateInformeForCitaWithNoInforme() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
+        Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        Cita cita = createDummyCita1(paciente);
+        
+        Informe informe = new Informe();
+        informe.setCita(cita);
+        informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        Assertions.assertNotNull(informe);
+
+        IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+        () -> informeService.updateInforme(informe), "No se puede editar este informe");
+
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede editar este informe"));
+    }
+
+    @Test
+    public void testUpdateInformeforNotCurrentDate() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
         Medico medico = createDummyMedico();
         Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
         Cita cita = createDummyCitaFuturo(paciente);
 
+        Informe informe2 = new Informe();
+        informe2.setCita(cita);
+        informe2.setDiagnostico("this will not enter");
+        informe2.setMotivo_consulta("this will not enter");
+        
+
+        IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+        () -> informeService.updateInforme(informe2), "No se puede editar este informe");
+
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede editar este informe"));
+
+    }
+
+    @Test
+    public void testSaveInformeWithHC() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
+        Medico medico = createDummyMedico();
+        Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        Cita cita = createDummyCita1(paciente);
+
         Informe informe = new Informe();
         informe.setCita(cita);
-        cita.setInforme(informe);
         informe.setDiagnostico("Dermatitis");
         informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
         informe.setHistoriaClinica(historiaClinicaService.findHistoriaClinicaByPaciente(paciente));
         Assertions.assertNotNull(informe);
 
         informeService.saveInformeWithHistoriaClinica(informe);
+
+        Assertions.assertNotNull(informeService.findInformeById(informe.getId()).get().getHistoriaClinica());
+        Assertions.assertFalse(informeService.findInformeById(informe.getId()).get().getHistoriaClinica().getDescripcion().isEmpty());
     }
 
-    //TODO: DeleteInformeToHistoriaclinica, DeleteInforme, Editar Informe
+    @Test
+    public void testDeleteInformeSuccess() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException{
+        Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        Cita cita = createDummyCita1(paciente);
+        
+        Informe informe = new Informe();
+        informe.setCita(cita);
+        informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+       
+        Assertions.assertNotNull(informe);
+        Assertions.assertNull(informe.getHistoriaClinica());
+        Assertions.assertEquals(LocalDate.now(), cita.getFecha());
+        
+        informeService.saveInforme(informe);
+        informeService.deleteInforme(informe.getId());
+
+        Assertions.assertEquals(Optional.empty(), informeService.findInformeById(informe.getId()));
+    }
+
+    @Test
+    public void testDeleteInformeWithHC() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException {
+        Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        Cita cita = createDummyCita1(paciente);
+        
+        Informe informe = new Informe();
+        informe.setCita(cita);
+        informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
+        informe.setHistoriaClinica(historiaClinicaService.findHistoriaClinicaByPaciente(paciente));
+        informeService.saveInformeWithHistoriaClinica(informe);
+
+
+        Assertions.assertNotNull(informe);
+        Assertions.assertNotNull(informe.getHistoriaClinica());
+        Assertions.assertEquals(LocalDate.now(), cita.getFecha());
+        
+        IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+        () -> informeService.deleteInforme(informe.getId()), "No se puede borrar este informe");
+
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede borrar este informe"));
+    }
+
+    @Test
+    public void testDeleteInformePast() throws DataAccessException, IllegalAccessException {
+        Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        
+        
+        Informe informe = informeService.findInformeById(3).get();
+
+        Assertions.assertNotNull(informe);
+        Assertions.assertTrue(LocalDate.now().isAfter(informe.getCita().getFecha()));
+        
+        IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+        () -> informeService.deleteInforme(informe.getId()), "No se puede borrar este informe");
+
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede borrar este informe"));
+    }
+
+    @Test
+    public void testDeleteInformePastHist() throws DataAccessException, IllegalAccessException{
+		Paciente paciente = pacienteService.getPacienteById(1);
+        Informe informe = informeService.findInformeById(3).get();
+
+        informe.setHistoriaClinica(historiaClinicaService.findHistoriaClinicaByPaciente(paciente));
+        informeService.saveInformeWithHistoriaClinica(informe);
+        Assertions.assertNotNull(informe);
+        Assertions.assertNotNull(informe.getHistoriaClinica());
+
+        IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+        () -> informeService.deleteInforme(informe.getId()), "No se puede borrar este informe");
+
+        Assertions.assertTrue(thrown.getMessage().contains("No se puede borrar este informe"));
+    
+    }
+
+    @Test
+    public void testDeleteInformeFromHC() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException{
+        Medico medico = createDummyMedico();
+        Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+        Cita cita = createDummyCita1(paciente);
+
+        Informe informe = new Informe();
+        informe.setCita(cita);
+        informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
+        informe.setHistoriaClinica(historiaClinicaService.findHistoriaClinicaByPaciente(paciente));
+        Assertions.assertNotNull(informe);
+        informeService.saveInformeWithHistoriaClinica(informe);
+        
+        Assertions.assertNotNull(informeService.findInformeById(informe.getId()).get().getHistoriaClinica());
+        Assertions.assertFalse(informeService.findInformeById(informe.getId()).get().getHistoriaClinica().getDescripcion().isEmpty());
+
+        informeService.deleteInformeToHistoriaClinica(informe);
+        Assertions.assertNull(informeService.findInformeById(informe.getId()).get().getHistoriaClinica());
+
+    }
     
 }
