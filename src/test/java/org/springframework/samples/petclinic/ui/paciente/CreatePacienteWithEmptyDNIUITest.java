@@ -41,7 +41,7 @@ public class CreatePacienteWithEmptyDNIUITest {
 	}
 
 	@Test
-	public void testCreatePacienteWithoutFormaContactoUI() throws Exception {
+	public void testCreatePacienteWithEmptyDNIUITest() throws Exception {
 		this.driver.get("http://localhost:" + this.port);
 		this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 		this.driver.findElement(By.id("username")).clear();
@@ -49,7 +49,8 @@ public class CreatePacienteWithEmptyDNIUITest {
 		this.driver.findElement(By.id("password")).clear();
 		this.driver.findElement(By.id("password")).sendKeys("entrar");
 		this.driver.findElement(By.xpath("//button[@type='submit']")).click();
-		assertEquals("ALVAROMEDICO", this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).getText());
+		assertEquals("ALVAROMEDICO",
+				this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).getText());
 		driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a")).click();
 		driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/ul/li[6]/a/span[2]")).click();
 		driver.findElement(By.id("nombre")).click();
@@ -63,6 +64,7 @@ public class CreatePacienteWithEmptyDNIUITest {
 		driver.findElement(By.linkText("22")).click();
 		driver.findElement(By.id("DNI")).click();
 		driver.findElement(By.id("DNI")).clear();
+		driver.findElement(By.id("DNI")).sendKeys("");
 		driver.findElement(By.id("n_telefono")).click();
 		driver.findElement(By.id("n_telefono")).clear();
 		driver.findElement(By.id("n_telefono")).sendKeys("666123555");
@@ -71,11 +73,12 @@ public class CreatePacienteWithEmptyDNIUITest {
 		driver.findElement(By.id("medico")).click();
 		driver.findElement(By.xpath("//option[@value='1']")).click();
 		driver.findElement(By.xpath("//button[@type='submit']")).click();
-	    try {
-	        assertEquals("no puede estar vacío", driver.findElement(By.xpath("//form[@id='add-paciente-form']/div/div[4]/div/span[2]")).getText());
-	      } catch (Error e) {
-	        verificationErrors.append(e.toString());
-	      }
+		try {
+			assertEquals("no puede estar vacío",
+					driver.findElement(By.xpath("//form[@id='add-paciente-form']/div/div[4]/div/span[2]")).getText());
+		} catch (Error e) {
+			verificationErrors.append(e.toString());
+		}
 	}
 
 	@AfterEach
