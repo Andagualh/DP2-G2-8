@@ -201,7 +201,7 @@ public class PacienteController {
 
 	@PostMapping(value = "/pacientes/{pacienteId}/edit")
 	public String processUpdatePacienteForm(@Valid final Paciente paciente, final BindingResult result,
-			@PathVariable("pacienteId") final int pacienteId, final Model model) {
+			@PathVariable("pacienteId") final int pacienteId, final ModelMap model) {
 
 		boolean noTieneContacto = paciente.getN_telefono() == null && paciente.getDomicilio().isEmpty()
 				&& paciente.getEmail().isEmpty();

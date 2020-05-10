@@ -1,5 +1,6 @@
 package org.springframework.samples.petclinic.web.integration;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,12 +23,14 @@ import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.samples.petclinic.web.PacienteController;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.MapBindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -52,6 +55,8 @@ public class PacienteControllerIntegrationTest {
 	private CitaService citaService;
 	
 	private static final int TEST_PACIENTE_ID = 1;
+	private static final String VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM = "pacientes/createOrUpdatePacientesForm";
+
 	
 	@Test
 	void testShowPaciente() throws Exception{
@@ -143,6 +148,12 @@ public class PacienteControllerIntegrationTest {
 	}
 	
 	@Test
+	void testSetAllowedFields() throws Exception {
+		WebDataBinder wDB = new WebDataBinder(null);
+		this.pacienteController.setAllowedFields(wDB);
+	}
+	
+	@Test
 	void testProcessFindFormApellidosVarios() throws Exception{
 		
 		Paciente paciente = this.pacienteService.findPacienteById(TEST_PACIENTE_ID).get();
@@ -208,6 +219,27 @@ public class PacienteControllerIntegrationTest {
 		
 	}
 
+	
+	@Test
+	void testProcessUpdatePacienteFormHasErrors() throws Exception {
+		
+		Paciente p = new Paciente();
+		p.setNombre("");
+		p.setApellidos("De Lucía");
+		p.setDNI("53279183M");
+		p.setF_nacimiento(LocalDate.now().minusYears(25));
+		p.setDomicilio("La calle de su casa, 34");
+		p.setEmail("pacodelucia@gmail.com");
+		p.setN_telefono(333555777);
+		p.setMedico(this.medicoService.findMedicoByUsername("alvaroMedico"));
+		BindingResult result = new MapBindingResult(Collections.emptyMap(),"");
+		ModelMap m = new ModelMap();
+
+		
+		String view = this.pacienteController.processUpdatePacienteForm(p, result, 1, m);
+		
+		Assertions.assertEquals(VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM, view);
+	}
 	
 	
 	
