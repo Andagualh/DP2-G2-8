@@ -431,7 +431,6 @@ public class InformeControllerIntegrationTest {
 
     @Test
     void testDeleteHistoriaClinicaToInforme() throws Exception{
-        
         Cita cita = new Cita();
         cita.setFecha(LocalDate.now());
         cita.setLugar("Lugar");
