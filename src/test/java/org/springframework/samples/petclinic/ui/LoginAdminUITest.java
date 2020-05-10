@@ -35,7 +35,6 @@ public class LoginAdminUITest {
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		
 		this.driver = new FirefoxDriver();
 		this.baseUrl = "https://www.google.com/";
 		this.driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
@@ -57,7 +56,7 @@ public class LoginAdminUITest {
 
 	private LoginAdminUITest as(final String username) {
 		this.username = username;
-		this.driver.get("http://localhost:8080");
+		this.driver.get("http://localhost:" + this.port);
 		this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 		this.driver.findElement(By.id("password")).clear();
 		this.driver.findElement(By.id("password")).sendKeys(this.passwordOf(username));
