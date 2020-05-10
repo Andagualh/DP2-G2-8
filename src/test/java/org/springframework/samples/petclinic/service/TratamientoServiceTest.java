@@ -98,10 +98,26 @@ public class TratamientoServiceTest {
 		
 		Tratamiento tratamiento = new Tratamiento();
 		
-		tratamiento.setMedicamento("aspirina1");
+		tratamiento.setMedicamento("");
 		tratamiento.setDosis("1 pastilla cada 8 horas");
 		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-01-23"));
-		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-01-22"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-22"));
+		tratamiento.setInforme(informeService.findInformeById(1).get());
+		
+		Assertions.assertThrows(IllegalArgumentException.class, () -> {
+			this.tratamientoService.save(tratamiento);
+		});
+	}
+	
+	@Test
+	public void testCreateTratamientoNullInputs() {
+		
+		Tratamiento tratamiento = new Tratamiento();
+		
+		tratamiento.setMedicamento("");
+		tratamiento.setDosis("");
+		tratamiento.setF_inicio_tratamiento(null);
+		tratamiento.setF_fin_tratamiento(null);
 		tratamiento.setInforme(informeService.findInformeById(1).get());
 		
 		Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -142,7 +158,9 @@ public class TratamientoServiceTest {
 		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-22"));
 
 		this.tratamientoService.save(tratamiento);
-	/*	
+		
+		/*
+	
 		Assertions.assertThrows(IllegalArgumentException.class, () -> {
 			this.tratamientoService.save(tratamiento);
 		});
@@ -152,7 +170,7 @@ public class TratamientoServiceTest {
 	@Test
 	public void testUpdateTratamientoWithFechaFinPasado() {
 		
-		Tratamiento tratamiento = tratamientoService.findTratamientoById(2).get();
+		Tratamiento tratamiento = tratamientoService.findTratamientoById(3).get();
 
 		Assertions.assertNotNull(tratamiento);
 		
@@ -162,7 +180,8 @@ public class TratamientoServiceTest {
 		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-01-20"));
 
 		this.tratamientoService.save(tratamiento);
-/*
+
+		/*
 		Assertions.assertThrows(IllegalArgumentException.class, () -> {
 			this.tratamientoService.save(tratamiento);
 		});
