@@ -72,8 +72,9 @@ public class PacienteController {
 			LocalDate ultimaCita = this.citaService.findAllByPaciente(paciente).stream().map(Cita::getFecha)
 					.max(LocalDate::compareTo).get();
 			LocalDate hoy = LocalDate.now();
-			canBeDeleted = hoy.compareTo(ultimaCita) >= 6
-					|| hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
+			canBeDeleted = hoy.compareTo(ultimaCita) >= 6 
+					|| hoy.compareTo(ultimaCita) == 5 
+					&& hoy.getDayOfYear() > ultimaCita.getDayOfYear();
 		}
 
 //		canBeDeleted = canBeDeleted && this.historiaClinicaService.findHistoriaClinicaByPaciente(paciente) == null;

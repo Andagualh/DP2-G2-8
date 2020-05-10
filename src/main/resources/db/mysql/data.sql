@@ -113,6 +113,8 @@ INSERT INTO cita VALUES (6, 'nombre9','2023-05-09','Consulta 6',3);
 INSERT INTO cita VALUES (7, 'Cita Test Informe','2020-04-18','Consulta Test Informe',1);
 INSERT INTO cita VALUES (8, 'Cita Test Edit Informe', '2020-04-20', 'Consulta Test 7', 1);
 INSERT INTO cita VALUES (9, 'Cita Test Pasado Informes', '2020-04-20', 'ConsultaTEST', 1);
+INSERT INTO cita VALUES (10, 'Cita Test Pasado 1', '2015-05-09', 'ConsultaTEST', 9);
+INSERT INTO cita VALUES (11, 'Cita Test Pasado 2', '2012-05-09', 'ConsultaTEST', 8);
 
 INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (1,'Descripcion',1);
 INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (2,'Descripcion 2',2);

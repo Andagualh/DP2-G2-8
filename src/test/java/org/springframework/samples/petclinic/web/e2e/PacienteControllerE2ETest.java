@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +29,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.PetclinicApplication;
 import org.springframework.samples.petclinic.model.Authorities;
+import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.HistoriaClinica;
 import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.Owner;
@@ -50,6 +52,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+
 
 
 @ExtendWith(SpringExtension.class)
@@ -137,6 +140,32 @@ public class PacienteControllerE2ETest {
 		.andExpect(model().attributeExists("paciente"))
 		.andExpect(model().attributeExists("medicoCheck"))
 		.andExpect(model().attributeExists("canBeDeleted"));
+	}
+	
+	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
+    @Test
+    void testShowPacienteCanBeDeleted() throws Exception {		
+				
+		mockMvc.perform(get("/pacientes/{pacienteId}", 9))
+		.andExpect(status().isOk())
+		.andExpect(view().name("pacientes/pacienteDetails"))
+		.andExpect(model().attributeExists("paciente"))
+		.andExpect(model().attributeExists("medicoCheck"))
+		.andExpect(model().attributeExists("canBeDeleted"));
+		
+	}
+	
+	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
+    @Test
+    void testShowPacienteCanBeDeleted2() throws Exception {		
+				
+		mockMvc.perform(get("/pacientes/{pacienteId}", 8))
+		.andExpect(status().isOk())
+		.andExpect(view().name("pacientes/pacienteDetails"))
+		.andExpect(model().attributeExists("paciente"))
+		.andExpect(model().attributeExists("medicoCheck"))
+		.andExpect(model().attributeExists("canBeDeleted"));
+		
 	}
 
 	
@@ -323,7 +352,7 @@ public class PacienteControllerE2ETest {
 				.param("nombre", "Paco")
 				.param("apellidos", "Mateos")
 				.param("f_nacimiento", "1990/03/21")
-				.param("DNI", "12345674")
+				.param("DNI", "12345678Z")
 				.param("f_alta", "2020/05/08")
 				.param("n_telefono", "456678543")
 				.param("email", "pacomateos@gmail.com")
@@ -469,7 +498,7 @@ public class PacienteControllerE2ETest {
 				.param("nombre", "Paco")
 				.param("apellidos", "Mateos")
 				.param("f_nacimiento", "1990/03/21")
-				.param("DNI", "53279M")
+				.param("DNI", "12345678M")
 				.param("f_alta", "2020/05/08")
 				.param("n_telefono", "666666666")
 				.param("email", "pacomateos@gmail.com")
