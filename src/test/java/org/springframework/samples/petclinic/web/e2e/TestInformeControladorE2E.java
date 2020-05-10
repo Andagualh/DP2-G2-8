@@ -65,6 +65,8 @@ public class TestInformeControladorE2E {
     private int TEST_CITA_ID;
     private Cita cita;
 
+    //Los datos se crean en BBDD y borran según se usan
+
     @BeforeEach
     void setUp() throws InvalidAttributeValueException {
         cita = new Cita();
