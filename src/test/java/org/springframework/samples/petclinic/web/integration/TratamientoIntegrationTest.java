@@ -16,12 +16,14 @@ import org.springframework.samples.petclinic.service.InformeService;
 import org.springframework.samples.petclinic.service.TratamientoService;
 import org.springframework.samples.petclinic.web.TratamientoController;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.MapBindingResult;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Transactional
 public class TratamientoIntegrationTest {
 
 	@Autowired
