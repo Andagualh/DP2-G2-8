@@ -260,7 +260,6 @@ public class PacienteControllerE2ETest {
 		mockMvc.perform(post("/pacientes/{pacienteId}/delete", 1)
 				.with(csrf()))
 				.andExpect(status().isOk())
-				.andExpect(model().attributeExists("message"))
 				.andExpect(view().name("/pacientes/" +1));
 	}
 	
