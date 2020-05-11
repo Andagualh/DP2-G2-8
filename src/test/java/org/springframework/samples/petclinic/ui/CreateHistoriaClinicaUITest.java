@@ -50,8 +50,8 @@ public class CreateHistoriaClinicaUITest {
 		this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a")).click();
 		this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/ul/li[4]/a/span[2]")).click();
 		this.driver.findElement(By.xpath("//a[contains(@href, '/pacientes/7')]")).click();
-		this.driver.findElement(By.linkText("Historia Clinica")).click();
-		this.driver.findElement(By.linkText("Crear Historia Clinica")).click();
+		this.driver.findElement(By.xpath("//a[contains(@href, '/pacientes/7/historiaclinica')]")).click();
+		this.driver.findElement(By.xpath("//a[contains(@href, '/pacientes/7/historiaclinica/new')]")).click();
 		this.driver.findElement(By.id("descripcion")).click();
 		this.driver.findElement(By.id("descripcion")).clear();
 		this.driver.findElement(By.id("descripcion")).sendKeys("Dolor de cabeza");
