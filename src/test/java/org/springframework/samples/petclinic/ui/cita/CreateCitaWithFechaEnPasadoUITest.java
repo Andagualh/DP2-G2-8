@@ -27,7 +27,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CreateCitaWithFechaEnPasado {
+public class CreateCitaWithFechaEnPasadoUITest {
 
 	@LocalServerPort 
 	  private int port = 8080;
