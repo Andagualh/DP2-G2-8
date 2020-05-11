@@ -172,7 +172,7 @@ public class CitaControllerIntegrationTests {
 	@Test
 	void testProcessFindMyCitasEmpty() throws Exception {
 		ModelMap model = new ModelMap();
-		int idMedicoWithoutCitas = 3;
+		int idMedicoWithoutCitas = 4;
 		
 		String view = citaController.listadoCitas(model,idMedicoWithoutCitas);
 

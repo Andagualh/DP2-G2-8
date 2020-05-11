@@ -342,7 +342,7 @@ public class PacienteControllerIntegrationTest {
 		ModelMap m = new ModelMap();
 		String view = this.pacienteController.initUpdatePacientesForm(TEST_PACIENTE_ID, m);
 		
-		Assertions.assertEquals("redirect:/pacientes/{pacienteId}", view);;
+		Assertions.assertEquals("redirect:/pacientes/" + TEST_PACIENTE_ID, view);;
 	}
 	
 	@WithMockUser(username="alvaroMedico", authorities={"medico"})
@@ -365,7 +365,7 @@ public class PacienteControllerIntegrationTest {
 		
 		String view = this.pacienteController.processUpdatePacienteForm(p, result, 1, m);
 		
-		Assertions.assertEquals("redirect:/pacientes/{pacienteId}", view);
+		Assertions.assertEquals("redirect:/pacientes/" + p.getId(), view);
 	}
 	
 	@WithMockUser(username="alvaroMedico", authorities={"medico"})
@@ -434,7 +434,7 @@ public class PacienteControllerIntegrationTest {
 		
 		String view = this.pacienteController.processUpdatePacienteForm(p, result, 1, m);
 		
-		Assertions.assertEquals("redirect:/pacientes/{pacienteId}", view);
+		Assertions.assertEquals("redirect:/pacientes/" + p.getId(), view);
 	}
 	
 	@WithMockUser(username="alvaroMedico", authorities={"medico"})
@@ -457,7 +457,7 @@ public class PacienteControllerIntegrationTest {
 		
 		String view = this.pacienteController.processUpdatePacienteForm(p, result, 1, m);
 		
-		Assertions.assertEquals("redirect:/pacientes/{pacienteId}", view);
+		Assertions.assertEquals("redirect:/pacientes/" + p.getId(), view);
 	}
 	
 	@WithMockUser(username="alvaroMedico", authorities={"medico"})
@@ -480,7 +480,7 @@ public class PacienteControllerIntegrationTest {
 		
 		String view = this.pacienteController.processUpdatePacienteForm(p, result, 1, m);
 		
-		Assertions.assertEquals("redirect:/pacientes/{pacienteId}", view);
+		Assertions.assertEquals("redirect:/pacientes/" + p.getId(), view);
 	}
 	
 	@WithMockUser(username="alvaroMedico", authorities={"medico"})
