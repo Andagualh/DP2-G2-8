@@ -73,8 +73,9 @@ public class PacienteController {
 			LocalDate ultimaCita = this.citaService.findAllByPaciente(paciente).stream().map(Cita::getFecha)
 					.max(LocalDate::compareTo).get();
 			LocalDate hoy = LocalDate.now();
-			canBeDeleted = hoy.compareTo(ultimaCita) >= 6
-					|| hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
+			canBeDeleted = hoy.compareTo(ultimaCita) >= 6 
+					|| hoy.compareTo(ultimaCita) == 5 
+					&& hoy.getDayOfYear() > ultimaCita.getDayOfYear();
 		}
 
 //		canBeDeleted = canBeDeleted && this.historiaClinicaService.findHistoriaClinicaByPaciente(paciente) == null;
@@ -195,7 +196,7 @@ public class PacienteController {
 			model.addAttribute("isNewPaciente", false);
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else {
-			return "redirect:/pacientes/{pacienteId}";
+			return "redirect:/pacientes/" + pacientesId;
 
 		}
 	}
@@ -228,7 +229,7 @@ public class PacienteController {
 		} else {
 			paciente.setId(pacienteId);
 			this.pacienteService.savePacienteByMedico(paciente, this.userService.getCurrentMedico().getId());
-			return "redirect:/pacientes/{pacienteId}";
+			return "redirect:/pacientes/" + pacienteId;
 		}
 	}
 

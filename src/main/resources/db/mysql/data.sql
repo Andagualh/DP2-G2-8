@@ -72,6 +72,8 @@ INSERT INTO users(username,password,enabled) VALUES ('andresMedico','entrar',TRU
 INSERT INTO authorities VALUES ('andresMedico','medico');
 INSERT INTO users(username,password,enabled) VALUES ('pabloMedico','entrar',TRUE);
 INSERT INTO authorities VALUES ('pabloMedico','medico');
+INSERT INTO users(username,password,enabled) VALUES ('pedroMedico','entrar',TRUE);
+INSERT INTO authorities VALUES ('pedroMedico','medico');
 
 INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,username) 
 VALUES (1,'Alvaro','Alferez','78429273D','666666666','Ecija','alvaroMedico');
@@ -79,6 +81,9 @@ INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,username)
 VALUES (2,'Andres','Alhama','97899162F','666666666','Ecija','andresMedico');
 INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,username) 
 VALUES (3,'Pablo','Moreno','29599162M','666666666','Sevilla','pabloMedico');
+INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,username) 
+VALUES (4,'Pedro','Coza','53279183M','666666666','Sevilla','pedroMedico');
+
 
 INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
 VALUES (1,'Maria Gracia','Castillo Castillo','1983-11-12','66100313S',605708609,'Camino Horno, 29','mariagracia_83@gmail.com','2020-03-20',1);
@@ -108,6 +113,8 @@ INSERT INTO cita VALUES (6, 'nombre9','2023-05-09','Consulta 6',3);
 INSERT INTO cita VALUES (7, 'Cita Test Informe','2020-04-18','Consulta Test Informe',1);
 INSERT INTO cita VALUES (8, 'Cita Test Edit Informe', '2020-04-20', 'Consulta Test 7', 1);
 INSERT INTO cita VALUES (9, 'Cita Test Pasado Informes', '2020-04-20', 'ConsultaTEST', 1);
+INSERT INTO cita VALUES (10, 'Cita Test Pasado 1', '2015-05-09', 'ConsultaTEST', 9);
+INSERT INTO cita VALUES (11, 'Cita Test Pasado 2', '2012-05-09', 'ConsultaTEST', 8);
 
 INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (1,'Descripcion',1);
 INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (2,'Descripcion 2',2);
