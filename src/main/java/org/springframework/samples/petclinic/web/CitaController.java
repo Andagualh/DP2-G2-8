@@ -78,10 +78,10 @@ public class CitaController {
 			modelMap.addAttribute("paciente", cita.getPaciente());
 			return "citas/createOrUpdateCitaForm";
 		} else if (cita.getFecha().isBefore(LocalDate.now())) {
-			System.out.println("entraalerror");
 			modelMap.addAttribute("cita", cita);
 			modelMap.addAttribute("paciente", cita.getPaciente());
 			modelMap.addAttribute("message", "La fecha debe estar en presente o futuro");
+			result.rejectValue("fecha", "error.fecha", "La fecha debe estar en presente o futuro");
 			return "citas/createOrUpdateCitaForm";
 		} else {
 			this.citaService.save(cita);
