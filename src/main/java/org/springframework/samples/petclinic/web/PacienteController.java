@@ -186,7 +186,7 @@ public class PacienteController {
 	}
 
 	@GetMapping(value = "/pacientes/{pacienteId}/edit")
-	public String initUpdatePacientesForm(@PathVariable("pacienteId") final int pacientesId, final Model model) {
+	public String initUpdatePacientesForm(@PathVariable("pacienteId") final int pacientesId, final ModelMap model) {
 
 		Paciente paciente = this.pacienteService.findPacienteById(pacientesId).get();
 		// Paciente paciente = this.pacienteService.getPacienteById(pacientesId);
@@ -203,7 +203,7 @@ public class PacienteController {
 
 	@PostMapping(value = "/pacientes/{pacienteId}/edit")
 	public String processUpdatePacienteForm(@Valid final Paciente paciente, final BindingResult result,
-			@PathVariable("pacienteId") final int pacienteId, final Model model) {
+			@PathVariable("pacienteId") final int pacienteId, final ModelMap model) {
 
 		boolean noTieneContacto = paciente.getN_telefono() == null && paciente.getDomicilio().isEmpty()
 				&& paciente.getEmail().isEmpty();
@@ -246,7 +246,7 @@ public class PacienteController {
 	}
 
 	@PostMapping(value = "/pacientes/new")
-	public String processCreationForm(@Valid final Paciente paciente, final BindingResult result, final Model model) {
+	public String processCreationForm(@Valid final Paciente paciente, final BindingResult result, final ModelMap model) {
 		boolean noTieneContacto = paciente.getN_telefono() == null && paciente.getDomicilio().isEmpty()
 				&& paciente.getEmail().isEmpty();
 		boolean dniOk = new DniValidator(paciente.getDNI()).validar();

@@ -146,7 +146,7 @@ public class CitaServiceTest {
 	@Test
 	public void testCountWithInitialData() {
 		int count = this.citaService.citaCount();
-		Assertions.assertEquals(count, 11);
+		Assertions.assertEquals(count, 12);
 	}
 	
 	int citaInitalCountData = 11;
@@ -181,7 +181,7 @@ public class CitaServiceTest {
 		
 		this.citaService.delete(this.citaService.findCitaById(3).get());
 
-		Assertions.assertEquals(this.citaService.citaCount(),10);
+		Assertions.assertEquals(this.citaService.citaCount(),11);
 
 	}
 	
