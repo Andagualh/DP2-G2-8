@@ -50,8 +50,8 @@ public class CreateHistoriaClinicaEmptyUITest {
 		this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a")).click();
 		this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/ul/li[4]/a/span[2]")).click();
 		this.driver.findElement(By.xpath("//a[contains(@href, '/pacientes/7')]")).click();
-		this.driver.findElement(By.linkText("Historia Clinica")).click();
-		this.driver.findElement(By.linkText("Crear Historia Clinica")).click();
+		this.driver.findElement(By.xpath("//a[contains(@href, '/pacientes/7/historiaclinica')]")).click();
+		this.driver.findElement(By.xpath("//a[contains(@href, '/pacientes/7/historiaclinica/new')]")).click();
 		this.driver.findElement(By.id("descripcion")).click();
 		this.driver.findElement(By.xpath("//button[@type='submit']")).click();
 		Assert.assertEquals("La descripcion no puede estar vacia.", this.driver.findElement(By.xpath("//form[@id='add-historiaclinica-form']/div/p")).getText());
