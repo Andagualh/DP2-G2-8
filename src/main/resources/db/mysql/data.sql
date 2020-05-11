@@ -72,6 +72,8 @@ INSERT INTO users(username,password,enabled) VALUES ('andresMedico','entrar',TRU
 INSERT INTO authorities VALUES ('andresMedico','medico');
 INSERT INTO users(username,password,enabled) VALUES ('pabloMedico','entrar',TRUE);
 INSERT INTO authorities VALUES ('pabloMedico','medico');
+INSERT INTO users(username,password,enabled) VALUES ('pedroMedico','entrar',TRUE);
+INSERT INTO authorities VALUES ('pedroMedico','medico');
 
 INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,username) 
 VALUES (1,'Alvaro','Alferez','78429273D','666666666','Ecija','alvaroMedico');
@@ -79,6 +81,9 @@ INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,username)
 VALUES (2,'Andres','Alhama','97899162F','666666666','Ecija','andresMedico');
 INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,username) 
 VALUES (3,'Pablo','Moreno','29599162M','666666666','Sevilla','pabloMedico');
+INSERT INTO medico(id,nombre,apellidos,dni,n_telefono,domicilio,username) 
+VALUES (4,'Pedro','Coza','53279183M','666666666','Sevilla','pedroMedico');
+
 
 INSERT INTO paciente(id,nombre,apellidos,f_nacimiento,dni,n_telefono,domicilio,email,f_alta,medico_id) 
 VALUES (1,'Maria Gracia','Castillo Castillo','1983-11-12','66100313S',605708609,'Camino Horno, 29','mariagracia_83@gmail.com','2020-03-20',1);
@@ -112,7 +117,6 @@ INSERT INTO cita VALUES (10, 'Cita Test Pasado PacienteIntegration', '2015-04-20
 INSERT INTO cita VALUES (11, 'Cita Test Pasado PacienteIntegration2', '2013-04-20', 'ConsultaTEST', 9);
 INSERT INTO cita VALUES (12, 'Cita Test Pasado PacienteIntegration3', '2015-05-26', 'ConsultaTEST', 6);
 
-
 INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (1,'Descripcion',1);
 INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (2,'Descripcion 2',2);
 INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (3,'Descripcion 3',3);
@@ -124,6 +128,7 @@ INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (7,'Descripcion 7
 INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (1,'motivo','diagnostico',1,null);
 INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (2, 'motivo test', 'diagnostico test', 8, null);
 INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (3, 'cita pasada', 'cita past',9,null);
+
 
 INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tratamiento,informe_id) 
 VALUES (1, 'nombre1','paracetamol','1 pastilla cada 4 horas','2020-03-09','2020-12-24',1);

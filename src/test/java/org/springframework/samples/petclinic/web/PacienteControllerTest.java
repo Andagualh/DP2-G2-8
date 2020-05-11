@@ -501,7 +501,7 @@ public class PacienteControllerTest {
 
 		mockMvc.perform(get("/pacientes/{pacienteId}/edit", TEST_PACIENTE_ID))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/pacientes/{pacienteId}"));
+				.andExpect(view().name("redirect:/pacientes/" + TEST_PACIENTE_ID));
 	}
     	
         @WithMockUser(value = "spring")
@@ -529,7 +529,7 @@ public class PacienteControllerTest {
 							.param("medico.user.password", "medico1")
 							.param("medico.user.enabled", "true"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(view().name("redirect:/pacientes/{pacienteId}"));
+				.andExpect(view().name("redirect:/pacientes/" + TEST_PACIENTE_ID));
 	}
         
         @WithMockUser(value = "spring")

@@ -1,10 +1,11 @@
-package org.springframework.samples.petclinic.ui;
+package org.springframework.samples.petclinic.ui.tratamiento;
 
 
 import static org.junit.Assert.fail;
 
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class EditTratamientoUITest {
+public class CreateTratamientoTodosCamposVaciosUITest {
 	
 	@LocalServerPort
 	private int				port				= 8080;
@@ -39,7 +40,7 @@ public class EditTratamientoUITest {
   }
   
   @Test
-  public void testEditTratamiento() throws Exception {
+  public void testCrearTratamientoTodosCamposVacios() throws Exception {
 	this.driver.get("http://localhost:" + this.port);
 	this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 	this.driver.findElement(By.id("username")).clear();
@@ -48,20 +49,14 @@ public class EditTratamientoUITest {
 	this.driver.findElement(By.id("password")).sendKeys("entrar");
 	this.driver.findElement(By.xpath("//button[@type='submit']")).click();
 	driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/a")).click();
-    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/ul/li[2]/a/span[2]")).click();
+	driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/ul/li[2]/a/span[2]")).click();
     driver.findElement(By.linkText("Ver Informe")).click();
-    driver.findElement(By.linkText("Editar Tratamiento")).click();
-    driver.findElement(By.id("medicamento")).click();
-    driver.findElement(By.id("medicamento")).clear();
-    driver.findElement(By.id("medicamento")).sendKeys("ibuprofeno");
-    driver.findElement(By.id("dosis")).click();
-    driver.findElement(By.id("dosis")).clear();
-    driver.findElement(By.id("dosis")).sendKeys("1 pastilla cada 24 horas");
-    driver.findElement(By.id("f_inicio_tratamiento")).click();
-    driver.findElement(By.linkText("10")).click();
-    driver.findElement(By.id("f_fin_tratamiento")).click();
-    driver.findElement(By.linkText("31")).click();
+    driver.findElement(By.linkText("Crear Tratamiento")).click();
     driver.findElement(By.xpath("//button[@type='submit']")).click();
+    Assert.assertEquals("no puede estar vacío", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div/div")).getText());
+    Assert.assertEquals("no puede estar vacío", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[2]/div")).getText());
+    Assert.assertEquals("no puede ser null", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[3]/div")).getText());
+    Assert.assertEquals("no puede ser null", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[4]/div")).getText());
   }
 
   @AfterEach

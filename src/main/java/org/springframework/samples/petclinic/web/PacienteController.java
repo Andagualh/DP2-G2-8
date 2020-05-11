@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import org.hibernate.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Paciente;
@@ -72,8 +73,9 @@ public class PacienteController {
 			LocalDate ultimaCita = this.citaService.findAllByPaciente(paciente).stream().map(Cita::getFecha)
 					.max(LocalDate::compareTo).get();
 			LocalDate hoy = LocalDate.now();
-			canBeDeleted = hoy.compareTo(ultimaCita) >= 6
-					|| hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
+			canBeDeleted = hoy.compareTo(ultimaCita) >= 6 
+					|| hoy.compareTo(ultimaCita) == 5 
+					&& hoy.getDayOfYear() > ultimaCita.getDayOfYear();
 		}
 
 //		canBeDeleted = canBeDeleted && this.historiaClinicaService.findHistoriaClinicaByPaciente(paciente) == null;
@@ -194,7 +196,7 @@ public class PacienteController {
 			model.addAttribute("isNewPaciente", false);
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else {
-			return "redirect:/pacientes/{pacienteId}";
+			return "redirect:/pacientes/" + pacientesId;
 
 		}
 	}
@@ -210,9 +212,10 @@ public class PacienteController {
 		boolean telefonoOk = ((paciente.getN_telefono() == null) ? true
 				: (paciente.getN_telefono().toString().length() == 9));
 
+		model.addAttribute("isNewPaciente", false);
+
 		if (result.hasErrors() || !pacienteValid || !telefonoOk) {
 			model.addAttribute("medicoList", this.medicoService.getMedicos());
-			model.addAttribute("isNewPaciente", false);
 			if (noTieneContacto) {
 				result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
 			}
@@ -226,7 +229,7 @@ public class PacienteController {
 		} else {
 			paciente.setId(pacienteId);
 			this.pacienteService.savePacienteByMedico(paciente, this.userService.getCurrentMedico().getId());
-			return "redirect:/pacientes/{pacienteId}";
+			return "redirect:/pacientes/" + pacienteId;
 		}
 	}
 
@@ -252,9 +255,10 @@ public class PacienteController {
 				: (paciente.getN_telefono().toString().length() == 9));
 		boolean currentMedico = paciente.getMedico().equals(this.userService.getCurrentMedico());
 
-		if (result.hasErrors() || !pacienteValid || !telefonoOk) {
+		model.addAttribute("isNewPaciente", true);
+
+		if (result.hasErrors() || !pacienteValid || !telefonoOk || !currentMedico) {
 			model.addAttribute("medicoList", this.medicoService.getMedicos());
-			model.addAttribute("isNewPaciente", false);
 			if (noTieneContacto) {
 				result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
 			}
@@ -264,9 +268,11 @@ public class PacienteController {
 			if (telefonoOk == false) {
 				result.rejectValue("n_telefono", "error.n_telefono", "Telefono debe tener 9 digitos");
 			}
-			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
-		} else if (!currentMedico) {
-			result.rejectValue("medico", "error.medico", "No puedes crear un paciente para otro medico.");
+			if (!currentMedico) {
+				paciente.setMedico(this.userService.getCurrentMedico());
+				result.rejectValue("medico", "error.medico", "No puedes crear un paciente para otro medico.");
+				return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
+			}
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else {
 			int pacienteId = this.pacienteService.savePacienteByMedico(paciente,

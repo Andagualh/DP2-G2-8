@@ -38,6 +38,7 @@ import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 @WebMvcTest(controllers = TratamientoController.class,
 excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, 
@@ -191,32 +192,193 @@ public class TratamientoControllerTest {
 		
 	}
 	
+	// En este test no coincide la view que deberia devolverse
     @WithMockUser(value = "spring")
 	@Test
 	void testSaveSuccessTratamiento() throws Exception {
         
     	 mockMvc.perform(post("/tratamientos/save")
-				.with(csrf())
-				.param("dosis", "medicamento de prueba")
-				.param("medicamento", "dosis de prueba")
-				.param("f_inicio_tratamiento", "2020-04-22")
-				.param("f_fin_tratamiento", "2020-10-22"));
-				//.andExpect(status().isOk())
-				//.andExpect(view().name("redirect:/pacientes")));
+				 .with(csrf())
+				 .param("dosis", "medicamento de prueba")
+				 .param("medicamento", "dosis de prueba")
+				 .param("f_inicio_tratamiento", "2020-04-22")
+				 .param("f_fin_tratamiento", "2020-10-22")
+				 
+    	 		 .param("informe.id",Integer.toString(TEST_INFORME_ID))
+    	 		 .param("informe.motivo_consulta","motivoTest")
+    	 		 .param("informe.diagnostico","diagTest")
+    	 		 
+    	 		 .param("informe.cita.id",Integer.toString(TEST_CITA_ID))
+    	 		 .param("informe.cita.fecha","2020-08-10")
+    	 		 .param("informe.cita.lugar","lugarTest")
+    	 		 
+    	 		 .param("informe.cita.paciente.id", Integer.toString(TEST_PACIENTE_ID))
+    	 		 .param("informe.cita.paciente.nombre", "test")
+		         .param("informe.cita.paciente.apellidos", "test")
+		         .param("informe.cita.paciente.f_nacimiento", "1997/09/09")
+		         .param("informe.cita.paciente.f_alta", "2020/08/08")
+		         .param("informe.cita.paciente.DNI", "12345689Q")
+		         .param("informe.cita.paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
+		         .param("informe.cita.paciente.medico.nombre", "test")
+		         .param("informe.cita.paciente.medico.apellidos", "test")
+		         .param("informe.cita.paciente.medico.domicilio", "test")
+		         .param("informe.cita.paciente.medico.user.username", "test")
+		         .param("informe.cita.paciente.medico.user.password", "test"))
+		.andExpect(status().isOk())
+		.andExpect(status().is2xxSuccessful());
+		//.andExpect(view().name("redirect:/citas/1/informes/1"));
+		
 	}
     
     @WithMockUser(value = "spring")
 	@Test
-    void testSaveTratamientoHasErrors() throws Exception{
+    void testSaveTratamientoNullFecha() throws Exception{
         mockMvc.perform(post("/tratamientos/save")
         		.with(csrf())
         		.param("dosis", "medicamento de prueba")
         		.param("medicamento", "dosis de prueba")
         		.param("f_inicio_tratamiento", "2020-04-22")
-        		//.andExpect(model().attributeHasErrors("f_fin_tratamiento"))
-        		//.andExpect(status().isOk())
-        		//.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
-        );
+        		
+        		.param("informe.id",Integer.toString(TEST_INFORME_ID))
+   	 		 	.param("informe.motivo_consulta","motivoTest")
+   	 		 	.param("informe.diagnostico","diagTest")
+   	 		 
+   	 		 	.param("informe.cita.id",Integer.toString(TEST_CITA_ID))
+   	 		 	.param("informe.cita.fecha","2020-08-10")
+   	 		 	.param("informe.cita.lugar","lugarTest")
+   	 		 
+   	 		 	.param("informe.cita.paciente.id", Integer.toString(TEST_PACIENTE_ID))
+   	 		 	.param("informe.cita.paciente.nombre", "test")
+		         .param("informe.cita.paciente.apellidos", "test")
+		         .param("informe.cita.paciente.f_nacimiento", "1997/09/09")
+		         .param("informe.cita.paciente.f_alta", "2020/08/08")
+		         .param("informe.cita.paciente.DNI", "12345689Q")
+		         .param("informe.cita.paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
+		         .param("informe.cita.paciente.medico.nombre", "test")
+		         .param("informe.cita.paciente.medico.apellidos", "test")
+		         .param("informe.cita.paciente.medico.domicilio", "test")
+		         .param("informe.cita.paciente.medico.user.username", "test")
+		         .param("informe.cita.paciente.medico.user.password", "test"))
+        
+        .andExpect(model().attributeHasFieldErrors("tratamiento","f_fin_tratamiento"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
+        ); 
+    }
+        
+        @WithMockUser(value = "spring")
+    	@Test
+        void testSaveTratamientoFechaFinPasado() throws Exception{
+            mockMvc.perform(post("/tratamientos/save")
+            		.with(csrf())
+            		.param("dosis", "medicamento de prueba")
+            		.param("medicamento", "dosis de prueba")
+            		.param("f_inicio_tratamiento", "2020-04-22")
+            		.param("f_fin_tratamiento", "2020-01-10")
+            		
+            		.param("informe.id",Integer.toString(TEST_INFORME_ID))
+       	 		 	.param("informe.motivo_consulta","motivoTest")
+       	 		 	.param("informe.diagnostico","diagTest")
+       	 		 
+       	 		 	.param("informe.cita.id",Integer.toString(TEST_CITA_ID))
+       	 		 	.param("informe.cita.fecha","2020-08-10")
+       	 		 	.param("informe.cita.lugar","lugarTest")
+       	 		 
+       	 		 	.param("informe.cita.paciente.id", Integer.toString(TEST_PACIENTE_ID))
+       	 		 	.param("informe.cita.paciente.nombre", "test")
+    		        .param("informe.cita.paciente.apellidos", "test")
+    		        .param("informe.cita.paciente.f_nacimiento", "1997/09/09")
+    		        .param("informe.cita.paciente.f_alta", "2020/08/08")
+    		        .param("informe.cita.paciente.DNI", "12345689Q")
+    		        .param("informe.cita.paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
+    		        .param("informe.cita.paciente.medico.nombre", "test")
+    		        .param("informe.cita.paciente.medico.apellidos", "test")
+    		        .param("informe.cita.paciente.medico.domicilio", "test")
+    		        .param("informe.cita.paciente.medico.user.username", "test")
+    		        .param("informe.cita.paciente.medico.user.password", "test"))
+            
+            //La fecha esta en pasado
+            .andExpect(model().attributeHasFieldErrors("tratamiento","f_fin_tratamiento"))
+            .andExpect(status().isOk())
+            .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
+            );
+    }
+        
+        @WithMockUser(value = "spring")
+    	@Test
+        void testSaveTratamientoFechaInicioFuturo() throws Exception{
+            mockMvc.perform(post("/tratamientos/save")
+            		.with(csrf())
+            		.param("dosis", "")
+            		.param("medicamento", "")
+            		.param("f_inicio_tratamiento", "")
+            		.param("f_fin_tratamiento", "")
+            		
+            		.param("informe.id",Integer.toString(TEST_INFORME_ID))
+       	 		 	.param("informe.motivo_consulta","motivoTest")
+       	 		 	.param("informe.diagnostico","diagTest")
+       	 		 
+       	 		 	.param("informe.cita.id",Integer.toString(TEST_CITA_ID))
+       	 		 	.param("informe.cita.fecha","2020-08-10")
+       	 		 	.param("informe.cita.lugar","lugarTest")
+       	 		 
+       	 		 	.param("informe.cita.paciente.id", Integer.toString(TEST_PACIENTE_ID))
+       	 		 	.param("informe.cita.paciente.nombre", "test")
+    		        .param("informe.cita.paciente.apellidos", "test")
+    		        .param("informe.cita.paciente.f_nacimiento", "1997/09/09")
+    		        .param("informe.cita.paciente.f_alta", "2020/08/08")
+    		        .param("informe.cita.paciente.DNI", "12345689Q")
+    		        .param("informe.cita.paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
+    		        .param("informe.cita.paciente.medico.nombre", "test")
+    		        .param("informe.cita.paciente.medico.apellidos", "test")
+    		        .param("informe.cita.paciente.medico.domicilio", "test")
+    		        .param("informe.cita.paciente.medico.user.username", "test")
+    		        .param("informe.cita.paciente.medico.user.password", "test"))
+            
+            .andExpect(model().attributeHasFieldErrors("tratamiento","f_inicio_tratamiento"))
+            .andExpect(status().isOk())
+            .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
+            );
+    }
+        
+        @WithMockUser(value = "spring")
+    	@Test
+        void testSaveTratamientoNull() throws Exception{
+            mockMvc.perform(post("/tratamientos/save")
+            		.with(csrf())
+            		.param("dosis", "")
+            		.param("medicamento", "")
+            		.param("f_inicio_tratamiento", "")
+            		.param("f_fin_tratamiento", "")
+            		
+            		.param("informe.id",Integer.toString(TEST_INFORME_ID))
+       	 		 	.param("informe.motivo_consulta","motivoTest")
+       	 		 	.param("informe.diagnostico","diagTest")
+       	 		 
+       	 		 	.param("informe.cita.id",Integer.toString(TEST_CITA_ID))
+       	 		 	.param("informe.cita.fecha","2020-08-10")
+       	 		 	.param("informe.cita.lugar","lugarTest")
+       	 		 
+       	 		 	.param("informe.cita.paciente.id", Integer.toString(TEST_PACIENTE_ID))
+       	 		 	.param("informe.cita.paciente.nombre", "test")
+    		        .param("informe.cita.paciente.apellidos", "test")
+    		        .param("informe.cita.paciente.f_nacimiento", "1997/09/09")
+    		        .param("informe.cita.paciente.f_alta", "2020/08/08")
+    		        .param("informe.cita.paciente.DNI", "12345689Q")
+    		        .param("informe.cita.paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
+    		        .param("informe.cita.paciente.medico.nombre", "test")
+    		        .param("informe.cita.paciente.medico.apellidos", "test")
+    		        .param("informe.cita.paciente.medico.domicilio", "test")
+    		        .param("informe.cita.paciente.medico.user.username", "test")
+    		        .param("informe.cita.paciente.medico.user.password", "test"))
+            
+            .andExpect(model().attributeHasFieldErrors("tratamiento","dosis"))
+            .andExpect(model().attributeHasFieldErrors("tratamiento","medicamento"))
+            .andExpect(model().attributeHasFieldErrors("tratamiento","f_inicio_tratamiento"))
+            .andExpect(model().attributeHasFieldErrors("tratamiento","f_fin_tratamiento"))
+            .andExpect(status().isOk())
+            .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
+            );
     }
 
 }

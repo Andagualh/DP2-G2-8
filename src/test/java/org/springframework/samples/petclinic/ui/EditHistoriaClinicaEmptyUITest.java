@@ -43,13 +43,13 @@ public class EditHistoriaClinicaEmptyUITest {
 		this.driver.get("http://localhost:" + this.port);
 		this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 		this.driver.findElement(By.id("username")).clear();
-		this.driver.findElement(By.id("username")).sendKeys("pabloMedico");
+		this.driver.findElement(By.id("username")).sendKeys("alvaroMedico");
 		this.driver.findElement(By.id("password")).clear();
 		this.driver.findElement(By.id("password")).sendKeys("entrar");
 		this.driver.findElement(By.xpath("//button[@type='submit']")).click();
 		this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a")).click();
 		this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/ul/li[4]/a/span[2]")).click();
-		this.driver.findElement(By.linkText("Zaida Viento Valor")).click();
+		this.driver.findElement(By.xpath("//a[contains(@href, '/pacientes/8')]")).click();
 		this.driver.findElement(By.linkText("Historia Clinica")).click();
 		this.driver.findElement(By.linkText("Edit Historia Clinica")).click();
 		this.driver.findElement(By.id("descripcion")).click();

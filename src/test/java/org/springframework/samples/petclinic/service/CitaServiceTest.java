@@ -149,7 +149,7 @@ public class CitaServiceTest {
 		Assertions.assertEquals(count, 12);
 	}
 	
-	int citaInitalCountData = 9;
+	int citaInitalCountData = 11;
 
 	@Test
 	public void testCreateCita() throws InvalidAttributeValueException {
