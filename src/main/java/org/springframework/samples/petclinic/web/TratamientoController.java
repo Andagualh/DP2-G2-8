@@ -1,6 +1,8 @@
 
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +37,15 @@ public class TratamientoController {
 	@GetMapping(value = "/{tratamientoId}/edit")
 	public String initUpdateTratamientosForm(@PathVariable("tratamientoId") final int tratamientoId, final ModelMap model) {
 		Tratamiento tratamiento = this.tratamientoService.findTratamientoById(tratamientoId).get();
-		Informe informe = this.informeService.findInformeById(tratamiento.getId()).get();
-		model.addAttribute("informe", informe);
-		model.addAttribute("tratamiento", tratamiento);
-		return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
+		boolean esVigente = tratamiento.getF_fin_tratamiento().isAfter(LocalDate.now());
+		if(esVigente) {
+			Informe informe = this.informeService.findInformeById(tratamiento.getId()).get();
+			model.addAttribute("informe", informe);
+			model.addAttribute("tratamiento", tratamiento);
+			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
+		}else {
+			return "redirect:/";
+		}
 	}
 	
 	@GetMapping(value = "/new/{informeId}")

@@ -2,6 +2,7 @@
 package org.springframework.samples.petclinic.web;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -104,7 +105,12 @@ public class InformeController {
 		mav.getModel().put("cannotbedeleted", !canBeDeleted);
 
 		Collection<Tratamiento> tratamientos = this.tratamientoService.findTratamientosByInforme(informe);
+		Collection<Boolean> vigentes = new ArrayList();
+		for (Tratamiento tratamiento : tratamientos) {
+			vigentes.add(tratamiento.getF_fin_tratamiento().isAfter(LocalDate.now()));
+		}
 		mav.getModel().put("tratamientos", tratamientos);
+		mav.getModel().put("vigentes", vigentes);
 
 		//		Boolean informeInHistoriaClinica = informe.getHistoriaClinica() != null;
 		//		mav.getModel().put("informeInHistoriaClinica", informeInHistoriaClinica);
