@@ -65,7 +65,7 @@
     <br/>
     <h2>Tratamiento</h2>
         <table class="table table-striped">
-        <c:forEach var="tratamiento" items="${tratamientos}">
+        <c:forEach var="tratamiento" items="${tratamientos}" varStatus = "index">
 
             <tr>
                 <td valign="top">
@@ -84,16 +84,23 @@
                     <table class="table-condensed">
                         <thead>
                         <tr>
-                            <th>Editar Tratamiento</th>
-                            <th>Borrar Tratamiento</th>
+                            <th></th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tr>
                             <td>
-								<spring:url value="/tratamientos/{tratamientoId}/edit" var="editUrl">
-									<spring:param name="tratamientoId" value="${paciente.id}" />
-								</spring:url>
-								<a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Editar Tratamiento</a>
+                            	<c:choose>
+    								<c:when test="${vigentes[index.index]==true}">
+    									<spring:url value="/tratamientos/{tratamientoId}/edit" var="editUrl">
+										<spring:param name="tratamientoId" value="${paciente.id}" />
+										</spring:url>
+										<a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Editar Tratamiento</a>
+    								</c:when>    
+   	 							<c:otherwise>
+   	 								<dd><c:out value="No Editable"/></dd>
+    							</c:otherwise>
+								</c:choose>
                             </td>
                             <td>
 								<c:out value="TODO Borrar tratamiento"/>
