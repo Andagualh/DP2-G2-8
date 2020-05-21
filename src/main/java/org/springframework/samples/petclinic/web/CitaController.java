@@ -11,10 +11,13 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Cita;
+import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.service.CitaService;
+import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -33,6 +36,7 @@ public class CitaController {
 	private PacienteService pacienteService;
 	@Autowired
 	private UserService userService;
+	
 
 	// CUANDO ALGUIEN HAGA EL CITADETAILS POR FAVOR QUE USE ESTA URL EN EL MAPPING:
 	// "/citas/citaDetails/{citaId}"
@@ -46,15 +50,19 @@ public class CitaController {
 	@GetMapping(path = "/{medicoId}")
 	public String listadoCitas(final ModelMap modelMap, @PathVariable("medicoId") final int medicoId) {
 		String vista = "citas/listCitas";
-		Collection<Cita> citas = this.citaService.findCitasByMedicoId(medicoId);
-		if (citas.isEmpty()) {
-			// TODO: Si no se han encontrado citas devuelve al index, pensad en una
-			// alternativa a esto como un popup o pagina que indique no se ha encontrado
-			return "redirect:/";
+		int idMedico = this.userService.getCurrentMedico().getId();
+		
+		if(medicoId != idMedico){
+			return "accessNotAuthorized";
 		} else {
+			Collection<Cita> citas = this.citaService.findCitasByMedicoId(medicoId);
+			if(citas.isEmpty()){
+				return "redirect:/";
+			} else {
 			modelMap.put("selections", citas);
 			modelMap.put("dateOfToday", LocalDate.now());
 			return vista;
+			}
 		}
 
 	}
@@ -63,25 +71,36 @@ public class CitaController {
 	public String crearCita(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 		Cita cita = new Cita();
 		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
+		Medico medic = this.userService.getCurrentMedico();
 		// cita.setPaciente(paciente);
 		// cita.setName("paciente");
+		
+		if(paciente.getMedico().equals(medic)){
 		modelMap.addAttribute("paciente", paciente);
 		modelMap.addAttribute("cita", cita);
 		return "citas/createOrUpdateCitaForm";
+		} else {
+			return "accessNotAuthorized";
+		}
 	}
 
 	@PostMapping(path = "/save")
 	public String salvarCita(@Valid final Cita cita, final BindingResult result, final ModelMap modelMap)
 			throws InvalidAttributeValueException {
+			
 		if (result.hasErrors()) {
 			modelMap.addAttribute("cita", cita);
 			modelMap.addAttribute("paciente", cita.getPaciente());
 			return "citas/createOrUpdateCitaForm";
 		} else if (cita.getFecha().isBefore(LocalDate.now())) {
-			System.out.println("entraalerror");
 			modelMap.addAttribute("cita", cita);
 			modelMap.addAttribute("paciente", cita.getPaciente());
 			modelMap.addAttribute("message", "La fecha debe estar en presente o futuro");
+			return "citas/createOrUpdateCitaForm";
+		} else if (this.citaService.existsCitaPacienteDate(cita.getFecha(), cita.getPaciente())){
+			modelMap.addAttribute("cita", cita);
+			modelMap.addAttribute("paciente", cita.getPaciente());
+			result.rejectValue("fecha", "error.citasamedate", "Ya existe una cita para este paciente en esta fecha");
 			return "citas/createOrUpdateCitaForm";
 		} else {
 			this.citaService.save(cita);
@@ -92,17 +111,21 @@ public class CitaController {
 
 	@GetMapping(path = "/delete/{citaId}")
 	public String borrarCita(@PathVariable("citaId") final int citaId, final ModelMap modelMap) {
-
+		Medico actualMedic = this.userService.getCurrentMedico();
 		Optional<Cita> cita = this.citaService.findCitaById(citaId);
-
-		if (cita.isPresent() && cita.get().getInforme() == null) {
+		
+		
+			if (cita.isPresent() && cita.get().getInforme() == null && actualMedic.equals(cita.get().getPaciente().getMedico())) {
 			modelMap.addAttribute("message", "Cita successfully deleted");
 			this.citaService.delete(cita.get());
-		} else {
+			return "redirect:/citas";
+			} else if(cita.isPresent() && !actualMedic.equals(cita.get().getPaciente().getMedico())){
+			return "accessNotAuthorized";
+			} else {
 			modelMap.addAttribute("message", "Cita cant be deleted");
+			return "redirect:/citas";
+			}
 		}
-		return "redirect:/citas";
-	}
 
 	@GetMapping(value = "/find")
 	public String initFindForm(final Map<String, Object> model) {

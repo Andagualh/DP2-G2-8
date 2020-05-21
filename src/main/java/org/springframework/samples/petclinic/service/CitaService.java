@@ -99,4 +99,14 @@ public class CitaService {
 		return citas;
 	}
 
+	@Transactional(readOnly = true)
+	public Boolean existsCitaPacienteDate(final LocalDate fecha, final Paciente paciente) throws DataAccessException {
+		Boolean exists = false;
+		Cita cita = this.citaRepo.findCitaByPacienteAndFecha(paciente, fecha);
+		if(cita != null){
+			exists = true;
+		}
+		return exists;
+	}
+
 }
