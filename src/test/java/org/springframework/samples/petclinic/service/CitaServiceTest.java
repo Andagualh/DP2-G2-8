@@ -4,6 +4,9 @@ package org.springframework.samples.petclinic.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
@@ -167,7 +170,7 @@ public class CitaServiceTest {
 		Cita cita = new Cita();
 
 		cita.setPaciente(this.pacienteService.findPacienteById(paciente.getId()).get());
-		cita.setFecha(LocalDate.of(2020, 05, 26));
+		cita.setFecha(LocalDate.now().plusDays(1));
 		cita.setLugar("Consulta 2");
 
 		this.citaService.save(cita);
@@ -175,6 +178,30 @@ public class CitaServiceTest {
 		int countCitas = this.citaService.citaCount();
 
 		Assertions.assertEquals(countCitas, countCit+1);
+
+	}
+
+	@Test
+	public void testCreateCitaPast() throws InvalidAttributeValueException {
+
+		Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+
+		int count = this.pacienteService.pacienteCount();
+		int countCit = this.citaService.citaCount();
+		Assertions.assertEquals(count, 10);
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(paciente.getId()));
+
+		Cita cita = new Cita();
+
+		cita.setPaciente(this.pacienteService.findPacienteById(paciente.getId()).get());
+		cita.setFecha(LocalDate.now().minusDays(1));
+		cita.setLugar("Consulta 2");
+
+		InvalidAttributeValueException thrown = assertThrows(InvalidAttributeValueException.class,
+		() -> citaService.save(cita), "No se puede poner una fecha en pasado");
+
+		assertTrue(thrown.getMessage().contains("No se puede poner una fecha en pasado"));
 
 	}
 	
@@ -365,6 +392,18 @@ public class CitaServiceTest {
 
 		assertTrue(this.citaService.existsCitaPacienteDate(cita.getFecha(), paciente));
 		this.citaService.delete(cita);
+	}
+
+	@Test
+	void citaFindAll(){
+		Iterable<Cita> allCitas = this.citaService.findAll();
+		assertNotNull(allCitas);
+		for(Cita c: allCitas){
+			assertNotNull(c.getFecha());
+			assertNotNull(c.getId());
+			assertNotNull(c.getLugar());
+			assertNotNull(c.getPaciente());
+		}
 	}
 
 }
