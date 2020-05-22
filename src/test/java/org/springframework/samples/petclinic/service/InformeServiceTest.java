@@ -217,6 +217,9 @@ public class InformeServiceTest {
         Assertions.assertNotNull(informe);
         informeService.saveInforme(informe);
 
+        cita.setInforme(informe);
+        citaService.save(cita);
+        
         Informe informe2 = new Informe();
         informe2.setCita(cita);
         informe2.setDiagnostico("Dermatitis");
