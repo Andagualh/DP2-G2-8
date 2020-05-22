@@ -1101,8 +1101,8 @@ public class PacienteControllerTest {
         mockMvc.perform(get("/pacientes/{pacienteId}/delete", this.javier.getId())
 							.with(csrf())
 							.param("pacienteId", this.javier.getId().toString()))
-				.andExpect(status().isOk())
-				.andExpect(view().name("/pacientes/"+this.javier.getId().toString()));
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/pacientes/"+this.javier.getId().toString()));
 	}
         
         @WithMockUser(value = "spring")

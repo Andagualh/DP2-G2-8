@@ -259,8 +259,8 @@ public class PacienteControllerE2ETest {
 	
 		mockMvc.perform(post("/pacientes/{pacienteId}/delete", 1)
 				.with(csrf()))
-				.andExpect(status().isOk())
-				.andExpect(view().name("/pacientes/" +1));
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/pacientes/" +1));
 	}
 	
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
