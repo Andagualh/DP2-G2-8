@@ -41,12 +41,6 @@ public class CitaService {
 		return this.citaRepo.save(cita).getId();
 	}
 
-	// No esta terminada
-	@Transactional
-	public Iterable<Cita> findAllByMedicoId(final int medicoId) {
-		return this.citaRepo.findAll();
-	}
-
 	@Transactional
 	public Collection<Cita> findAllByPaciente(final Paciente paciente) {
 		return this.citaRepo.findCitasByPaciente(paciente);
@@ -55,7 +49,7 @@ public class CitaService {
 	@Transactional
 	public Cita save(final Cita cita) throws InvalidAttributeValueException {
 		if (cita.getFecha().isBefore(LocalDate.now())) {
-			throw new InvalidAttributeValueException();
+			throw new InvalidAttributeValueException("No se puede poner una fecha en pasado");
 		} else {
 			return this.citaRepo.save(cita);
 		}
@@ -97,6 +91,16 @@ public class CitaService {
 		Collection<Cita> citas = new ArrayList<>();
 		citas.addAll(this.citaRepo.findByDate(fecha));
 		return citas;
+	}
+
+	@Transactional(readOnly = true)
+	public Boolean existsCitaPacienteDate(final LocalDate fecha, final Paciente paciente) throws DataAccessException {
+		Boolean exists = false;
+		Cita cita = this.citaRepo.findCitaByPacienteAndFecha(paciente, fecha);
+		if(cita != null){
+			exists = true;
+		}
+		return exists;
 	}
 
 }

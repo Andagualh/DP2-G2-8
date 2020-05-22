@@ -52,6 +52,16 @@ public class CitaControllerE2ETest {
         .andExpect(model().attributeExists("cita"));
     }
 
+    //Prueba cuando intentas crear una cita para un paciente que no es tuyo
+
+    @WithMockUser(username="alvaroMedico",authorities= {"medico"})
+        @Test
+    void testCrearCitaforPacienteAnotherMedico() throws Exception{
+        mockMvc.perform(get("/citas/new/{pacienteId}", 7))
+        .andExpect(status().isOk())
+        .andExpect(view().name("accessNotAuthorized"));
+    }
+
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
         @Test
     void testSalvarCitaSuccess() throws Exception{
@@ -98,6 +108,51 @@ public class CitaControllerE2ETest {
         .andExpect(model().attributeHasErrors("cita"))
         .andExpect(status().isOk())
         .andExpect(view().name("citas/createOrUpdateCitaForm")
+        );
+    }
+
+    //Este caso se da cuando un paciente ya tiene una cita ese mismo día
+    @WithMockUser(username="alvaroMedico",authorities= {"medico"})
+        @Test
+    void testSalvarCitaWhenPacienteAlreadyHasThatFecha() throws Exception{
+        mockMvc.perform(post("/citas/save")
+            .with(csrf())
+            .param("paciente.id", Integer.toString(TEST_PACIENTE_ID))
+            .param("paciente.nombre", "test")
+            .param("paciente.apellidos", "test")
+            .param("paciente.f_nacimiento", "1997/09/09")
+            .param("paciente.f_alta", "2020/08/08")
+            .param("paciente.DNI", "12345689Q")
+            .param("paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
+            .param("paciente.medico.nombre", "test")
+            .param("paciente.medico.apellidos", "test")
+            .param("paciente.medico.domicilio", "test")
+            .param("paciente.medico.user.username", "test")
+            .param("paciente.medico.user.password", "test")
+            .param("fecha","2020-08-08")
+            .param("lugar","Seville"))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(view().name("redirect:/citas")
+        );
+
+        mockMvc.perform(post("/citas/save")
+            .with(csrf())
+            .param("paciente.id", Integer.toString(TEST_PACIENTE_ID))
+            .param("paciente.nombre", "test")
+            .param("paciente.apellidos", "test")
+            .param("paciente.f_nacimiento", "1997/09/09")
+            .param("paciente.f_alta", "2020/08/08")
+            .param("paciente.DNI", "12345689Q")
+            .param("paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
+            .param("paciente.medico.nombre", "test")
+            .param("paciente.medico.apellidos", "test")
+            .param("paciente.medico.domicilio", "test")
+            .param("paciente.medico.user.username", "test")
+            .param("paciente.medico.user.password", "test")
+            .param("fecha","2020-08-08")
+            .param("lugar","Seville"))
+            .andExpect(status().isOk())
+            .andExpect(view().name("citas/createOrUpdateCitaForm")
         );
     }
     
@@ -167,6 +222,16 @@ public class CitaControllerE2ETest {
         mockMvc.perform(get("/citas/delete/{citaId}", 2))
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/citas")
+        );
+    }
+
+    @WithMockUser(username="andresMedico",authorities= {"medico"})
+        @Test
+    void testBorrarCitasPacienteDifferentMedico() throws Exception{ 
+        mockMvc.perform(get("/citas/delete/{citaId}", 1))
+        //.andExpect(model().attributeExists("message"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("accessNotAuthorized")
         );
     }
     
@@ -277,12 +342,23 @@ public class CitaControllerE2ETest {
             .andExpect(view().name("citas/listCitas")
         );
     }
+
+    @WithMockUser(username="andresMedico",authorities= {"medico"})
+        @Test
+    void listadoCitasOfOtherMedico() throws Exception{ 
+        
+        mockMvc.perform(
+            get("/citas/{medicoId}", TEST_MEDICO_ID))
+            .andExpect(status().isOk())
+            .andExpect(view().name("accessNotAuthorized")
+        );
+    }
     
-	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
+	@WithMockUser(username="pedroMedico",authorities= {"medico"})
         @Test
     void listadoCitasIsEmpty() throws Exception{
         mockMvc.perform(
-            get("/citas/{medicoId}", 10))
+            get("/citas/{medicoId}", 4))
             .andExpect(status().is3xxRedirection())
             .andExpect(view().name("redirect:/")
         );
