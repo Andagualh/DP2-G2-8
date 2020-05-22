@@ -318,13 +318,15 @@ public class CitaServiceTest {
 	
 	@Test
 	void shouldFindCitasByDate() {
-		Collection<Cita> citas = this.citaService.findCitasByFecha(LocalDate.of(2020,3,9));
+		Medico medic = this.medicoService.findMedicoByUsername("alvaroMedico");
+		Collection<Cita> citas = this.citaService.findCitasByFecha(LocalDate.of(2020,3,9), medic);
 		assertThat(citas.size()).isEqualTo(1);
 	}
 
 	@Test
 	void shouldNotFindCitasByUnexistingCitaDate(){
-		Collection <Cita> citas = this.citaService.findCitasByFecha(LocalDate.of(2030, 1, 1));
+		Medico medic = this.medicoService.findMedicoByUsername("alvaroMedico");
+		Collection <Cita> citas = this.citaService.findCitasByFecha(LocalDate.of(2030, 1, 1), medic);
 		assertThat(citas.isEmpty()).isTrue();
 	}
 

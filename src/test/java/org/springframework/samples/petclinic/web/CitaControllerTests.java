@@ -353,11 +353,11 @@ class CitaControllerTests{
         @Test
     void testProcessFindFormSuccess() throws Exception{
         Cita dum1 = new Cita();
-        Cita dum2 = new Cita();
         dum1.setFecha(LocalDate.of(2020, 8, 8));
-        dum2.setFecha(LocalDate.of(2020, 8, 8));
-       
-        given(this.citaService.findCitasByFecha(LocalDate.of(2020,8,8))).willReturn(Lists.newArrayList(dum1, dum2));
+        dum1.setPaciente(this.javier);
+        
+        given(this.citaService.findCitasByFecha(LocalDate.of(2020,8,8), this.medico1)).willReturn(Lists.newArrayList(dum1));
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
         
         mockMvc.perform(
         get("/citas/porfecha")
@@ -372,12 +372,13 @@ class CitaControllerTests{
 	    @Test
 	void testProcessFindFormNoDate() throws Exception{
 	    Cita dum1 = new Cita();
-	    Cita dum2 = new Cita();
-	    dum1.setFecha(LocalDate.now());
-	    dum2.setFecha(LocalDate.now());
-	   
-	    given(this.citaService.findCitasByFecha(LocalDate.now())).willReturn(Lists.newArrayList(dum1, dum2));
 	    
+	    dum1.setFecha(LocalDate.now());
+	    
+	   
+	    given(this.citaService.findCitasByFecha(LocalDate.now(), this.medico1)).willReturn(Lists.newArrayList(dum1));
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+        
 	    mockMvc.perform(
 	    get("/citas/porfecha")
 	    .param("fecha", "null"))
@@ -390,12 +391,14 @@ class CitaControllerTests{
     @WithMockUser(value = "spring")
         @Test
     void testProcessFindFormNoCitaFound() throws Exception{
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+
         mockMvc.perform(
             get("/citas/porfecha")
             .param("fecha", "2020-08-07"))
             .andExpect(status().isOk())
             .andExpect(model().attributeHasFieldErrors("cita", "fecha"))
-			.andExpect(model().attributeHasFieldErrorCode("cita", "fecha", "notFound"))
+			.andExpect(model().attributeHasFieldErrorCode("cita", "fecha", "error.citaNotFound"))
             .andExpect(view().name("citas/findCitas")
             );
     }    

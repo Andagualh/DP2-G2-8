@@ -140,18 +140,18 @@ public class CitaController {
 	// TODO: Cuando este hecho el details se incluye
 	@GetMapping(value = "/porfecha")
 	public String processFindForm(final Cita cita, final BindingResult result, final Map<String, Object> model) {
-
+		Medico medic = this.userService.getCurrentMedico();
 		// allow parameterless GET request for /citas to return all records
 		if (cita.getFecha() == null) {
 			cita.setFecha(LocalDate.now()); // empty string signifies broadest possible search
 		}
 
 		// find citas by fecha
-		Collection<Cita> citas = this.citaService.findCitasByFecha(cita.getFecha());
+		Collection<Cita> citas = this.citaService.findCitasByFecha(cita.getFecha(), medic);
 
 		if (citas.isEmpty()) {
 			// no citas found
-			result.rejectValue("fecha", "notFound", "not found");
+			result.rejectValue("fecha", "error.citaNotFound", "No se encontró ninguna cita en el día introducido");
 			return "citas/findCitas";
 		} else {
 			// multiple citas found

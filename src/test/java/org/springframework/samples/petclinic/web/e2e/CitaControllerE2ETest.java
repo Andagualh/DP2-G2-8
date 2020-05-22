@@ -15,6 +15,8 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.samples.petclinic.model.Cita;
+import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.CitaService;
 import org.springframework.samples.petclinic.service.MedicoService;
@@ -34,6 +36,11 @@ import org.springframework.transaction.annotation.Transactional;
 /*@TestPropertySource(
   locations = "classpath:application-mysql.properties")*/
 public class CitaControllerE2ETest {
+
+    @Autowired
+    private PacienteService pacienteService;
+    @Autowired
+    private CitaService citaService;
 
 	@Autowired
     private MockMvc mockMvc;
@@ -249,29 +256,9 @@ public class CitaControllerE2ETest {
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
         @Test
     void testProcessFindFormSuccess() throws Exception{
-        mockMvc.perform(post("/citas/save")
-                .with(csrf())
-                .param("paciente.id", Integer.toString(TEST_PACIENTE_ID))
-                .param("paciente.nombre", "test")
-                .param("paciente.apellidos", "test")
-                .param("paciente.f_nacimiento", "1997/09/09")
-                .param("paciente.f_alta", "2020/08/08")
-                .param("paciente.DNI", "12345689Q")
-                .param("paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
-                .param("paciente.medico.nombre", "test")
-                .param("paciente.medico.apellidos", "test")
-                .param("paciente.medico.domicilio", "test")
-                .param("paciente.medico.user.username", "test")
-                .param("paciente.medico.user.password", "test")
-                .param("fecha","2020-08-08")
-                .param("lugar","Seville"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/citas")
-            );
-		
 		mockMvc.perform(
         get("/citas/porfecha")
-        .param("fecha", "2020-08-08"))
+        .param("fecha", "2020-03-09"))
         .andExpect(status().isOk())
         .andExpect(model().attributeExists("selections"))
         .andExpect(view().name("citas/listCitas")
@@ -280,33 +267,20 @@ public class CitaControllerE2ETest {
 
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	    @Test
-	void testProcessFindFormNoDate() throws Exception{		
-        mockMvc.perform(post("/citas/save")
-                .with(csrf())
-                .param("paciente.id", Integer.toString(TEST_PACIENTE_ID))
-                .param("paciente.nombre", "test")
-                .param("paciente.apellidos", "test")
-                .param("paciente.f_nacimiento", "1997/09/09")
-                .param("paciente.f_alta", "2020/08/08")
-                .param("paciente.DNI", "12345689Q")
-                .param("paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
-                .param("paciente.medico.nombre", "test")
-                .param("paciente.medico.apellidos", "test")
-                .param("paciente.medico.domicilio", "test")
-                .param("paciente.medico.user.username", "test")
-                .param("paciente.medico.user.password", "test")
-                .param("fecha",LocalDate.now().toString())
-                .param("lugar","Seville"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/citas")
-            );
-		
-	    mockMvc.perform(
+	void testProcessFindFormNoDate() throws Exception{
+        Cita cita1 = new Cita();
+        cita1.setFecha(LocalDate.now());
+        cita1.setLugar("LugarTest");
+        cita1.setPaciente(this.pacienteService.findPacienteById(1).get());
+        this.citaService.save(cita1);
+        
+        mockMvc.perform(
 		    get("/citas/porfecha"))
 		    .andExpect(status().isOk())
 		    .andExpect(model().attributeExists("selections"))
 		    .andExpect(view().name("citas/listCitas")
-	    );
+        );
+        this.citaService.delete(cita1);
 	}
     
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
@@ -317,10 +291,23 @@ public class CitaControllerE2ETest {
             .param("fecha", "2020-08-07"))
             .andExpect(status().isOk())
             .andExpect(model().attributeHasFieldErrors("cita", "fecha"))
-			.andExpect(model().attributeHasFieldErrorCode("cita", "fecha", "notFound"))
+			.andExpect(model().attributeHasFieldErrorCode("cita", "fecha", "error.citaNotFound"))
             .andExpect(view().name("citas/findCitas")
             );
-    }    
+    }  
+    //Existe una cita para otro medico (AlvaroMedico) en esta misma fecha
+    @WithMockUser(username="andresMedico",authorities= {"medico"})
+        @Test
+    void testProcessFindFormNoCitaFoundForThisMedicoOnDate() throws Exception{
+        mockMvc.perform(
+            get("/citas/porfecha")
+            .param("fecha", "2020-03-09"))
+            .andExpect(status().isOk())
+            .andExpect(model().attributeHasFieldErrors("cita", "fecha"))
+			.andExpect(model().attributeHasFieldErrorCode("cita", "fecha", "error.citaNotFound"))
+            .andExpect(view().name("citas/findCitas")
+            );
+    }  
 
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
         @Test
