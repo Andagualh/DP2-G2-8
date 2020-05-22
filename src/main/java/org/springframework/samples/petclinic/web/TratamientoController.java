@@ -2,10 +2,12 @@
 package org.springframework.samples.petclinic.web;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Informe;
 import org.springframework.samples.petclinic.model.Tratamiento;
 import org.springframework.samples.petclinic.service.InformeService;
@@ -80,6 +82,21 @@ public class TratamientoController {
 			this.tratamientoService.save(tratamiento);
 			return "redirect:/citas/" + String.valueOf(informe.getCita().getId()) + "/informes/" + String.valueOf(informe.getId());
 		}
+	}
+	
+	@GetMapping(path = "delete/{tratamientoId}")
+	public String borrarInforme(@PathVariable("tratamientoId") final int tratamientoId, final ModelMap modelMap)
+			throws DataAccessException, IllegalAccessException {
+		Optional<Tratamiento> tratamiento = this.tratamientoService.findTratamientoById(tratamientoId);
+		int idMedico = tratamiento.get().getInforme().getCita().getPaciente().getMedico().getId();
+		
+		if (tratamiento.get().getInforme().getCita().getPaciente().getMedico().getId() == idMedico && tratamiento.get().getInforme().getCita().getFecha().equals(LocalDate.now())) {
+			this.tratamientoService.deleteTratamiento(tratamientoId, idMedico);
+			modelMap.addAttribute("message", "Tratamiento succesfully deleted");
+		} else {
+			modelMap.addAttribute("message", "Tratamiento couldn't be deleted. You must be the doctor that created it and it must be created today.");
+		}
+		return "redirect:/";
 	}
 
 }

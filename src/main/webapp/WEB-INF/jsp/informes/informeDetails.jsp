@@ -103,7 +103,17 @@
 								</c:choose>
                             </td>
                             <td>
-								<c:out value="TODO Borrar tratamiento"/>
+								<c:choose>
+    								<c:when test="${vigentes[index.index]==true}">
+    									<spring:url value="/tratamientos/delete/{tratamientoId}" var="deleteUrl">
+										<spring:param name="tratamientoId" value="${tratamiento.id}" />
+										</spring:url>
+										<a href="${fn:escapeXml(deleteUrl)}" class="btn btn-default">Borrar Tratamiento</a>
+    								</c:when>    
+   	 							<c:otherwise>
+   	 								<dd><c:out value="No Deleteable"/></dd>
+    							</c:otherwise>
+								</c:choose>
                             </td>
                         </tr>
                     </table>
