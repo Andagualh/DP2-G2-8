@@ -28,7 +28,7 @@ public class InformeService {
 
 	@Transactional
 	public void saveInforme(final Informe informe) throws DataAccessException, IllegalAccessException {
-		if (informe.getCita().getFecha().equals(LocalDate.now()) && !citaHasInforme(informe.getCita())){
+		if (informe.getCita().getFecha().equals(LocalDate.now()) && !citaHasInforme(informe.getCita()) && !citaHasInforme(informe.getCita())){
 			this.informeRepository.save(informe);
 		} else {
 			throw new IllegalAccessException("No se puede crear un informe para esta cita");

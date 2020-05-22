@@ -176,11 +176,17 @@ class InformeControllerTests {
         @Test
     void testCreateInformeForCitaWithInforme() throws Exception{
 
+    	Informe informeCita2 = new Informe();
+    	informeCita2.setId(2);
+    	informeCita2.setMotivo_consulta("Resfriado");
+    	informeCita2.setDiagnostico("Reposo");
+    	informeCita2.setCita(cita2);
+    	cita2.setInforme(informeCita2);
         given(informeService.citaHasInforme(cita2)).willReturn(true);
 
         mockMvc.perform(get("/citas/{citaId}/informes/new", TEST_CITA2_ID))
         .andExpect(status().is3xxRedirection())
-        .andExpect(view().name("redirect:/citas/"+TEST_MEDICO_ID)
+        .andExpect(view().name("redirect:/citas/"+TEST_CITA2_ID+"/informes/"+cita2.getInforme().getId())
         );
     }
 
@@ -188,11 +194,17 @@ class InformeControllerTests {
         @Test
     void testCreateInformeForFutureDateForCitaWithInforme() throws Exception{
 
+    	Informe informeCita1 = new Informe();
+    	informeCita1.setId(1);
+    	informeCita1.setMotivo_consulta("Resfriado");
+    	informeCita1.setDiagnostico("Reposo");
+    	informeCita1.setCita(cita1);
+    	cita1.setInforme(informeCita1);
         given(informeService.citaHasInforme(cita1)).willReturn(true);
 
         mockMvc.perform(get("/citas/{citaId}/informes/new", TEST_CITA_ID))
         .andExpect(status().is3xxRedirection())
-        .andExpect(view().name("redirect:/citas/"+TEST_MEDICO_ID)
+        .andExpect(view().name("redirect:/citas/"+TEST_CITA_ID+"/informes/"+cita1.getInforme().getId())
         );
     }
 

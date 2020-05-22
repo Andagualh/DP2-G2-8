@@ -33,26 +33,26 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/citas/{citaId}")
 public class InformeController {
 
-	private static final String				VIEWS_INFORME_CREATE_OR_UPDATE_FORM	= "informes/createOrUpdateInformeForm";
-	private final InformeService			informeService;
-	private final PacienteService			pacienteService;
-	private final MedicoService				medicoService;
-	private final UserService				userService;
-	private final CitaService				citaService;
-	private final HistoriaClinicaService	historiaClinicaService;
-	private final TratamientoService		tratamientoService;
-
+	private static final String VIEWS_INFORME_CREATE_OR_UPDATE_FORM = "informes/createOrUpdateInformeForm";
+	private final InformeService informeService;
+	private final PacienteService pacienteService;
+	private final MedicoService medicoService;
+	private final UserService userService;
+	private final CitaService citaService;
+	private final HistoriaClinicaService historiaClinicaService;
+	private final TratamientoService tratamientoService;
 
 	@Autowired
-	public InformeController(final PacienteService pacienteService, final MedicoService medicoService, final UserService userService, final AuthoritiesService authoritiesService, final CitaService citaService,
-		final HistoriaClinicaService historiaClinicaService, final InformeService informeService, final TratamientoService tratamientoService) {
+	public InformeController(final PacienteService pacienteService, final MedicoService medicoService,
+			final UserService userService, final AuthoritiesService authoritiesService, final CitaService citaService,
+			final HistoriaClinicaService historiaClinicaService, final InformeService informeService,
+			final TratamientoService tratamientoService) {
 		this.informeService = informeService;
 		this.pacienteService = pacienteService;
 		this.medicoService = medicoService;
@@ -62,10 +62,10 @@ public class InformeController {
 		this.tratamientoService = tratamientoService;
 	}
 
-	//	@InitBinder
-	//	public void setAllowedFields(final WebDataBinder dataBinder) {
-	//		dataBinder.setDisallowedFields("id");
-	//	}
+	// @InitBinder
+	// public void setAllowedFields(final WebDataBinder dataBinder) {
+	// dataBinder.setDisallowedFields("id");
+	// }
 
 	@ModelAttribute("cita")
 	public Cita findCita(@PathVariable("citaId") final int citaId) {
@@ -76,6 +76,7 @@ public class InformeController {
 	public void initCitaBinder(final WebDataBinder dataBinder) {
 		dataBinder.setDisallowedFields("id");
 	}
+
 	@GetMapping(path = "informes/delete/{informeId}")
 	public String borrarInforme(@PathVariable("informeId") final int informeId, final ModelMap modelMap)
 			throws DataAccessException, IllegalAccessException {
@@ -101,7 +102,8 @@ public class InformeController {
 		Paciente paciente = cita.getPaciente();
 		mav.addObject(paciente);
 
-		Boolean canBeDeleted = informe.getCita().getFecha().plusDays(1).equals(LocalDate.now().plusDays(1)) && informe.getHistoriaClinica() == null;
+		Boolean canBeDeleted = informe.getCita().getFecha().plusDays(1).equals(LocalDate.now().plusDays(1))
+				&& informe.getHistoriaClinica() == null;
 		mav.getModel().put("cannotbedeleted", !canBeDeleted);
 
 		Collection<Tratamiento> tratamientos = this.tratamientoService.findTratamientosByInforme(informe);
@@ -112,8 +114,8 @@ public class InformeController {
 		mav.getModel().put("tratamientos", tratamientos);
 		mav.getModel().put("vigentes", vigentes);
 
-		//		Boolean informeInHistoriaClinica = informe.getHistoriaClinica() != null;
-		//		mav.getModel().put("informeInHistoriaClinica", informeInHistoriaClinica);
+		// Boolean informeInHistoriaClinica = informe.getHistoriaClinica() != null;
+		// mav.getModel().put("informeInHistoriaClinica", informeInHistoriaClinica);
 
 		Boolean canBeEdited = informe.getCita().getFecha().equals(LocalDate.now());
 		mav.getModel().put("canbeedited", canBeEdited);
@@ -130,28 +132,31 @@ public class InformeController {
 			informe.setCita(cita);
 			model.put("informe", informe);
 			return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
+		} else if(hasCitaInforme) {
+			return "redirect:/citas/" + cita.getId() + "/informes/" + cita.getInforme().getId();
 		} else {
 			return "redirect:/citas/" + cita.getPaciente().getMedico().getId();
+
 		}
 	}
 
 	@PostMapping(value = "/informes/new")
-	public String processCreationForm(final Cita cita, @Valid final Informe informe, final BindingResult result, final ModelMap model) throws DataAccessException, IllegalAccessException {
-		
-		System.out.println("citahola"+cita);
-		System.out.println("informehola"+informe.getDiagnostico()+"-"+informe.getMotivo_consulta());
+	public String processCreationForm(final Cita cita, @Valid final Informe informe, final BindingResult result,
+			final ModelMap model) throws DataAccessException, IllegalAccessException {
+
 		if (result.hasErrors()) {
 			model.put("informe", informe);
 			return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
 		} else {
 			informe.setCita(cita);
 			this.informeService.saveInforme(informe);
-			}
+		}
 		return "redirect:/citas/" + informe.getCita().getPaciente().getMedico().getId();
 	}
 
 	@GetMapping(value = "/informes/{informeId}/addtohistoriaclinica")
-	public String addHistoriaClinicaToInforme(@PathVariable("informeId") final int informeId) throws DataAccessException, IllegalAccessException {
+	public String addHistoriaClinicaToInforme(@PathVariable("informeId") final int informeId)
+			throws DataAccessException, IllegalAccessException {
 		Informe informe = this.informeService.findInformeById(informeId).get();
 		HistoriaClinica hc = this.historiaClinicaService.findHistoriaClinicaByPaciente(informe.getCita().getPaciente());
 		informe.setHistoriaClinica(hc);
@@ -160,10 +165,12 @@ public class InformeController {
 	}
 
 	@GetMapping(value = "/informes/{informeId}/detelefromhistoriaclinica")
-	public String deleteFromHistoriaClinica(@PathVariable("informeId") final int informeId) throws DataAccessException, IllegalAccessException {
+	public String deleteFromHistoriaClinica(@PathVariable("informeId") final int informeId)
+			throws DataAccessException, IllegalAccessException {
 		Informe informe = this.informeService.findInformeById(informeId).get();
 		this.informeService.deleteInformeToHistoriaClinica(informe);
-		return "redirect:/citas/" + informe.getCita().getPaciente().getMedico().getId() + "/informes/" + informe.getId();
+		return "redirect:/citas/" + informe.getCita().getPaciente().getMedico().getId() + "/informes/"
+				+ informe.getId();
 	}
 
 	@GetMapping(value = "/informes/{informeId}/edit")
@@ -179,7 +186,9 @@ public class InformeController {
 	}
 
 	@PostMapping(value = "/informes/{informeId}/edit")
-	public String processUpdateInformeForm(final Cita cita, @Valid final Informe informe, final BindingResult result ,@PathVariable("informeId") final int informeId, final ModelMap model) throws DataAccessException, IllegalAccessException {
+	public String processUpdateInformeForm(final Cita cita, @Valid final Informe informe, final BindingResult result,
+			@PathVariable("informeId") final int informeId, final ModelMap model)
+			throws DataAccessException, IllegalAccessException {
 		if (result.hasErrors()) {
 			model.put("informe", informe);
 			return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
