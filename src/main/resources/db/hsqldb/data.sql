@@ -125,7 +125,7 @@ INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (5,'Descripcion 5
 INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (6,'Descripcion 6',6);
 INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (7,'Descripcion 7',8);
 
-INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (1,'motivo','diagnostico',1,null);
+INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (1,'motivo','diagnostico',1,1);
 INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (2, 'motivo test', 'diagnostico test', 8, null);
 INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (3, 'cita pasada', 'cita past',9,null);
 
