@@ -13,6 +13,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.HistoriaClinica;
 import org.springframework.samples.petclinic.model.Informe;
+import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.model.Tratamiento;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
@@ -39,20 +40,20 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/citas/{citaId}")
 public class InformeController {
 
-	private static final String VIEWS_INFORME_CREATE_OR_UPDATE_FORM = "informes/createOrUpdateInformeForm";
-	private final InformeService informeService;
-	private final PacienteService pacienteService;
-	private final MedicoService medicoService;
-	private final UserService userService;
-	private final CitaService citaService;
-	private final HistoriaClinicaService historiaClinicaService;
-	private final TratamientoService tratamientoService;
+	private static final String				VIEWS_INFORME_CREATE_OR_UPDATE_FORM	= "informes/createOrUpdateInformeForm";
+	private static final String				VIEWS_ACCESS_NOT_AUTHORIZED			= "accessNotAuthorized";
+	private final InformeService			informeService;
+	private final PacienteService			pacienteService;
+	private final MedicoService				medicoService;
+	private final UserService				userService;
+	private final CitaService				citaService;
+	private final HistoriaClinicaService	historiaClinicaService;
+	private final TratamientoService		tratamientoService;
+
 
 	@Autowired
-	public InformeController(final PacienteService pacienteService, final MedicoService medicoService,
-			final UserService userService, final AuthoritiesService authoritiesService, final CitaService citaService,
-			final HistoriaClinicaService historiaClinicaService, final InformeService informeService,
-			final TratamientoService tratamientoService) {
+	public InformeController(final PacienteService pacienteService, final MedicoService medicoService, final UserService userService, final AuthoritiesService authoritiesService, final CitaService citaService,
+		final HistoriaClinicaService historiaClinicaService, final InformeService informeService, final TratamientoService tratamientoService) {
 		this.informeService = informeService;
 		this.pacienteService = pacienteService;
 		this.medicoService = medicoService;
@@ -78,8 +79,7 @@ public class InformeController {
 	}
 
 	@GetMapping(path = "informes/delete/{informeId}")
-	public String borrarInforme(@PathVariable("informeId") final int informeId, final ModelMap modelMap)
-			throws DataAccessException, IllegalAccessException {
+	public String borrarInforme(@PathVariable("informeId") final int informeId, final ModelMap modelMap) throws DataAccessException, IllegalAccessException {
 		Optional<Informe> informe = this.informeService.findInformeById(informeId);
 
 		if (informe.get().getHistoriaClinica() == null) {
@@ -93,46 +93,55 @@ public class InformeController {
 
 	@GetMapping(value = "/informes/{informeId}")
 	public ModelAndView showInforme(@PathVariable("informeId") final int informeId) {
+
 		ModelAndView mav = new ModelAndView("informes/informeDetails");
 		Informe informe = this.informeService.findInformeById(informeId).get();
+		Medico medicoactual = this.userService.getCurrentMedico();
+		Medico medicocorrecto = informe.getCita().getPaciente().getMedico();
+		Boolean noasociado = informe.getHistoriaClinica() == null;
 
-		mav.addObject(informe);
+		if (!medicoactual.equals(medicocorrecto) && noasociado) {
+			ModelAndView error = new ModelAndView("accessNotAuthorized");
+			return error;
+		} else {
 
-		Cita cita = this.citaService.findCitaById(informe.getCita().getId()).get();
-		Paciente paciente = cita.getPaciente();
-		mav.addObject(paciente);
+			mav.addObject(informe);
 
-		Boolean canBeDeleted = informe.getCita().getFecha().plusDays(1).equals(LocalDate.now().plusDays(1))
-				&& informe.getHistoriaClinica() == null;
-		mav.getModel().put("cannotbedeleted", !canBeDeleted);
+			Cita cita = this.citaService.findCitaById(informe.getCita().getId()).get();
+			Paciente paciente = cita.getPaciente();
+			mav.addObject(paciente);
 
-		Collection<Tratamiento> tratamientos = this.tratamientoService.findTratamientosByInforme(informe);
-		Collection<Boolean> vigentes = new ArrayList();
-		for (Tratamiento tratamiento : tratamientos) {
-			vigentes.add(tratamiento.getF_fin_tratamiento().isAfter(LocalDate.now()));
+			Boolean canBeDeleted = informe.getCita().getFecha().plusDays(1).equals(LocalDate.now().plusDays(1)) && informe.getHistoriaClinica() == null;
+			mav.getModel().put("cannotbedeleted", !canBeDeleted);
+
+			Collection<Tratamiento> tratamientos = this.tratamientoService.findTratamientosByInforme(informe);
+			Collection<Boolean> vigentes = new ArrayList();
+			for (Tratamiento tratamiento : tratamientos) {
+				vigentes.add(tratamiento.getF_fin_tratamiento().isAfter(LocalDate.now()));
+			}
+			mav.getModel().put("tratamientos", tratamientos);
+			mav.getModel().put("vigentes", vigentes);
+
+			// Boolean informeInHistoriaClinica = informe.getHistoriaClinica() != null;
+			// mav.getModel().put("informeInHistoriaClinica", informeInHistoriaClinica);
+
+			Boolean canBeEdited = informe.getCita().getFecha().equals(LocalDate.now());
+			mav.getModel().put("canbeedited", canBeEdited);
+
+			return mav;
 		}
-		mav.getModel().put("tratamientos", tratamientos);
-		mav.getModel().put("vigentes", vigentes);
-
-		// Boolean informeInHistoriaClinica = informe.getHistoriaClinica() != null;
-		// mav.getModel().put("informeInHistoriaClinica", informeInHistoriaClinica);
-
-		Boolean canBeEdited = informe.getCita().getFecha().equals(LocalDate.now());
-		mav.getModel().put("canbeedited", canBeEdited);
-
-		return mav;
 	}
 
 	@GetMapping(value = "/informes/new")
 	public String initCreationForm(final Cita cita, final ModelMap model) {
 		LocalDate today = LocalDate.now();
-		Boolean hasCitaInforme = informeService.citaHasInforme(cita);
+		Boolean hasCitaInforme = this.informeService.citaHasInforme(cita);
 		if (cita.getFecha().equals(today) && !hasCitaInforme) {
 			Informe informe = new Informe();
 			informe.setCita(cita);
 			model.put("informe", informe);
 			return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
-		} else if(hasCitaInforme) {
+		} else if (hasCitaInforme) {
 			return "redirect:/citas/" + cita.getId() + "/informes/" + cita.getInforme().getId();
 		} else {
 			return "redirect:/citas/" + cita.getPaciente().getMedico().getId();
@@ -141,8 +150,7 @@ public class InformeController {
 	}
 
 	@PostMapping(value = "/informes/new")
-	public String processCreationForm(final Cita cita, @Valid final Informe informe, final BindingResult result,
-			final ModelMap model) throws DataAccessException, IllegalAccessException {
+	public String processCreationForm(final Cita cita, @Valid final Informe informe, final BindingResult result, final ModelMap model) throws DataAccessException, IllegalAccessException {
 
 		if (result.hasErrors()) {
 			model.put("informe", informe);
@@ -155,8 +163,7 @@ public class InformeController {
 	}
 
 	@GetMapping(value = "/informes/{informeId}/addtohistoriaclinica")
-	public String addHistoriaClinicaToInforme(@PathVariable("informeId") final int informeId)
-			throws DataAccessException, IllegalAccessException {
+	public String addHistoriaClinicaToInforme(@PathVariable("informeId") final int informeId) throws DataAccessException, IllegalAccessException {
 		Informe informe = this.informeService.findInformeById(informeId).get();
 		HistoriaClinica hc = this.historiaClinicaService.findHistoriaClinicaByPaciente(informe.getCita().getPaciente());
 		informe.setHistoriaClinica(hc);
@@ -165,30 +172,33 @@ public class InformeController {
 	}
 
 	@GetMapping(value = "/informes/{informeId}/detelefromhistoriaclinica")
-	public String deleteFromHistoriaClinica(@PathVariable("informeId") final int informeId)
-			throws DataAccessException, IllegalAccessException {
+	public String deleteFromHistoriaClinica(@PathVariable("informeId") final int informeId) throws DataAccessException, IllegalAccessException {
 		Informe informe = this.informeService.findInformeById(informeId).get();
 		this.informeService.deleteInformeToHistoriaClinica(informe);
-		return "redirect:/citas/" + informe.getCita().getPaciente().getMedico().getId() + "/informes/"
-				+ informe.getId();
+		return "redirect:/citas/" + informe.getCita().getPaciente().getMedico().getId() + "/informes/" + informe.getId();
 	}
 
 	@GetMapping(value = "/informes/{informeId}/edit")
 	public String initUpdateInformeForm(@PathVariable("informeId") final int informeId, final ModelMap model) {
 
 		Informe informe = this.informeService.findInformeById(informeId).get();
-		model.put("informe", informe);
-		model.put("motivo_consulta", informe.getMotivo_consulta());
-		model.put("diagnostico", informe.getDiagnostico());
-		model.put("cita", informe.getCita());
+		Medico medicoactual = this.userService.getCurrentMedico();
+		Medico medicocorrecto = informe.getCita().getPaciente().getMedico();
 
-		return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
+		if (!medicoactual.equals(medicocorrecto)) {
+			return InformeController.VIEWS_ACCESS_NOT_AUTHORIZED;
+		} else {
+			model.put("informe", informe);
+			model.put("motivo_consulta", informe.getMotivo_consulta());
+			model.put("diagnostico", informe.getDiagnostico());
+			model.put("cita", informe.getCita());
+
+			return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
+		}
 	}
 
 	@PostMapping(value = "/informes/{informeId}/edit")
-	public String processUpdateInformeForm(final Cita cita, @Valid final Informe informe, final BindingResult result,
-			@PathVariable("informeId") final int informeId, final ModelMap model)
-			throws DataAccessException, IllegalAccessException {
+	public String processUpdateInformeForm(final Cita cita, @Valid final Informe informe, final BindingResult result, @PathVariable("informeId") final int informeId, final ModelMap model) throws DataAccessException, IllegalAccessException {
 		if (result.hasErrors()) {
 			model.put("informe", informe);
 			return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
