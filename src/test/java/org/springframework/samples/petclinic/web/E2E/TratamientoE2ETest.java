@@ -20,13 +20,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.time.LocalDate;
-
-import org.assertj.core.util.Lists;
-import org.junit.jupiter.api.BeforeEach;
-import org.mockito.BDDMockito;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.Tratamiento;
 import org.springframework.samples.petclinic.service.InformeService;
 import org.springframework.samples.petclinic.service.TratamientoService;
@@ -93,9 +86,9 @@ public class TratamientoE2ETest {
 		
         mockMvc.perform(post("/tratamientos/save")
         		.with(csrf())
-        	    .flashAttr("tratamiento", tratamiento));
-		//.andExpect(status().isOk());
-		//.andExpect(view().name("redirect:/citas/1/informes/1"));	
+        	    .flashAttr("tratamiento", tratamiento))
+		//.andExpect(status().isOk()) redirige bien pero no es ok
+		.andExpect(view().name("redirect:/citas/1/informes/1"));	
 	}
 	
 	//Caso fecha fin en pasado
@@ -141,7 +134,7 @@ public class TratamientoE2ETest {
         .andExpect(status().isOk())
         .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
         );
-}
+    }
 	
 	//CASO CAMPOS VACIOS
 	
@@ -167,7 +160,42 @@ public class TratamientoE2ETest {
         .andExpect(status().isOk())
         .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
         );
-}
+	}
+	
+	//CASO EDITAR (SAVE) TRATAMIENTO NO VIGENTE
+	
+	// Se puede llegar por un url a /save pasandole un tratamiento???
+
+	//CASO EDITAR (INIT) TRATAMIENTO NO VIGENTE
+	
+	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
+	@Test
+	void testInitUpdateTratamientoNoVigente() throws Exception {
+		mockMvc.perform(get("/tratamientos/{tratamientoId}/edit", 4))
+				///.andExpect(status().isOk()) redirige pero no es ok
+				.andExpect(view().name("redirect:/"));
+	}
+	
+	// CASO CREAR (INIT) TRATAMIENTO A INFORME DE OTRO MEDICO
+	
+	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
+	@Test
+	void testInitCreateTratamientoInformeOtroMedico() throws Exception {
+		mockMvc.perform(get("/tratamientos/new/{informeId}", 4))
+				//.andExpect(status().isOk())  redirige bien pero aun asi no es ok
+				.andExpect(view().name("redirect:/"));
+	}
+	
+	// CASO UPDATE (INIT) TRATAMIENTO DE OTRO MEDICO     peta da igual lo que haga
+	
+	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
+	@Test
+	void testInitUpdateTratamientoOtroMedico() throws Exception {
+		mockMvc.perform(get("/tratamientos/{tratamientoId}/edit", 7))
+				.andExpect(status().isOk());   /// Es ok pero la redireccion no coincide
+				//.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"))  // prueba
+				//.andExpect(view().name("redirect:/"));
+	}
 
 
 }

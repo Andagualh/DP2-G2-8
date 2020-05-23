@@ -38,7 +38,6 @@ import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 @WebMvcTest(controllers = TratamientoController.class,
 excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, 
@@ -52,11 +51,10 @@ public class TratamientoControllerTest {
     private static final String TEST_MEDICOUSER_ID = "medico1";
     private static final int TEST_INFORME_ID = 1;
 	private static final int TEST_TRATAMIENTO_ID = 1;
-	
+	private static final int TEST_TRATAMIENTO_ID2 = 2;
 	
 	@Autowired
 	private TratamientoController tratamientoController;
-	
 	
     @MockBean
     private CitaService citaService;
@@ -72,7 +70,6 @@ public class TratamientoControllerTest {
 	private InformeService informeService;
 	@MockBean
 	private TratamientoService tratamientoService;
-	
 	
 	@Autowired
 	private MockMvc mockMvc;
@@ -91,6 +88,8 @@ public class TratamientoControllerTest {
     private Informe             informe1;
 	
 	private Tratamiento         tratamiento;
+	
+	private Tratamiento         tratamiento2;
 	
 	
 
@@ -141,6 +140,7 @@ public class TratamientoControllerTest {
         this.informe1.setDiagnostico("diagnostico test");
         this.informe1.setHistoriaClinica(null);
         this.informe1.setMotivo_consulta("motivo test");
+        this.informe1.setCita(cita1);
         
 
 		this.tratamiento = new Tratamiento();
@@ -151,13 +151,22 @@ public class TratamientoControllerTest {
 		this.tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-22"));
 		this.tratamiento.setInforme(informe1);
 		
+		this.tratamiento2 = new Tratamiento();
+		this.tratamiento2.setId(TEST_TRATAMIENTO_ID);
+		this.tratamiento2.setMedicamento("medicamento de prueba 2");
+		this.tratamiento2.setDosis("dosis de prueba 2");
+		this.tratamiento2.setF_inicio_tratamiento(LocalDate.parse("2020-01-22"));
+		this.tratamiento2.setF_fin_tratamiento(LocalDate.parse("2020-02-22"));
+		this.tratamiento2.setInforme(informe1);
+		
 		BDDMockito.given(this.medicoService.getMedicoById(TEST_MEDICO_ID)).willReturn(this.medico1);
 		BDDMockito.given(this.userService.findUserByUsername(TEST_USER_ID)).willReturn(Optional.of(this.medico1User));
 		BDDMockito.given(this.pacienteService.findPacienteById(TEST_PACIENTE_ID)).willReturn(Optional.of(this.javier));
 		BDDMockito.given(this.citaService.findCitaById(TEST_CITA_ID)).willReturn(Optional.of(this.cita1));
 		BDDMockito.given(this.informeService.findInformeById(TEST_INFORME_ID)).willReturn(Optional.of(this.informe1));
 		BDDMockito.given(this.tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
-
+		BDDMockito.given(this.tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID2)).willReturn(Optional.of(tratamiento2));
+		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
 	}
 	 
 	@WithMockUser(value = "spring")
@@ -167,7 +176,7 @@ public class TratamientoControllerTest {
 				.andExpect(status().isOk());
 	}
 	
-	@WithMockUser(value = "spring")
+	@WithMockUser(username="medico1",authorities= {"medico"})
 	@Test
 	void testInitUpdateTratamientoForm() throws Exception {
 		mockMvc.perform(get("/tratamientos/{tratamientoId}/edit", TEST_TRATAMIENTO_ID))
@@ -179,17 +188,24 @@ public class TratamientoControllerTest {
 				.andExpect(model().attribute("tratamiento", hasProperty("f_fin_tratamiento", is(LocalDate.parse("2020-10-22")))))
 				.andExpect(model().attribute("tratamiento", hasProperty("informe", is(this.informe1))))
 				.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"));
-		
 	}
 	
-	@WithMockUser(value = "spring")
+	@WithMockUser(username="medico1",authorities= {"medico"})
 	@Test
-	void testInitCreateTratamientoForm() throws Exception {
+	void testInitCreateTratamientoFormSuccess() throws Exception {
 		mockMvc.perform(get("/tratamientos/new/{informeId}", TEST_INFORME_ID))
 				.andExpect(status().isOk())
 				.andExpect(model().attributeExists("tratamiento"))
 				.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"));
 		
+	}
+	
+	@WithMockUser(username="medico1",authorities= {"medico"})
+	@Test
+	void testEditTratamientoNoVigente() throws Exception {
+		mockMvc.perform(get("/tratamientos/{tratamientoId}/edit", TEST_TRATAMIENTO_ID2))
+				//.andExpect(status().isOk())   Redirige bien pero no es ok
+				.andExpect(view().name("redirect:/"));
 	}
 	
 	// En este test no coincide la view que deberia devolverse
@@ -224,10 +240,9 @@ public class TratamientoControllerTest {
 		         .param("informe.cita.paciente.medico.domicilio", "test")
 		         .param("informe.cita.paciente.medico.user.username", "test")
 		         .param("informe.cita.paciente.medico.user.password", "test"))
-		.andExpect(status().isOk())
-		.andExpect(status().is2xxSuccessful());
-		//.andExpect(view().name("redirect:/citas/1/informes/1"));
-		
+		//.andExpect(status().isOk())    redirije pero no es ok
+		//.andExpect(status().is2xxSuccessful());
+		.andExpect(view().name("redirect:/citas/1/informes/1"));	
 	}
     
     @WithMockUser(value = "spring")
@@ -264,7 +279,7 @@ public class TratamientoControllerTest {
         .andExpect(status().isOk())
         .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
         ); 
-    }
+    	}
         
         @WithMockUser(value = "spring")
     	@Test
@@ -302,7 +317,7 @@ public class TratamientoControllerTest {
             .andExpect(status().isOk())
             .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
             );
-    }
+        }
         
         @WithMockUser(value = "spring")
     	@Test
@@ -337,9 +352,8 @@ public class TratamientoControllerTest {
             
             .andExpect(model().attributeHasFieldErrors("tratamiento","f_inicio_tratamiento"))
             .andExpect(status().isOk())
-            .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
-            );
-    }
+            .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"));
+        }
         
         @WithMockUser(value = "spring")
     	@Test
@@ -377,8 +391,7 @@ public class TratamientoControllerTest {
             .andExpect(model().attributeHasFieldErrors("tratamiento","f_inicio_tratamiento"))
             .andExpect(model().attributeHasFieldErrors("tratamiento","f_fin_tratamiento"))
             .andExpect(status().isOk())
-            .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
-            );
-    }
+            .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"));
+        }
 
 }

@@ -18,9 +18,8 @@ public class TratamientoService {
 
 	@Autowired
 	private TratamientoRepository	tratamientoRepo;
-	private InformeService			informeService;
 
-
+	
 	@Transactional
 	public int tratamientoCount() {
 		return (int) this.tratamientoRepo.count();
@@ -52,4 +51,5 @@ public class TratamientoService {
 
 		return tratamientos;
 	}
+
 }
