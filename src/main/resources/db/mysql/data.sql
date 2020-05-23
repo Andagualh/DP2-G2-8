@@ -129,6 +129,8 @@ INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id)
 INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (2, 'motivo test', 'diagnostico test', 8, null);
 INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (3, 'cita pasada', 'cita past',9,null);
 
+INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (4, 'cita nueva', 'cita nueva',10,null);
+
 
 INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tratamiento,informe_id) 
 VALUES (1, 'nombre1','paracetamol','1 pastilla cada 4 horas','2020-03-09','2020-12-24',1);
@@ -136,3 +138,14 @@ INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tra
 VALUES (2, 'nombre2','ibuprofeno','1 pastilla cada 8 horas','2020-03-09','2020-12-19',1);
 INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tratamiento,informe_id) 
 VALUES (3, 'nombre3','enantium','1 cada dia','2020-03-09','2020-12-15',1);
+
+INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tratamiento,informe_id) 
+VALUES (4, 'nombre4','almax','1 cada dos dias','2020-01-05','2020-02-15',1);
+INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tratamiento,informe_id) 
+VALUES (5, 'nombre5','alprazolam','1 cada tres dias','2020-01-19','2020-03-10',1);
+
+INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tratamiento,informe_id) 
+VALUES (6, 'nombre6','paracetamol','1 cada dos horas','2020-03-09','2020-12-15',4);
+INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tratamiento,informe_id) 
+VALUES (7, 'nombre7','enantium','1 cada tres dias','2020-03-09','2020-12-15',4);
+
