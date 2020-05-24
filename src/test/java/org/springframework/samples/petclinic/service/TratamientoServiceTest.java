@@ -329,4 +329,31 @@ public class TratamientoServiceTest {
 		
 		Assertions.assertTrue(thrown.getMessage().contains("No se puede borrar este tratamiento"));
 	}
+	
+	@Test
+    public void testDeleteTratamientoWithWrongDoctor() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException{
+		
+		Tratamiento tratamiento = new Tratamiento();
+		
+		tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.now());
+		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
+		tratamiento.setInforme(informeService.findInformeById(1).get());
+		
+		tratamientoService.save(tratamiento);
+		
+		LocalDate fecha = tratamiento.getInforme().getCita().getFecha();
+		int idMedico = tratamiento.getInforme().getCita().getPaciente().getMedico().getId();
+		
+		Assertions.assertNotNull(tratamiento);
+		Assertions.assertNotNull(tratamiento.getInforme());
+		Assertions.assertNotNull(tratamiento.getInforme().getCita());
+		Assertions.assertNotEquals(LocalDate.now(), fecha);
+		
+		IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+		        () -> tratamientoService.deleteTratamiento(tratamiento.getId(), 0), "No se puede borrar este tratamiento");
+		
+		Assertions.assertTrue(thrown.getMessage().contains("No se puede borrar este tratamiento"));
+	}
 }
