@@ -325,10 +325,6 @@ class InformeControllerTests {
 
 		BDDMockito.given(this.informeService.findInformeById(InformeControllerTests.TEST_INFORME_ID_2)).willReturn(Optional.of(informe));
 
-		System.out.println("AAAAAAAAAAAAAAAAA");
-		System.out.println(this.userService.getCurrentMedico().getNombre());
-		System.out.println(informe.getCita().getPaciente().getMedico().getNombre());
-
 		this.mockMvc.perform(MockMvcRequestBuilders.get("/citas/{citaId}/informes/{informeId}/edit", InformeControllerTests.TEST_CITA4_ID, InformeControllerTests.TEST_INFORME_ID_2)).andExpect(MockMvcResultMatchers.status().isOk())
 			.andExpect(MockMvcResultMatchers.view().name("accessNotAuthorized"));
 	}
@@ -477,7 +473,7 @@ class InformeControllerTests {
 
 		BDDMockito.given(this.informeService.findInformeById(InformeControllerTests.TEST_INFORME_ID_2)).willReturn(Optional.of(informe));
 
-		this.mockMvc.perform(MockMvcRequestBuilders.get("citas/{citaId}/informes/{informeId}", InformeControllerTests.TEST_CITA4_ID, InformeControllerTests.TEST_INFORME_ID_2)).andExpect(MockMvcResultMatchers.status().is4xxClientError())
+		this.mockMvc.perform(MockMvcRequestBuilders.get("/citas/{citaId}/informes/{informeId}", InformeControllerTests.TEST_CITA4_ID, InformeControllerTests.TEST_INFORME_ID_2)).andExpect(MockMvcResultMatchers.status().isOk())
 			.andExpect(MockMvcResultMatchers.view().name("accessNotAuthorized"));
 
 	}
