@@ -180,7 +180,6 @@ public class InformeController {
 
 	@GetMapping(value = "/informes/{informeId}/edit")
 	public String initUpdateInformeForm(@PathVariable("informeId") final int informeId, final ModelMap model) {
-
 		Informe informe = this.informeService.findInformeById(informeId).get();
 		Medico medicoactual = this.userService.getCurrentMedico();
 		Medico medicocorrecto = informe.getCita().getPaciente().getMedico();
