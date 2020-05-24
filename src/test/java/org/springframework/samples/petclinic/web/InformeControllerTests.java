@@ -80,32 +80,42 @@ class InformeControllerTests {
     
     private static final int TEST_MEDICO_ID = 1; 
     private static final int TEST_PACIENTE_ID = 1;
+    private static final int TEST_PACIENTE_ID_2 = 2;
     private static final String TEST_USER_ID = "1";
     private static final int TEST_CITA_ID = 1;
     private static final String TEST_MEDICOUSER_ID = "medico1";
+    private static final String TEST_MEDICOUSER_ID_2 = "medico2";
     private static final int TEST_CITA2_ID = 2;
     private static final int TEST_CITA3_ID = 3;
+    private static final int TEST_CITA4_ID = 4;
     private static final int TEST_INFORME_ID = 1;
 
 
     private Paciente            javier;
+    
+    private Paciente            pepe;
 
     private Medico                medico1;
 
     private User                medico1User;
+    
+    private Medico                medico2;
+
+    private User                medico2User;
 
     private Authorities            authorities;
 
     private Cita    cita1;
     private Cita    cita2;
     private Cita    cita3;
+    private Cita    cita4;
 
     @BeforeEach
     void setup(){
     
         this.medico1 = new Medico();
         this.medico1.setId(TEST_MEDICO_ID);
-        this.medico1.setNombre("Medico 2");
+        this.medico1.setNombre("Medico 1");
         this.medico1.setApellidos("Apellidos");
         this.medico1.setDNI("12345678Z");
         this.medico1.setN_telefono("123456789");
@@ -122,6 +132,26 @@ class InformeControllerTests {
         this.authorities = new Authorities();
         this.authorities.setUsername(TEST_MEDICOUSER_ID);
         this.authorities.setAuthority("medico");
+        
+        this.medico2 = new Medico();
+        this.medico2.setId(TEST_MEDICO_ID);
+        this.medico2.setNombre("Medico 2");
+        this.medico2.setApellidos("Apellidos");
+        this.medico2.setDNI("12345678Z");
+        this.medico2.setN_telefono("123456789");
+        this.medico2.setDomicilio("Domicilio");
+        
+        this.medico2User = new User();
+        this.medico2User.setUsername(TEST_MEDICOUSER_ID_2);
+        this.medico2User.setPassword("medico2");
+        this.medico2User.setEnabled(true);
+        
+        this.medico2.setUser(this.medico2User);
+        this.medico2.getUser().setEnabled(true);
+        
+        this.authorities = new Authorities();
+        this.authorities.setUsername(TEST_MEDICOUSER_ID_2);
+        this.authorities.setAuthority("medico");
 
         this.javier = new Paciente();
         this.javier.setId(TEST_PACIENTE_ID);
@@ -134,6 +164,18 @@ class InformeControllerTests {
         this.javier.setEmail("javier_silva@gmail.com");
         this.javier.setF_alta(LocalDate.now());
         this.javier.setMedico(this.medico1);
+        
+        this.pepe = new Paciente();
+        this.pepe.setId(TEST_PACIENTE_ID_2);
+        this.pepe.setNombre("Pepe");
+        this.pepe.setApellidos("Moreno");
+        this.pepe.setF_nacimiento(LocalDate.of(1995, 9, 15));
+        this.pepe.setDNI("53279183M");
+        this.pepe.setDomicilio("Dos Hermanas");
+        this.pepe.setN_telefono(644090431);
+        this.pepe.setEmail("pepe_moreno@gmail.com");
+        this.pepe.setF_alta(LocalDate.now());
+        this.pepe.setMedico(this.medico2);
 
         this.cita1 = new Cita();
         this.cita1.setFecha(LocalDate.now());
@@ -152,6 +194,12 @@ class InformeControllerTests {
         this.cita3.setPaciente(this.javier);
         this.cita3.setLugar("Lugar");
         this.cita3.setId(TEST_CITA3_ID);
+        
+        this.cita4 = new Cita();
+        this.cita4.setFecha(LocalDate.now());
+        this.cita4.setPaciente(this.pepe);
+        this.cita4.setLugar("Lugar");
+        this.cita4.setId(TEST_CITA4_ID);
 
         
         given(this.medicoService.getMedicoById(TEST_MEDICO_ID)).willReturn(this.medico1);
@@ -161,6 +209,7 @@ class InformeControllerTests {
         given(this.citaService.findCitaById(TEST_CITA2_ID)).willReturn(Optional.of(this.cita2));
         given(this.citaService.findCitaById(TEST_CITA3_ID)).willReturn(Optional.of(this.cita3));
         given(this.informeService.findInformeById(TEST_INFORME_ID)).willReturn(Optional.of(new Informe()));
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
     }
 
     @WithMockUser(value = "spring")
@@ -294,6 +343,25 @@ class InformeControllerTests {
         .andExpect(model().attributeExists("cita"));
     }
     
+	    @WithMockUser(value = "spring")
+	    @Test
+	void testInitUpdateInformeNotAuthorized() throws Exception{
+	
+	    Informe informe = new Informe();
+	    informe.setCita(cita4);
+	    informe.setId(TEST_INFORME_ID);
+	    informe.setDiagnostico("Diag");
+	    informe.setMotivo_consulta("motivo");
+	
+	
+	    given(informeService.findInformeById(TEST_INFORME_ID)).willReturn(Optional.of(informe));
+	
+	    mockMvc.perform(get("/citas/{citaId}/informes/{informeId}/edit", TEST_CITA4_ID, TEST_INFORME_ID))
+	    .andExpect(status().isOk())
+	    .andExpect(view().name("accessNotAuthorized"));
+	}
+    
+    
     @WithMockUser(value = "spring")
         @Test
     void testSalvarInformeEditSuccess() throws Exception{
@@ -418,14 +486,20 @@ class InformeControllerTests {
 
     @WithMockUser(value = "spring")
         @Test
-    void testShowInforme() throws Exception{
+    void testShowInformeAuthorized() throws Exception{
 
+    	HistoriaClinica hist = new HistoriaClinica();
+        hist.setDescripcion("desc");
+        hist.setPaciente(this.javier);
+        hist.setId(31);
+    	
         Informe informe = new Informe();
         //Cita con LocalDate now
         informe.setCita(cita1);
         informe.setId(TEST_INFORME_ID);
         informe.setDiagnostico("Diag");
         informe.setMotivo_consulta("motivo");
+        informe.setHistoriaClinica(hist);
 
         given(informeService.findInformeById(TEST_INFORME_ID)).willReturn(Optional.of(informe));
 
@@ -433,11 +507,31 @@ class InformeControllerTests {
         .andExpect(status().isOk())
         .andExpect(view().name("informes/informeDetails"))
         .andExpect(model().attributeExists("informe"))
-        .andExpect(model().attribute("cannotbedeleted", false))
+        .andExpect(model().attribute("cannotbedeleted", true))
         .andExpect(model().attribute("canbeedited", true)
 
         );
     }
+    
+	    @WithMockUser(value = "spring")
+	    @Test
+	void testShowInformeNotAuthorized() throws Exception{
+	
+	    Informe informe = new Informe();
+	    //Cita con LocalDate now
+	    informe.setCita(cita4);
+	    informe.setId(TEST_INFORME_ID);
+	    informe.setDiagnostico("Diag");
+	    informe.setMotivo_consulta("motivo");
+	    informe.setHistoriaClinica(null);
+	
+	    given(informeService.findInformeById(TEST_INFORME_ID)).willReturn(Optional.of(informe));
+	
+	    mockMvc.perform(get("citas/{citaId}/informes/{informeId}",TEST_CITA4_ID, TEST_INFORME_ID))
+	    .andExpect(status().is4xxClientError())
+	    .andExpect(view().name("accessNotAuthorized"));
+	    		
+	    }
     
     @WithMockUser(value = "spring")
         @Test
@@ -449,6 +543,8 @@ class InformeControllerTests {
         informe.setId(TEST_INFORME_ID);
         informe.setDiagnostico("Diag");
         informe.setMotivo_consulta("motivo");
+        HistoriaClinica hc = new HistoriaClinica();
+        informe.setHistoriaClinica(hc);
 
         given(informeService.findInformeById(TEST_INFORME_ID)).willReturn(Optional.of(informe));
 
