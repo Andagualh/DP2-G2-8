@@ -314,6 +314,8 @@ public class TratamientoServiceTest {
 		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-25"));
 		tratamiento.setInforme(informeService.findInformeById(1).get());
 		
+		tratamientoService.save(tratamiento);
+		
 		LocalDate fecha = tratamiento.getInforme().getCita().getFecha();
 		int idMedico = tratamiento.getInforme().getCita().getPaciente().getMedico().getId();
 		
