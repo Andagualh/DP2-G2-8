@@ -1,5 +1,7 @@
 package org.springframework.samples.petclinic.service;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -301,4 +303,28 @@ public class TratamientoServiceTest {
 		Assertions.assertEquals(Optional.empty(), tratamientoService.findTratamientoById(tratamiento.getId()));
 	}
 
+	@Test
+    public void testDeleteTratamientoWithWrongDate() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException{
+		
+		Tratamiento tratamiento = new Tratamiento();
+		
+		tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-23"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-25"));
+		tratamiento.setInforme(informeService.findInformeById(1).get());
+		
+		LocalDate fecha = tratamiento.getInforme().getCita().getFecha();
+		int idMedico = tratamiento.getInforme().getCita().getPaciente().getMedico().getId();
+		
+		Assertions.assertNotNull(tratamiento);
+		Assertions.assertNotNull(tratamiento.getInforme());
+		Assertions.assertNotNull(tratamiento.getInforme().getCita());
+		Assertions.assertNotEquals(LocalDate.now(), fecha);
+		
+		IllegalAccessException thrown = assertThrows(IllegalAccessException.class, 
+		        () -> tratamientoService.deleteTratamiento(tratamiento.getId(), idMedico), "No se puede borrar este tratamiento");
+		
+		Assertions.assertTrue(thrown.getMessage().contains("No se puede borrar este tratamiento"));
+	}
 }
