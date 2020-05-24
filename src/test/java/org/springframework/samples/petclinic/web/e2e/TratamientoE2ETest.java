@@ -20,6 +20,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.time.LocalDate;
+
+
+import org.assertj.core.util.Lists;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.BDDMockito;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+
 import org.springframework.samples.petclinic.model.Tratamiento;
 import org.springframework.samples.petclinic.service.InformeService;
 import org.springframework.samples.petclinic.service.TratamientoService;
@@ -89,6 +98,7 @@ public class TratamientoE2ETest {
         	    .flashAttr("tratamiento", tratamiento))
 		//.andExpect(status().isOk()) redirige bien pero no es ok
 		.andExpect(view().name("redirect:/citas/1/informes/1"));	
+
 	}
 	
 	//Caso fecha fin en pasado
@@ -134,7 +144,9 @@ public class TratamientoE2ETest {
         .andExpect(status().isOk())
         .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
         );
+
     }
+
 	
 	//CASO CAMPOS VACIOS
 	
@@ -160,6 +172,7 @@ public class TratamientoE2ETest {
         .andExpect(status().isOk())
         .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
         );
+
 	}
 	
 	//CASO EDITAR (SAVE) TRATAMIENTO NO VIGENTE
@@ -196,6 +209,7 @@ public class TratamientoE2ETest {
 				//.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"))  // prueba
 				//.andExpect(view().name("redirect:/"));
 	}
+
 
 
 }
