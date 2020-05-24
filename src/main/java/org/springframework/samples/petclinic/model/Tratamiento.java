@@ -26,12 +26,10 @@ public class Tratamiento extends NamedEntity {
 	private String		dosis;
 
 	@NotNull
-	@PastOrPresent
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate	f_inicio_tratamiento;
 
 	@NotNull
-	@FutureOrPresent
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate	f_fin_tratamiento;
 

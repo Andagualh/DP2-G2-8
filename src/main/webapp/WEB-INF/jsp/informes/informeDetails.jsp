@@ -65,7 +65,7 @@
     <br/>
     <h2>Tratamiento</h2>
         <table class="table table-striped">
-        <c:forEach var="tratamiento" items="${tratamientos}" varStatus = "index">
+        <c:forEach var="tratamiento" items="${tratamientos}">
 
             <tr>
                 <td valign="top">
@@ -91,7 +91,7 @@
                         <tr>
                             <td>
                             	<c:choose>
-    								<c:when test="${vigentes[index.index]==true}">
+    								<c:when test="${tratamientoEditable==true}">
     									<spring:url value="/tratamientos/{tratamientoId}/edit" var="editUrl">
 										<spring:param name="tratamientoId" value="${paciente.id}" />
 										</spring:url>
@@ -114,8 +114,11 @@
     </table>
     </c:if>
     
-    <spring:url value="/tratamientos/new/{informeId}" var="createTratUrl">
+    <c:when test="${tratamientoEditable==true}">
+    	<spring:url value="/tratamientos/new/{informeId}" var="createTratUrl">
 				<spring:param name="informeId" value="${informe.id}" />
-	</spring:url>
-	<a href="${fn:escapeXml(createTratUrl)}" class="btn btn-default">Crear Tratamiento</a>
+		</spring:url>
+		<a href="${fn:escapeXml(createTratUrl)}" class="btn btn-default">Crear Tratamiento</a>
+	</c:when>
+	
 </petclinic:layout>

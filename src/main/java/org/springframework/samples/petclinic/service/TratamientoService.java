@@ -28,7 +28,11 @@ public class TratamientoService {
 	@Transactional
 	public Tratamiento save(final Tratamiento tratamiento) {
 		try {
-			return this.tratamientoRepo.save(tratamiento);
+			if(tratamiento.getF_fin_tratamiento().isAfter(tratamiento.getF_inicio_tratamiento())) {
+				return this.tratamientoRepo.save(tratamiento);
+			}else {
+				throw new IllegalArgumentException("la fecha final es anterior a la de inicio.");
+			}
 		}catch(Exception e) {
 			throw new IllegalArgumentException("El tratamiento no ha podido guardarse.");
 		}

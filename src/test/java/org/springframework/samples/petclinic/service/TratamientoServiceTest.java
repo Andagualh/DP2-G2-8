@@ -77,8 +77,10 @@ public class TratamientoServiceTest {
 		});
 	}
 	
+	
+	///// fecha fin anterior a fecha inicio
 	@Test
-	public void testCreateTratamientoFechaFinPasado() {
+	public void testCreateTratamientoFechaFinAntesFechaInicio() {
 		
 		Tratamiento tratamiento = new Tratamiento();
 		
@@ -92,6 +94,9 @@ public class TratamientoServiceTest {
 			this.tratamientoService.save(tratamiento);
 		});
 	}
+	
+	
+	
 	
 	@Test
 	public void testCreateTratamientoNullMedicamento() {
@@ -161,27 +166,6 @@ public class TratamientoServiceTest {
 		
 		/*
 	
-		Assertions.assertThrows(IllegalArgumentException.class, () -> {
-			this.tratamientoService.save(tratamiento);
-		});
-		*/
-	}
-	
-	@Test
-	public void testUpdateTratamientoWithFechaFinPasado() {
-		
-		Tratamiento tratamiento = tratamientoService.findTratamientoById(3).get();
-
-		Assertions.assertNotNull(tratamiento);
-		
-		tratamiento.setMedicamento("aspirina");
-		tratamiento.setDosis("dosis test");
-		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
-		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-01-20"));
-
-		this.tratamientoService.save(tratamiento);
-
-		/*
 		Assertions.assertThrows(IllegalArgumentException.class, () -> {
 			this.tratamientoService.save(tratamiento);
 		});

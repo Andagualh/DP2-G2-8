@@ -256,7 +256,7 @@ public class PacienteControllerIntegrationTest {
 		int id = 8;
 		ModelMap m = new ModelMap();
 		String view = this.pacienteController.borrarPaciente(id, m);
-		Assertions.assertEquals("/pacientes/" + id, view);
+		Assertions.assertEquals("redirect:/pacientes/" + id, view);
 	}
 	
 	@WithMockUser(username="pabloMedico", authorities={"medico"})

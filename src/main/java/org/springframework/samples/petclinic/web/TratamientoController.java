@@ -37,9 +37,11 @@ public class TratamientoController {
 	public boolean authorizeTratamiento(Informe informe) {
 		return userService.getCurrentMedico().getId().equals(informe.getCita().getPaciente().getMedico().getId());
 	}
+
+	//TODO: Comparar con Cita Fecha, no con final de tratamiento
 	
 	private boolean esVigente(Tratamiento tratamiento) {
-		return tratamiento.getF_fin_tratamiento().isAfter(LocalDate.now());
+		return tratamiento.getInforme().getCita().getFecha().isEqual(LocalDate.now());
 	}
 	
 	@GetMapping(value = "/{tratamientoId}/edit")
@@ -62,9 +64,11 @@ public class TratamientoController {
 		Tratamiento tratamiento = new Tratamiento();
 		Informe informe = this.informeService.findInformeById(informeId).get();
 		boolean autorizado = authorizeTratamiento(informe);
-		if(autorizado) {
+		boolean esVigente = esVigente(tratamiento);
+		if(autorizado && esVigente) {
 			model.addAttribute("informe", informe);
 			model.addAttribute("tratamiento", tratamiento);
+			
 			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
 		}else {
 			return "redirect:/";
@@ -72,10 +76,17 @@ public class TratamientoController {
 	}
 
 	@PostMapping(value = "/save")
-	public String saveTratamiento(@Valid final Tratamiento tratamiento, final BindingResult result) {
-		
-		if(result.hasErrors()) {
-			System.out.println("ERRORES: " + result.getAllErrors());
+	public String saveTratamiento(@Valid final Tratamiento tratamiento, final BindingResult result, final ModelMap modelMap) {
+        boolean fechasCorrectas = tratamiento.getF_fin_tratamiento().isAfter(tratamiento.getF_inicio_tratamiento());
+		if(!authorizeTratamiento(tratamiento.getInforme())){
+			return "accessNotAuthorized";
+		}else if(!fechasCorrectas){
+			result.rejectValue("f_fin_tratamiento", "error.fechasErroneas", "La fecha de inicio es mayor a fecha de fin.");
+			result.rejectValue("f_inicio_tratamiento", "error.fechasErroneas", "La fecha de inicio es mayor a fecha de fin.");
+			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
+		}else if(result.hasErrors()) {
+			modelMap.addAttribute("informe", tratamiento.getInforme());
+			modelMap.addAttribute("tratamiento", tratamiento);
 			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
 		} else {
 			Informe informe = this.informeService.findInformeById(tratamiento.getInforme().getId()).get();

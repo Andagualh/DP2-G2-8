@@ -174,7 +174,7 @@ public class PacienteController {
 				view = "redirect:/pacientes";
 			} else if (mismoMedico == false) {
 				modelMap.addAttribute("message", "No tiene acceso para borrar a este paciente");
-				view = "/pacientes/" + pacienteId;
+				view = "redirect:/pacientes/" + pacienteId;
 			} else {
 				modelMap.addAttribute("message", "Paciente no puede borrarse");
 				view = "redirect:/pacientes/" + pacienteId;

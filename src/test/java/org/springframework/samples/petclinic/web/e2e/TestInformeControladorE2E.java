@@ -101,7 +101,7 @@ public class TestInformeControladorE2E {
 
         mockMvc.perform(get("/citas/{citaId}/informes/new", citaTemp.getId()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(view().name("redirect:/citas/"+TEST_MEDICO_ID)
+        .andExpect(view().name("redirect:/citas/1/informes/1")
         );
     }
 
@@ -140,10 +140,14 @@ public class TestInformeControladorE2E {
         informe.setDiagnostico("Diag");
         informe.setMotivo_consulta("motivo");
         informeService.saveInforme(informe);
+        int TEST_CITA2_INFORME_ID = informe.getId();
 
+        cita2.setInforme(informe);
+        citaService.save(cita2);
+        
         mockMvc.perform(get("/citas/{citaId}/informes/new", TEST_CITA2_ID))
         .andExpect(status().is3xxRedirection())
-        .andExpect(view().name("redirect:/citas/"+TEST_MEDICO_ID)
+        .andExpect(view().name("redirect:/citas/"+TEST_CITA2_ID+"/informes/"+TEST_CITA2_INFORME_ID)
         );
 
         informeService.deleteInforme(informe.getId());
