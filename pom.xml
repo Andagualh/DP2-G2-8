@@ -274,6 +274,7 @@
                 <configuration>
                     <excludes>
                     <exclude>**/*UITest.java</exclude>
+                    <exclude>**/*ControllerIntegrationTest*</exclude>
                     <exclude>**/*APITest.java</exclude>
                     </excludes>
                 </configuration>   

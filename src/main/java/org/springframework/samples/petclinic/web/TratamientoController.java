@@ -37,6 +37,8 @@ public class TratamientoController {
 	public boolean authorizeTratamiento(Informe informe) {
 		return userService.getCurrentMedico().getId().equals(informe.getCita().getPaciente().getMedico().getId());
 	}
+
+	//TODO: Comparar con Cita Fecha, no con final de tratamiento
 	
 	private boolean esVigente(Tratamiento tratamiento) {
 		return tratamiento.getF_fin_tratamiento().isAfter(LocalDate.now());
@@ -65,6 +67,7 @@ public class TratamientoController {
 		if(autorizado) {
 			model.addAttribute("informe", informe);
 			model.addAttribute("tratamiento", tratamiento);
+			
 			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
 		}else {
 			return "redirect:/";
@@ -72,9 +75,16 @@ public class TratamientoController {
 	}
 
 	@PostMapping(value = "/save")
-	public String saveTratamiento(@Valid final Tratamiento tratamiento, final BindingResult result) {
+	public String saveTratamiento(@Valid final Tratamiento tratamiento, final BindingResult result, final ModelMap modelMap) {
 		
-		if(result.hasErrors()) {
+		if(!authorizeTratamiento(tratamiento.getInforme())){
+			return "accessNotAuthorized";
+		}
+
+
+		else if(result.hasErrors()) {
+			modelMap.addAttribute("informe", tratamiento.getInforme());
+			modelMap.addAttribute("tratamiento", tratamiento);
 			System.out.println("ERRORES: " + result.getAllErrors());
 			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
 		} else {
