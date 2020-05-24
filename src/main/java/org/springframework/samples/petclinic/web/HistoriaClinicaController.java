@@ -68,7 +68,7 @@ public class HistoriaClinicaController {
 	public String initCreationForm(@PathVariable("pacienteId") final int pacienteId, final ModelMap model) {
 		HistoriaClinica historiaclinica = new HistoriaClinica();
 		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
-		if(this.medicoOk(paciente)) {
+		if(paciente.getMedico().equals(this.userService.getCurrentMedico())) {
 			model.put("historiaclinica", historiaclinica);
 			model.put("paciente", paciente);
 			return HistoriaClinicaController.VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM;

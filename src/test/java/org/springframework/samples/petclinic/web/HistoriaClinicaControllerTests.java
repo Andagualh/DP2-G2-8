@@ -1,6 +1,7 @@
 
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -60,6 +61,7 @@ class HistoriaClinicaControllerTests {
 	private Medico 						medico;
 	private User 						medicoUser;
 	private Authorities					authorities;
+	private Paciente			javier;
 
 
 	@BeforeEach
@@ -85,8 +87,22 @@ class HistoriaClinicaControllerTests {
 		this.authorities.setUsername(TEST_MEDICOUSER_ID);
 		this.authorities.setAuthority("medico");
 		
+		
+		this.javier = new Paciente();
+		this.javier.setId(TEST_PACIENTE_ID);
+		this.javier.setNombre("Javier");
+		this.javier.setApellidos("Silva");
+		this.javier.setF_nacimiento(LocalDate.of(1997, 6, 8));
+		this.javier.setDNI("12345678Z");
+		this.javier.setDomicilio("Ecija");
+		this.javier.setN_telefono(612345987);
+		this.javier.setEmail("javier_silva@gmail.com");
+		this.javier.setF_alta(LocalDate.now());
+		this.javier.setMedico(this.medico);
+		
 		BDDMockito.given(this.pacienteService.findPacienteById(HistoriaClinicaControllerTests.TEST_PACIENTE_ID)).willReturn(Optional.of(new Paciente()));
 		BDDMockito.given(this.historiaService.findHistoriaClinicaByPacienteId(HistoriaClinicaControllerTests.TEST_PACIENTE_ID)).willReturn(new HistoriaClinica());
+		
 		
 	}
 
@@ -98,16 +114,12 @@ class HistoriaClinicaControllerTests {
 	}
 	
 
-	//@WithMockUser(value = "spring")
-	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
+	@WithMockUser(value = "spring")
+	//@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
 	void testInitCreationFormSuccess() throws Exception {
-		//Medico med = this.medicoService.getMedicoById(TEST_MEDICO_ID);
-		Paciente paciente = new Paciente();
-		paciente.setId(HistoriaClinicaControllerTests.TEST_PACIENTE_ID);
-		paciente.setMedico(this.medico);
 		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico);
-		//BDDMockito.given(this.historiaController.medicoOk(paciente)).willReturn(true);
+		BDDMockito.given(this.javier.getMedico().equals(this.medico)).willReturn(true);
 		
 		this.mockMvc.perform(MockMvcRequestBuilders.get("/pacientes/{pacienteId}/historiaclinica/new", HistoriaClinicaControllerTests.TEST_PACIENTE_ID)).andExpect(MockMvcResultMatchers.status().isOk())
 			.andExpect(MockMvcResultMatchers.model().attributeExists("historiaclinica")).andExpect(MockMvcResultMatchers.model().attributeExists("paciente"))
