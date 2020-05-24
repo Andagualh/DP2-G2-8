@@ -19,6 +19,7 @@ public class TratamientoService {
 
 	@Autowired
 	private TratamientoRepository	tratamientoRepo;
+	@Autowired
 	private InformeService			informeService;
 
 

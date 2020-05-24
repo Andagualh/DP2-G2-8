@@ -281,12 +281,12 @@ public class TratamientoServiceTest {
 		informe.setDiagnostico("Dermatitis");
         informe.setMotivo_consulta("Picor en frente");
         informeService.saveInforme(informe);
-        //cita.setInforme(informe);
+        
 		
 		tratamiento.setMedicamento("aspirina1");
 		tratamiento.setDosis("1 pastilla cada 8 horas");
-		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-06-23"));
-		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-25"));
+		tratamiento.setF_inicio_tratamiento(LocalDate.now());
+		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
 		tratamiento.setInforme(informe);
 		
 		LocalDate fecha = tratamiento.getInforme().getCita().getFecha();
