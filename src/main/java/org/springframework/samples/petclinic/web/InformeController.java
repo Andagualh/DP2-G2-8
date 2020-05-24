@@ -82,13 +82,21 @@ public class InformeController {
 	public String borrarInforme(@PathVariable("informeId") final int informeId, final ModelMap modelMap) throws DataAccessException, IllegalAccessException {
 		Optional<Informe> informe = this.informeService.findInformeById(informeId);
 
-		if (informe.get().getHistoriaClinica() == null) {
-			this.informeService.deleteInforme(informeId);
-			modelMap.addAttribute("message", "Informe succesfully deleted");
+		Medico medicoactual = this.userService.getCurrentMedico();
+		Informe informeaux = informe.get();
+		Medico medicocorrecto = informeaux.getCita().getPaciente().getMedico();
+
+		if (!medicoactual.equals(medicocorrecto)) {
+			return InformeController.VIEWS_ACCESS_NOT_AUTHORIZED;
 		} else {
-			modelMap.addAttribute("message", "Informe has not a clinic history");
+			if (informe.get().getHistoriaClinica() == null) {
+				this.informeService.deleteInforme(informeId);
+				modelMap.addAttribute("message", "Informe succesfully deleted");
+			} else {
+				modelMap.addAttribute("message", "Informe has not a clinic history");
+			}
+			return "redirect:/";
 		}
-		return "redirect:/";
 	}
 
 	@GetMapping(value = "/informes/{informeId}")
@@ -136,16 +144,24 @@ public class InformeController {
 	public String initCreationForm(final Cita cita, final ModelMap model) {
 		LocalDate today = LocalDate.now();
 		Boolean hasCitaInforme = this.informeService.citaHasInforme(cita);
-		if (cita.getFecha().equals(today) && !hasCitaInforme) {
-			Informe informe = new Informe();
-			informe.setCita(cita);
-			model.put("informe", informe);
-			return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
-		} else if (hasCitaInforme) {
-			return "redirect:/citas/" + cita.getId() + "/informes/" + cita.getInforme().getId();
-		} else {
-			return "redirect:/citas/" + cita.getPaciente().getMedico().getId();
+		Paciente paciente = cita.getPaciente();
+		Medico medicoactual = this.userService.getCurrentMedico();
+		Medico medicocorrecto = paciente.getMedico();
 
+		if (!medicoactual.equals(medicocorrecto)) {
+			return InformeController.VIEWS_ACCESS_NOT_AUTHORIZED;
+		} else {
+			if (cita.getFecha().equals(today) && !hasCitaInforme) {
+				Informe informe = new Informe();
+				informe.setCita(cita);
+				model.put("informe", informe);
+				return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
+			} else if (hasCitaInforme) {
+				return "redirect:/citas/" + cita.getId() + "/informes/" + cita.getInforme().getId();
+			} else {
+				return "redirect:/citas/" + cita.getPaciente().getMedico().getId();
+
+			}
 		}
 	}
 
