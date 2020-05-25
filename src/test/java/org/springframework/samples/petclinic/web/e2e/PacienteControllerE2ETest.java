@@ -1,4 +1,4 @@
-package org.springframework.samples.petclinic.web.e2e;
+package org.springframework.samples.petclinic.web.E2E;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -259,8 +259,8 @@ public class PacienteControllerE2ETest {
 	
 		mockMvc.perform(post("/pacientes/{pacienteId}/delete", 1)
 				.with(csrf()))
-				.andExpect(status().isOk())
-				.andExpect(view().name("/pacientes/" +1));
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:/pacientes/" +1));
 	}
 	
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})

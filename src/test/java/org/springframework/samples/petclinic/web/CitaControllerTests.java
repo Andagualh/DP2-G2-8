@@ -19,6 +19,7 @@ import java.util.Optional;
 
 
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
 import org.junit.jupiter.api.BeforeEach;
 import org.apache.tomcat.jni.Local;
 import org.assertj.core.util.Lists;
@@ -117,17 +118,42 @@ class CitaControllerTests{
         
         given(this.medicoService.getMedicoById(TEST_MEDICO_ID)).willReturn(this.medico1);
         given(this.userService.findUserByUsername(TEST_USER_ID)).willReturn(Optional.of(this.medico1User));
-        given(this.pacienteService.findPacienteById(TEST_PACIENTE_ID)).willReturn(Optional.of(this.javier));
+        given(this.pacienteService.findPacienteById(BDDMockito.anyInt())).willReturn(Optional.of(this.javier));
         given(this.citaService.findCitaById(TEST_CITA_ID)).willReturn(Optional.of(new Cita()));
     }
 
     @WithMockUser(value = "spring")
         @Test
     void testCrearCita() throws Exception{
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
         mockMvc.perform(get("/citas/new/{pacienteId}", TEST_PACIENTE_ID))
         .andExpect(status().isOk())
         .andExpect(view().name("citas/createOrUpdateCitaForm"))
         .andExpect(model().attributeExists("cita"));
+    }
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testCrearCitaForPacienteNotBelongMedico() throws Exception{
+        Medico medico2 = new Medico();
+        medico2.setId(2);
+        medico2.setNombre("Medico 3");
+        medico2.setApellidos("Apellidos");
+        medico2.setDNI("12345678Z");
+        medico2.setN_telefono("123456789");
+        medico2.setDomicilio("Domicilio");
+        
+        User medico2User = new User();
+        medico2User.setUsername("medico2");
+        medico2User.setPassword("medico2");
+        medico2User.setEnabled(true);
+
+        given(this.userService.getCurrentMedico()).willReturn(medico2);
+
+
+        mockMvc.perform(get("/citas/new/{pacienteId}", TEST_PACIENTE_ID))
+        .andExpect(status().isOk())
+        .andExpect(view().name("accessNotAuthorized"));
     }
 
     @WithMockUser(value = "spring")
@@ -174,6 +200,35 @@ class CitaControllerTests{
         .param("fecha", "2020-09-09")
         .param("lugar",""))
         .andExpect(model().attributeHasErrors("cita"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("citas/createOrUpdateCitaForm")
+        );
+    }
+
+    //Este caso ocurre cuando un Paciente ya tiene una cita el mismo día
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testSalvarCitaOnAlreadyExistingDate() throws Exception{
+        given(this.citaService.existsCitaPacienteDate(BDDMockito.any(LocalDate.class), BDDMockito.any(Paciente.class)))
+        .willReturn(true);
+
+        mockMvc.perform(post("/citas/save")
+        .with(csrf())
+        .param("paciente.id", Integer.toString(TEST_PACIENTE_ID))
+        .param("paciente.nombre", "test")
+        .param("paciente.apellidos", "test")
+        .param("paciente.f_nacimiento", "1997/09/09")
+        .param("paciente.f_alta", "2020/08/08")
+        .param("paciente.DNI", "12345689Q")
+        .param("paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
+        .param("paciente.medico.nombre", "test")
+        .param("paciente.medico.apellidos", "test")
+        .param("paciente.medico.domicilio", "test")
+        .param("paciente.medico.user.username", "test")
+        .param("paciente.medico.user.password", "test")
+        .param("fecha", "2020-09-09")
+        .param("lugar","Sevilla"))
         .andExpect(status().isOk())
         .andExpect(view().name("citas/createOrUpdateCitaForm")
         );
@@ -233,17 +288,50 @@ class CitaControllerTests{
     @WithMockUser(value = "spring")
         @Test
     void testBorrarCitas() throws Exception{
-        //El objeto sobre el que se realiza un Test si existe en este caso.
+        Cita citaTest = new Cita();
+        citaTest.setFecha(LocalDate.now().plusDays(1));
+        citaTest.setLugar("LUGAR");
+        citaTest.setId(90);
+        citaTest.setPaciente(this.javier);
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+        given(this.citaService.findCitaById(BDDMockito.anyInt())).willReturn(Optional.of(citaTest));
+
         mockMvc.perform(get("/citas/delete/{citaId}", TEST_CITA_ID))
         //.andExpect(model().attributeExists("message"))
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/citas")
         );
     }
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testBorrarCitasPacienteDifferentMedico() throws Exception{
+        Medico medic = new Medico();
+        medic.setId(2);
+        given(this.userService.getCurrentMedico()).willReturn(medic);
+        Cita citaTest = new Cita();
+        citaTest.setFecha(LocalDate.now().plusDays(1));
+        citaTest.setLugar("LUGAR");
+        citaTest.setId(90);
+        citaTest.setPaciente(this.javier);
+        given(this.citaService.findCitaById(BDDMockito.anyInt())).willReturn(Optional.of(citaTest));
+
+        
+        mockMvc.perform(get("/citas/delete/{citaId}", 90))
+        //.andExpect(model().attributeExists("message"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("accessNotAuthorized")
+        );
+    }
+
     @WithMockUser(value = "spring")
         @Test
     void testBorrarCitaNoPresente() throws Exception{
-        mockMvc.perform(get("/citas/delete/{citaId}", 2))
+        
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+        given(this.citaService.findCitaById(BDDMockito.anyInt())).willReturn(Optional.empty());
+
+        mockMvc.perform(get("/citas/delete/{citaId}", 9999))
       //  .andExpect(model().attributeExists("message"))
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/citas")
@@ -265,11 +353,11 @@ class CitaControllerTests{
         @Test
     void testProcessFindFormSuccess() throws Exception{
         Cita dum1 = new Cita();
-        Cita dum2 = new Cita();
         dum1.setFecha(LocalDate.of(2020, 8, 8));
-        dum2.setFecha(LocalDate.of(2020, 8, 8));
-       
-        given(this.citaService.findCitasByFecha(LocalDate.of(2020,8,8))).willReturn(Lists.newArrayList(dum1, dum2));
+        dum1.setPaciente(this.javier);
+        
+        given(this.citaService.findCitasByFecha(LocalDate.of(2020,8,8), this.medico1)).willReturn(Lists.newArrayList(dum1));
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
         
         mockMvc.perform(
         get("/citas/porfecha")
@@ -284,12 +372,13 @@ class CitaControllerTests{
 	    @Test
 	void testProcessFindFormNoDate() throws Exception{
 	    Cita dum1 = new Cita();
-	    Cita dum2 = new Cita();
-	    dum1.setFecha(LocalDate.now());
-	    dum2.setFecha(LocalDate.now());
-	   
-	    given(this.citaService.findCitasByFecha(LocalDate.now())).willReturn(Lists.newArrayList(dum1, dum2));
 	    
+	    dum1.setFecha(LocalDate.now());
+	    
+	   
+	    given(this.citaService.findCitasByFecha(LocalDate.now(), this.medico1)).willReturn(Lists.newArrayList(dum1));
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+        
 	    mockMvc.perform(
 	    get("/citas/porfecha")
 	    .param("fecha", "null"))
@@ -302,12 +391,14 @@ class CitaControllerTests{
     @WithMockUser(value = "spring")
         @Test
     void testProcessFindFormNoCitaFound() throws Exception{
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+
         mockMvc.perform(
             get("/citas/porfecha")
             .param("fecha", "2020-08-07"))
             .andExpect(status().isOk())
             .andExpect(model().attributeHasFieldErrors("cita", "fecha"))
-			.andExpect(model().attributeHasFieldErrorCode("cita", "fecha", "notFound"))
+			.andExpect(model().attributeHasFieldErrorCode("cita", "fecha", "error.citaNotFound"))
             .andExpect(view().name("citas/findCitas")
             );
     }    
@@ -330,6 +421,7 @@ class CitaControllerTests{
     @WithMockUser(value = "spring")
         @Test
     void listadoCitasSuccess() throws Exception{
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
         given(citaService.findCitasByMedicoId(TEST_MEDICO_ID)).willReturn(Lists.newArrayList(new Cita(), new Cita()));
         
         mockMvc.perform(
@@ -339,10 +431,25 @@ class CitaControllerTests{
             .andExpect(view().name("citas/listCitas")
         );
     }
+
+    @WithMockUser(value = "spring")
+        @Test
+    void listadoCitasOfOtherMedico() throws Exception{
+        Medico medic = new Medico();
+        medic.setId(2);
+        given(this.userService.getCurrentMedico()).willReturn(medic);
+        
+        mockMvc.perform(
+            get("/citas/{medicoId}", TEST_MEDICO_ID))
+            .andExpect(status().isOk())
+            .andExpect(view().name("accessNotAuthorized")
+        );
+    }
     
     @WithMockUser(value = "spring")
         @Test
     void listadoCitasIsEmpty() throws Exception{
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
         given(citaService.findCitasByMedicoId(TEST_MEDICO_ID)).willReturn(Lists.newArrayList());
 
         mockMvc.perform(

@@ -1,5 +1,5 @@
 
-package org.springframework.samples.petclinic.web.e2e;
+package org.springframework.samples.petclinic.web.E2E;
 
 import java.time.LocalDate;
 
@@ -45,19 +45,17 @@ public class HistoriaClinicaControllerE2ETest {
 	private MockMvc				mockMvc;
 
 
-	@WithMockUser(username = "alvaroMedico", authorities = {
-		"medico"
-	})
+
+	@WithMockUser(username = "alvaroMedico", authorities = {"medico"})
 	@Test
 	void testShowHistoriaClinicaNotNull() throws Exception {
 		this.mockMvc.perform(MockMvcRequestBuilders.get("/pacientes/{pacienteId}/historiaclinica", HistoriaClinicaControllerE2ETest.TEST_PACIENTECONHISTORIA_ID)).andExpect(MockMvcResultMatchers.status().isOk())
 			.andExpect(MockMvcResultMatchers.model().attributeExists("historiaclinica")).andExpect(MockMvcResultMatchers.view().name("pacientes/historiaClinicaDetails"));
 	}
+
 	
 
-	@WithMockUser(username = "alvaroMedico", authorities = {
-			"medico"
-		})
+	@WithMockUser(username = "alvaroMedico", authorities = {"medico"})
 		@Test
 		void testShowHistoriaClinicaNull() throws Exception {
 		
@@ -101,9 +99,8 @@ public class HistoriaClinicaControllerE2ETest {
 		}
 
 	//La descripcion no puede estar vacia
-	@WithMockUser(username = "alvaroMedico", authorities = {
-		"medico"
-	})
+
+	@WithMockUser(username = "alvaroMedico", authorities = {"medico"})
 	@Test
 	void testProcessCreationFormHasErrors() throws Exception {
 		this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/historiaclinica/new", HistoriaClinicaControllerE2ETest.TEST_PACIENTESINHISTORIA_ID).with(SecurityMockMvcRequestPostProcessors.csrf()).param("descripcion", ""))
@@ -111,9 +108,8 @@ public class HistoriaClinicaControllerE2ETest {
 
 	}
 
-	@WithMockUser(username = "alvaroMedico", authorities = {
-		"medico"
-	})
+
+	@WithMockUser(username = "alvaroMedico", authorities = {"medico"})
 	@Test
 	void testProcessCreationFormSuccess() throws Exception {
 		this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/historiaclinica/new", HistoriaClinicaControllerE2ETest.TEST_PACIENTESINHISTORIA_ID).with(SecurityMockMvcRequestPostProcessors.csrf()).param("descripcion", "Depresion"))
@@ -121,9 +117,8 @@ public class HistoriaClinicaControllerE2ETest {
 	}
 
 	//El paciente ya tiene una historia clinica
-	@WithMockUser(username = "alvaroMedico", authorities = {
-		"medico"
-	})
+
+	@WithMockUser(username = "alvaroMedico", authorities = {"medico"})
 	@Test
 	void testProcessCreationFormFailure() throws Exception {
 		this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/historiaclinica/new", HistoriaClinicaControllerE2ETest.TEST_PACIENTECONHISTORIA_ID).with(SecurityMockMvcRequestPostProcessors.csrf()).param("descripcion", "error"))
@@ -141,7 +136,7 @@ public class HistoriaClinicaControllerE2ETest {
 
 	}
 
-	
+
 	@WithMockUser(username = "alvaroMedico", authorities = {
 			"medico"
 		})
@@ -153,9 +148,7 @@ public class HistoriaClinicaControllerE2ETest {
 		}
 
 	
-	@WithMockUser(username = "alvaroMedico", authorities = {
-		"medico"
-	})
+	@WithMockUser(username = "alvaroMedico", authorities = {"medico"})
 	@Test
 	void testProcessUpdateFormSuccess() throws Exception {
 		this.mockMvc
@@ -165,9 +158,8 @@ public class HistoriaClinicaControllerE2ETest {
 	}
 
 	//La descripcion esta vacia
-	@WithMockUser(username = "alvaroMedico", authorities = {
-		"medico"
-	})
+
+	@WithMockUser(username = "alvaroMedico", authorities = {"medico"})
 	@Test
 	void testProcessUpdateFormHasErrors() throws Exception {
 		this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/historiaclinica/edit", HistoriaClinicaControllerE2ETest.TEST_PACIENTECONHISTORIA_ID).with(SecurityMockMvcRequestPostProcessors.csrf()).param("descripcion", "")

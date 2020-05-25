@@ -2,6 +2,11 @@
 package org.springframework.samples.petclinic.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
@@ -165,7 +170,7 @@ public class CitaServiceTest {
 		Cita cita = new Cita();
 
 		cita.setPaciente(this.pacienteService.findPacienteById(paciente.getId()).get());
-		cita.setFecha(LocalDate.of(2020, 05, 26));
+		cita.setFecha(LocalDate.now().plusDays(1));
 		cita.setLugar("Consulta 2");
 
 		this.citaService.save(cita);
@@ -173,6 +178,30 @@ public class CitaServiceTest {
 		int countCitas = this.citaService.citaCount();
 
 		Assertions.assertEquals(countCitas, countCit+1);
+
+	}
+
+	@Test
+	public void testCreateCitaPast() throws InvalidAttributeValueException {
+
+		Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+
+		int count = this.pacienteService.pacienteCount();
+		int countCit = this.citaService.citaCount();
+		Assertions.assertEquals(count, 10);
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(paciente.getId()));
+
+		Cita cita = new Cita();
+
+		cita.setPaciente(this.pacienteService.findPacienteById(paciente.getId()).get());
+		cita.setFecha(LocalDate.now().minusDays(1));
+		cita.setLugar("Consulta 2");
+
+		InvalidAttributeValueException thrown = assertThrows(InvalidAttributeValueException.class,
+		() -> citaService.save(cita), "No se puede poner una fecha en pasado");
+
+		assertTrue(thrown.getMessage().contains("No se puede poner una fecha en pasado"));
 
 	}
 	
@@ -289,14 +318,94 @@ public class CitaServiceTest {
 	
 	@Test
 	void shouldFindCitasByDate() {
-		Collection<Cita> citas = this.citaService.findCitasByFecha(LocalDate.of(2020,3,9));
+		Medico medic = this.medicoService.findMedicoByUsername("alvaroMedico");
+		Collection<Cita> citas = this.citaService.findCitasByFecha(LocalDate.of(2020,3,9), medic);
 		assertThat(citas.size()).isEqualTo(1);
 	}
 
 	@Test
 	void shouldNotFindCitasByUnexistingCitaDate(){
-		Collection <Cita> citas = this.citaService.findCitasByFecha(LocalDate.of(2030, 1, 1));
+		Medico medic = this.medicoService.findMedicoByUsername("alvaroMedico");
+		Collection <Cita> citas = this.citaService.findCitasByFecha(LocalDate.of(2030, 1, 1), medic);
 		assertThat(citas.isEmpty()).isTrue();
+	}
+
+	@Test
+	void citaOnSameDateDoesntExists(){
+		Medico medico = new Medico();
+		medico.setNombre("Medico 1");
+		medico.setApellidos("Apellidos");
+		medico.setDNI("12345678A");
+		medico.setN_telefono("123456789");
+		medico.setDomicilio("Domicilio");
+		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
+
+		Paciente paciente = new Paciente();
+		paciente.setNombre("Paciente 1");
+		paciente.setApellidos("Apellidos");
+		paciente.setF_nacimiento(LocalDate.of(1996, 01, 12));
+		paciente.setDNI("12345678A");
+		paciente.setDomicilio("Sevilla");
+		paciente.setEmail("paciente@email.com");
+		paciente.setF_alta(LocalDate.now());
+		paciente.setMedico(this.medicoService.getMedicoById(idMedicoPaciente));
+
+		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
+
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado));
+		
+		Cita cita = new Cita();
+		cita.setFecha(LocalDate.now().plusDays(3));
+		cita.setLugar("Sevilla");
+		cita.setPaciente(paciente);
+
+		assertFalse(this.citaService.existsCitaPacienteDate(cita.getFecha(), paciente));
+	}
+
+	@Test
+	void citaOnSameDateExists() throws InvalidAttributeValueException {
+		Medico medico = new Medico();
+		medico.setNombre("Medico 1");
+		medico.setApellidos("Apellidos");
+		medico.setDNI("12345678A");
+		medico.setN_telefono("123456789");
+		medico.setDomicilio("Domicilio");
+		int idMedicoPaciente = this.medicoService.medicoCreate(medico);
+
+		Paciente paciente = new Paciente();
+		paciente.setNombre("Paciente 1");
+		paciente.setApellidos("Apellidos");
+		paciente.setF_nacimiento(LocalDate.of(1996, 01, 12));
+		paciente.setDNI("12345678A");
+		paciente.setDomicilio("Sevilla");
+		paciente.setEmail("paciente@email.com");
+		paciente.setF_alta(LocalDate.now());
+		paciente.setMedico(this.medicoService.getMedicoById(idMedicoPaciente));
+
+		int idPacienteCreado = this.pacienteService.pacienteCreate(paciente);
+
+		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado));
+		
+		Cita cita = new Cita();
+		cita.setFecha(LocalDate.now().plusDays(3));
+		cita.setLugar("Sevilla");
+		cita.setPaciente(paciente);
+		this.citaService.save(cita);
+
+		assertTrue(this.citaService.existsCitaPacienteDate(cita.getFecha(), paciente));
+		this.citaService.delete(cita);
+	}
+
+	@Test
+	void citaFindAll(){
+		Iterable<Cita> allCitas = this.citaService.findAll();
+		assertNotNull(allCitas);
+		for(Cita c: allCitas){
+			assertNotNull(c.getFecha());
+			assertNotNull(c.getId());
+			assertNotNull(c.getLugar());
+			assertNotNull(c.getPaciente());
+		}
 	}
 
 }

@@ -23,18 +23,20 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class HistoriaClinicaController {
 
-	private static final String				VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM	= "pacientes/createOrUpdateHistoriaClinicaForm";
+	private static final String VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM = "pacientes/createOrUpdateHistoriaClinicaForm";
 
 	@Autowired
-	private final HistoriaClinicaService	historiaclinicaService;
+	private final HistoriaClinicaService historiaclinicaService;
 	@Autowired
-	private final PacienteService			pacienteService;
+	private final PacienteService pacienteService;
 	@Autowired
-	private final UserService				userService;
+	private final UserService userService;
 
 
 	@Autowired
-	public HistoriaClinicaController(final HistoriaClinicaService historiaclinicaService, final PacienteService pacienteService, final UserService userService, final AuthoritiesService authoritiesService) {
+	public HistoriaClinicaController(final HistoriaClinicaService historiaclinicaService,
+			final PacienteService pacienteService, final UserService userService,
+			final AuthoritiesService authoritiesService) {
 		this.historiaclinicaService = historiaclinicaService;
 		this.pacienteService = pacienteService;
 		this.userService = userService;
@@ -51,6 +53,7 @@ public class HistoriaClinicaController {
 	
 	@GetMapping(value = "/pacientes/{pacienteId}/historiaclinica")
 	public ModelAndView showHistoriaClinica(@PathVariable("pacienteId") final int pacienteId) {
+
 			Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
 			ModelAndView mav = new ModelAndView("pacientes/historiaClinicaDetails");
 			mav.addObject(this.pacienteService.findPacienteById(pacienteId).get());
@@ -62,6 +65,7 @@ public class HistoriaClinicaController {
 			}
 			mav.addObject("historiaclinica", historiaclinica);
 			return mav;
+
 	}
 
 	@GetMapping(value = "/pacientes/{pacienteId}/historiaclinica/new")
@@ -79,7 +83,8 @@ public class HistoriaClinicaController {
 	}
 
 	@PostMapping(value = "/pacientes/{pacienteId}/historiaclinica/new")
-	public String processCreationForm(@PathVariable("pacienteId") final int pacienteId, final HistoriaClinica historiaclinica, final BindingResult result, final ModelMap model) {
+	public String processCreationForm(@PathVariable("pacienteId") final int pacienteId,
+			final HistoriaClinica historiaclinica, final BindingResult result, final ModelMap model) {
 		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
 		boolean descripcionVacia = historiaclinica.getDescripcion() == "";
 			if (result.hasErrors() || descripcionVacia) {
@@ -112,7 +117,8 @@ public class HistoriaClinicaController {
 	}
 
 	@PostMapping(value = "/pacientes/{pacienteId}/historiaclinica/edit")
-	public String processUpdateHistoriaClinicaForm(@Valid final HistoriaClinica historiaclinica, final BindingResult result, @PathVariable("pacienteId") final int pacienteId, final ModelMap model) {
+	public String processUpdateHistoriaClinicaForm(@Valid final HistoriaClinica historiaclinica,
+			final BindingResult result, @PathVariable("pacienteId") final int pacienteId, final ModelMap model) {
 		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
 		boolean descripcionVacia = historiaclinica.getDescripcion() == "";
 		if (result.hasErrors() || descripcionVacia) {

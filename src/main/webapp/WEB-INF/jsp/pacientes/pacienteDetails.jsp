@@ -6,27 +6,27 @@
 
 <petclinic:layout pageName="pacientes">
 
-	<h2>Paciente Information</h2>
+	<h2>Información del Paciente</h2>
 
 
 	<table class="table table-striped">
 		<tr>
-			<th>Name</th>
+			<th>Nombre completo</th>
 			<td><c:out value="${paciente.nombre} ${paciente.apellidos}" /></td>
 		</tr>
 
 		<tr>
-			<th>F_nacimiento</th>
+			<th>Fecha de nacimiento</th>
 			<td><c:out value="${paciente.f_nacimiento}" /></td>
 		</tr>
 
 		<tr>
-			<th>F_alta</th>
+			<th>Fecha alta</th>
 			<td><c:out value="${paciente.f_alta}" /></td>
 		</tr>
 
 		<tr>
-			<th>Address</th>
+			<th>Dirección del domicilio</th>
 			<td><c:out value="${paciente.domicilio}" /></td>
 		</tr>
 		<tr>
@@ -34,7 +34,7 @@
 			<td><c:out value="${paciente.DNI}" /></td>
 		</tr>
 		<tr>
-			<th>Telefono</th>
+			<th>Teléfono</th>
 			<td><c:out value="${paciente.n_telefono}" /></td>
 		</tr>
 
@@ -45,7 +45,7 @@
 
 		<tr>
 			<%--Must be fixed to properly work, the url is not working as intended--%>
-			<th>Medico Asignado</th>
+			<th>Médico Asignado</th>
 			<spring:url value="/medicos/{medico.id}" var="medicoUrl">
 				<spring:param name="medicoId" value="${paciente.medico.id}" />
 			</spring:url>

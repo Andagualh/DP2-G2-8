@@ -26,4 +26,7 @@ public interface CitaRepository extends CrudRepository<Cita, Integer> {
 	Collection<Cita> findCitasByPaciente(Paciente paciente) throws DataAccessException;
 
 	Collection<Cita> deleteAllByPaciente(Paciente paciente) throws DataAccessException;
+
+	@Query("SELECT c from Cita c where c.paciente =:paciente AND c.fecha =:fecha")
+	Cita findCitaByPacienteAndFecha(Paciente paciente, LocalDate fecha) throws DataAccessException;
 }
