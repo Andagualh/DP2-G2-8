@@ -77,8 +77,6 @@ public class TratamientoController {
 
 	@PostMapping(value = "/save")
 	public String saveTratamiento(@Valid final Tratamiento tratamiento, final BindingResult result, final ModelMap modelMap) {
-		
-        boolean fechasCorrectas = tratamiento.getF_fin_tratamiento().isAfter(tratamiento.getF_inicio_tratamiento());
         
 		if(!authorizeTratamiento(tratamiento.getInforme())){
 			return "accessNotAuthorized";
@@ -86,7 +84,7 @@ public class TratamientoController {
 			modelMap.addAttribute("informe",informeService.findInformeById(tratamiento.getInforme().getId()).get());
 			modelMap.addAttribute("tratamiento", tratamiento);
 			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
-		}else if(!fechasCorrectas) {
+		}else if(!(tratamiento.getF_fin_tratamiento().isAfter(tratamiento.getF_inicio_tratamiento()) || tratamiento.getF_fin_tratamiento().isEqual(tratamiento.getF_inicio_tratamiento()))) {
 			result.rejectValue("f_fin_tratamiento", "error.fechasErroneas", "La fecha de inicio es mayor a fecha de fin.");
 			result.rejectValue("f_inicio_tratamiento", "error.fechasErroneas", "La fecha de inicio es mayor a fecha de fin.");
 			modelMap.addAttribute("informe", tratamiento.getInforme());
