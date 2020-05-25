@@ -78,14 +78,18 @@ class InformeControllerTests {
     @Autowired
     private MockMvc mockMvc;
     
-    private static final int TEST_MEDICO_ID = 1; 
+    private static final int TEST_MEDICO_ID = 1;
+    private static final int TEST_MEDICO2_ID = 2;
     private static final int TEST_PACIENTE_ID = 1;
     private static final String TEST_USER_ID = "1";
     private static final int TEST_CITA_ID = 1;
     private static final String TEST_MEDICOUSER_ID = "medico1";
+    private static final String TEST_MEDICOUSER2_ID = "medico2";
     private static final int TEST_CITA2_ID = 2;
     private static final int TEST_CITA3_ID = 3;
     private static final int TEST_INFORME_ID = 1;
+    
+    private static final String				VIEWS_ACCESS_NOT_AUTHORIZED			= "accessNotAuthorized";
 
 
     private Paciente            javier;
@@ -93,6 +97,10 @@ class InformeControllerTests {
     private Medico                medico1;
 
     private User                medico1User;
+    
+    private Medico                medico2;
+
+    private User                medico2User;
 
     private Authorities            authorities;
 
@@ -105,7 +113,7 @@ class InformeControllerTests {
     
         this.medico1 = new Medico();
         this.medico1.setId(TEST_MEDICO_ID);
-        this.medico1.setNombre("Medico 2");
+        this.medico1.setNombre("Medico 1");
         this.medico1.setApellidos("Apellidos");
         this.medico1.setDNI("12345678Z");
         this.medico1.setN_telefono("123456789");
@@ -121,6 +129,26 @@ class InformeControllerTests {
         
         this.authorities = new Authorities();
         this.authorities.setUsername(TEST_MEDICOUSER_ID);
+        this.authorities.setAuthority("medico");
+        
+        this.medico2 = new Medico();
+        this.medico2.setId(TEST_MEDICO2_ID);
+        this.medico2.setNombre("Medico 2");
+        this.medico2.setApellidos("Apellidos");
+        this.medico2.setDNI("12345678Z");
+        this.medico2.setN_telefono("123456789");
+        this.medico2.setDomicilio("Domicilio");
+        
+        this.medico2User = new User();
+        this.medico2User.setUsername(TEST_MEDICOUSER2_ID);
+        this.medico2User.setPassword("medico2");
+        this.medico2User.setEnabled(true);
+        
+        this.medico2.setUser(this.medico2User);
+        this.medico2.getUser().setEnabled(true);
+        
+        this.authorities = new Authorities();
+        this.authorities.setUsername(TEST_MEDICOUSER2_ID);
         this.authorities.setAuthority("medico");
 
         this.javier = new Paciente();
@@ -161,6 +189,7 @@ class InformeControllerTests {
         given(this.citaService.findCitaById(TEST_CITA2_ID)).willReturn(Optional.of(this.cita2));
         given(this.citaService.findCitaById(TEST_CITA3_ID)).willReturn(Optional.of(this.cita3));
         given(this.informeService.findInformeById(TEST_INFORME_ID)).willReturn(Optional.of(new Informe()));
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
     }
 
     @WithMockUser(value = "spring")
@@ -171,6 +200,17 @@ class InformeControllerTests {
         .andExpect(view().name("informes/createOrUpdateInformeForm"))
         .andExpect(model().attributeExists("informe"));
     }
+    
+    @WithMockUser(value = "spring")
+    @Test
+	void testCreateInformeNotAuthorized() throws Exception{
+    	
+    	given(this.userService.getCurrentMedico()).willReturn(this.medico2);
+    	
+	    mockMvc.perform(get("/citas/{citaId}/informes/new", TEST_CITA_ID))
+	    .andExpect(status().isOk())
+	    .andExpect(view().name(VIEWS_ACCESS_NOT_AUTHORIZED));
+	}
 
     @WithMockUser(value = "spring")
         @Test
@@ -295,6 +335,24 @@ class InformeControllerTests {
     }
     
     @WithMockUser(value = "spring")
+    @Test
+	void testInitUpdateInformeNotAuthorized() throws Exception{
+	
+	    Informe informe = new Informe();
+	    informe.setCita(cita1);
+	    informe.setId(TEST_INFORME_ID);
+	    informe.setDiagnostico("Diag");
+	    informe.setMotivo_consulta("motivo");
+	
+	    given(this.userService.getCurrentMedico()).willReturn(this.medico2);
+	    given(informeService.findInformeById(TEST_INFORME_ID)).willReturn(Optional.of(informe));
+	
+	    mockMvc.perform(get("/citas/{citaId}/informes/{informeId}/edit", TEST_CITA_ID, TEST_INFORME_ID))
+	    .andExpect(status().isOk())
+	    .andExpect(view().name(VIEWS_ACCESS_NOT_AUTHORIZED));
+	}
+    
+    @WithMockUser(value = "spring")
         @Test
     void testSalvarInformeEditSuccess() throws Exception{
 
@@ -356,8 +414,26 @@ class InformeControllerTests {
         mockMvc.perform(get("/citas/{citaId}/informes/delete/{informeId}", TEST_CITA_ID, TEST_INFORME_ID))
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/")
-        );
-
+        ); 
+    }
+    
+    @WithMockUser(value = "spring")
+    @Test
+	void testBorrarInformeNotAuthorized() throws Exception{
+	    Informe informe = new Informe();
+	    informe.setCita(cita1);
+	    informe.setId(TEST_INFORME_ID);
+	    informe.setDiagnostico("Diag");
+	    informe.setMotivo_consulta("motivo");
+	
+	    given(this.userService.getCurrentMedico()).willReturn(this.medico2);
+	    given(informeService.findInformeById(TEST_INFORME_ID)).willReturn(Optional.of(informe));
+	    
+	    mockMvc.perform(get("/citas/{citaId}/informes/delete/{informeId}", TEST_CITA_ID, TEST_INFORME_ID))
+	    .andExpect(status().isOk())
+	    .andExpect(view().name(VIEWS_ACCESS_NOT_AUTHORIZED)
+	    );
+    
     }
     @WithMockUser(value = "spring")
         @Test
@@ -438,6 +514,27 @@ class InformeControllerTests {
 
         );
     }
+    
+    
+    @WithMockUser(value = "spring")
+    @Test
+	void testShowInformeNotAuthorized() throws Exception{
+	
+	    Informe informe = new Informe();
+	    //Cita con LocalDate now
+	    informe.setCita(cita1);
+	    informe.setId(TEST_INFORME_ID);
+	    informe.setDiagnostico("Diag");
+	    informe.setMotivo_consulta("motivo");
+	
+	    given(this.userService.getCurrentMedico()).willReturn(this.medico2);
+	    given(informeService.findInformeById(TEST_INFORME_ID)).willReturn(Optional.of(informe));
+	
+	    mockMvc.perform(get("/citas/{citaId}/informes/{informeId}", TEST_CITA_ID, TEST_INFORME_ID))
+	    .andExpect(status().isOk())
+	    .andExpect(view().name("accessNotAuthorized")
+	    );
+}
     
     @WithMockUser(value = "spring")
         @Test
