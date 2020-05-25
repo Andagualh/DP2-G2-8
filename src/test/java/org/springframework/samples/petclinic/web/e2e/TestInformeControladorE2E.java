@@ -525,4 +525,46 @@ public class TestInformeControladorE2E {
 
 	}
 
+	@WithMockUser(username = "pabloMedico", authorities = {
+		"medico"
+	})
+	@Test
+	void testAddHistoriaClinicaToInformeMedicoIncorrecto() throws Exception {
+		Informe informe = new Informe();
+
+		informe.setCita(this.cita);
+		informe.setDiagnostico("Diag");
+		informe.setMotivo_consulta("motivo");
+		this.informeService.saveInforme(informe);
+		this.TEST_INFORME_ID = informe.getId();
+		informe.setHistoriaClinica(this.hcService.findHistoriaClinicaByPaciente(this.cita.getPaciente()));
+
+		this.mockMvc.perform(MockMvcRequestBuilders.get("/citas/{citaId}/informes/{informeId}/addtohistoriaclinica", this.TEST_CITA_ID, this.TEST_INFORME_ID)).andExpect(MockMvcResultMatchers.status().isOk())
+			.andExpect(MockMvcResultMatchers.view().name("accessNotAuthorized"));
+
+		this.informeService.deleteInformeToHistoriaClinica(informe);
+		this.informeService.deleteInforme(this.TEST_INFORME_ID);
+		this.TEST_INFORME_ID = 0;
+	}
+
+	@WithMockUser(username = "pabloMedico", authorities = {
+		"medico"
+	})
+	@Test
+	void testDeleteHistoriaClinicaToInformeMedicoIncorrecto() throws Exception {
+		Informe informe = new Informe();
+
+		informe.setCita(this.cita);
+		informe.setDiagnostico("Diag");
+		informe.setMotivo_consulta("motivo");
+		this.informeService.saveInforme(informe);
+		this.TEST_INFORME_ID = informe.getId();
+		informe.setHistoriaClinica(this.hcService.findHistoriaClinicaByPaciente(this.cita.getPaciente()));
+		this.informeService.saveInformeWithHistoriaClinica(informe);
+
+		this.mockMvc.perform(MockMvcRequestBuilders.get("/citas/{citaId}/informes/{informeId}/detelefromhistoriaclinica", this.TEST_CITA_ID, this.TEST_INFORME_ID)).andExpect(MockMvcResultMatchers.status().isOk())
+			.andExpect(MockMvcResultMatchers.view().name("accessNotAuthorized"));
+
+	}
+
 }
