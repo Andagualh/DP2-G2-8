@@ -1,6 +1,7 @@
 
 package org.springframework.samples.petclinic.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -17,9 +18,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class TratamientoService {
 
 	@Autowired
-	private TratamientoRepository	tratamientoRepo;
+	private TratamientoRepository tratamientoRepo;
 
-	
+	private boolean esVigente(Tratamiento tratamiento) {
+		return tratamiento.getInforme().getCita().getFecha().equals(LocalDate.now());
+	}
+
+	private boolean fechaInicioFinOk(Tratamiento tratamiento) {
+		if (tratamiento.getF_inicio_tratamiento().equals(tratamiento.getF_fin_tratamiento())
+				|| tratamiento.getF_inicio_tratamiento().isBefore(tratamiento.getF_fin_tratamiento())) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	@Transactional
 	public int tratamientoCount() {
 		return (int) this.tratamientoRepo.count();
@@ -28,8 +41,16 @@ public class TratamientoService {
 	@Transactional
 	public Tratamiento save(final Tratamiento tratamiento) {
 		try {
-			return this.tratamientoRepo.save(tratamiento);
-		}catch(Exception e) {
+			if (esVigente(tratamiento)) {
+				if (fechaInicioFinOk(tratamiento)) {
+					return this.tratamientoRepo.save(tratamiento);
+				} else {
+					throw new IllegalArgumentException("El tratamiento no ha podido guardarse.");
+				}
+			} else {
+				throw new IllegalAccessError("El tratamiento no ha podido guardarse.");
+			}
+		} catch (Exception e) {
 			throw new IllegalArgumentException("El tratamiento no ha podido guardarse.");
 		}
 	}

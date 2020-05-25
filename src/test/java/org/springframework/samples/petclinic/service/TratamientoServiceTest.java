@@ -179,13 +179,13 @@ public class TratamientoServiceTest {
 		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
 		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-01-20"));
 
-		this.tratamientoService.save(tratamiento);
+		//this.tratamientoService.save(tratamiento);
 
-		/*
+		
 		Assertions.assertThrows(IllegalArgumentException.class, () -> {
 			this.tratamientoService.save(tratamiento);
 		});
-		*/
+		
 	}
 
 }
