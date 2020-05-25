@@ -396,8 +396,8 @@ public class PacienteControllerE2ETest {
     @Test
     void testProcessCreatePacienteFormSuccess() throws Exception {
 		
-		mockMvc.perform(post("/pacientes/new")
-				.with(csrf())
+		mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/new")
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
 				.param("nombre", "Paco")
 				.param("apellidos", "Mateos")
 				.param("f_nacimiento", "1990/03/21")
@@ -415,7 +415,7 @@ public class PacienteControllerE2ETest {
 				.param("medico.user.username", TEST_MEDICOUSER_ID)
 				.param("medico.user.password", "entrar")
 				.param("medico.user.enabled", "true"))
-			.andExpect(status().is3xxRedirection());
+			.andExpect(MockMvcResultMatchers.status().is3xxRedirection());
 
 			//Since this method on the controller only will redirect in case of a succesful action, it's not a necesity to check the view name since only gives troubles to recover the new paciente id
 
