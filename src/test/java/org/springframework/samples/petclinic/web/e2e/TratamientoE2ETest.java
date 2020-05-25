@@ -21,15 +21,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 
+import javax.management.InvalidAttributeValueException;
+
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.BDDMockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.dao.DataAccessException;
+import org.springframework.samples.petclinic.model.Authorities;
+import org.springframework.samples.petclinic.model.Cita;
+import org.springframework.samples.petclinic.model.HistoriaClinica;
+import org.springframework.samples.petclinic.model.Informe;
+import org.springframework.samples.petclinic.model.Medico;
+import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.model.Tratamiento;
+import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.service.CitaService;
+import org.springframework.samples.petclinic.service.HistoriaClinicaService;
 import org.springframework.samples.petclinic.service.InformeService;
+import org.springframework.samples.petclinic.service.MedicoService;
+import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.TratamientoService;
 
 @ExtendWith(SpringExtension.class)
@@ -50,11 +63,81 @@ public class TratamientoE2ETest {
 	@Autowired
 	private CitaService citaService;
 	
+	@Autowired
+	private MedicoService medicoService;
+	
+	@Autowired
+	private PacienteService pacienteService;
+	
+	@Autowired
+	private HistoriaClinicaService historiaClinicaService;
+	
 	private static int TEST_INFORME_ID = 1;
 	private static int TEST_CITA_ID = 1;
 	private static int TEST_PACIENTE_ID = 1;
 	private static int TEST_MEDICO_ID = 1;
 	private static int TEST_TRATAMIENTO_ID = 1;
+	
+	public Cita createDummyCita1(final Paciente paciente) throws InvalidAttributeValueException {
+        Cita cita = new Cita();
+        cita.setPaciente(paciente);
+        cita.setFecha(LocalDate.now());
+        cita.setLugar("Consulta 1");
+        citaService.save(cita);
+        return cita;
+    }
+	
+	public Paciente createDummyPaciente(final Medico medico, final HistoriaClinica hs) {
+        Paciente paciente = new Paciente();
+        paciente.setNombre("Paciente 1");
+        paciente.setApellidos("Apellidos");
+        paciente.setF_nacimiento(LocalDate.of(1996, 01, 12));
+        paciente.setDNI("12345678A");
+        paciente.setDomicilio("Sevilla");
+        paciente.setEmail("paciente@email.com");
+        paciente.setF_alta(LocalDate.now());
+        paciente.setMedico(medico);
+
+        this.pacienteService.pacienteCreate(paciente);
+
+        hs.setDescripcion("placeholder");
+        hs.setPaciente(paciente);
+        this.historiaClinicaService.saveHistoriaClinica(hs);
+
+        return paciente;
+    }
+
+	
+	public Informe createDummyInforme(final Cita cita) throws DataAccessException, IllegalAccessException {
+		Informe informe = new Informe();
+        informe.setCita(cita);
+        informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
+        return informe;
+	}
+	
+	public Medico createDummyMedico() {
+        Medico medico = new Medico();
+        User medicoUser = new User();
+        Authorities authorities = new Authorities();
+
+        medico.setNombre("Medico 1");
+        medico.setApellidos("Apellidos");
+        medico.setDNI("12345678A");
+        medico.setN_telefono("123456789");
+        medico.setDomicilio("Domicilio");
+        medicoUser.setUsername("medico1");
+        medicoUser.setPassword("medico1");
+        medicoUser.setEnabled(true);
+        medico.setUser(medicoUser);
+        authorities.setUsername(medicoUser.getUsername());
+        authorities.setAuthority("medico");
+
+        this.medicoService.medicoCreate(medico);
+
+        return medico;
+    }
 	
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
@@ -179,12 +262,22 @@ public class TratamientoE2ETest {
 	@Test
     void testDeleteTratamientoSuccess() throws Exception{
 		Tratamiento tratamiento = new Tratamiento();
+		Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+		Cita cita = createDummyCita1(paciente);
+		citaService.save(cita);
+		Informe informe = new Informe();
+		informe.setCita(cita);
+		informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
+        
 		tratamiento.setId(TEST_TRATAMIENTO_ID);
     	tratamiento.setMedicamento("aspirina1");
 		tratamiento.setDosis("1 pastilla cada 8 horas");
 		tratamiento.setF_inicio_tratamiento(LocalDate.now());
 		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
-		tratamiento.setInforme(informeService.findInformeById(TEST_INFORME_ID).get());
+		tratamiento.setInforme(informe);
 		
 		
 		tratamientoService.save(tratamiento);
@@ -201,22 +294,35 @@ public class TratamientoE2ETest {
 	@Test
     void testDeleteTratamientoCantDeletePastDate() throws Exception{
 		Tratamiento tratamiento = new Tratamiento();
+		Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+		Cita cita = createDummyCita1(paciente);
+		citaService.save(cita);
+		Informe informe = new Informe();
+		informe.setCita(cita);
+		informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
+        
 		tratamiento.setId(TEST_TRATAMIENTO_ID);
     	tratamiento.setMedicamento("aspirina1");
 		tratamiento.setDosis("1 pastilla cada 8 horas");
 		tratamiento.setF_inicio_tratamiento(LocalDate.now());
 		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
-		tratamiento.setInforme(informeService.findInformeById(TEST_INFORME_ID).get());
-		tratamiento.getInforme().setCita(citaService.findCitaById(TEST_CITA_ID).orElse(null));
-		tratamiento.getInforme().getCita().setFecha(LocalDate.parse("2020-04-20"));
+		tratamiento.setInforme(informe);
+		tratamiento.getInforme().setCita(cita);
+		cita.setFecha(LocalDate.parse("2020-04-20"));
 		
 		tratamientoService.save(tratamiento);
 		
-		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
-		.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
-				+ tratamiento.getInforme().getId()));
+		//mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
+		//.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
+		//		+ tratamiento.getInforme().getId()));
 		
-		tratamiento.getInforme().getCita().setFecha(LocalDate.now());
+		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
+		.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/citas/" + cita.getPaciente().getMedico().getId() + "/informes/"
+				+ informe.getId()));
+		
 		tratamientoService.deleteTratamiento(TEST_TRATAMIENTO_ID, tratamiento.getInforme().getCita().getPaciente().getMedico().getId());
 		
 		
@@ -226,12 +332,22 @@ public class TratamientoE2ETest {
 	@Test
     void testDeleteTratamientoCantDeleteWrongAuthority() throws Exception{
 		Tratamiento tratamiento = new Tratamiento();
+		Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+		Cita cita = createDummyCita1(paciente);
+		citaService.save(cita);
+		Informe informe = new Informe();
+		informe.setCita(cita);
+		informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
+        
 		tratamiento.setId(TEST_TRATAMIENTO_ID);
     	tratamiento.setMedicamento("aspirina1");
 		tratamiento.setDosis("1 pastilla cada 8 horas");
 		tratamiento.setF_inicio_tratamiento(LocalDate.now());
 		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
-		tratamiento.setInforme(informeService.findInformeById(TEST_INFORME_ID).get());
+		tratamiento.setInforme(informe);
 		
 		tratamientoService.save(tratamiento);
 		
@@ -239,7 +355,7 @@ public class TratamientoE2ETest {
 		.andExpect(status().isOk())
 		.andExpect(view().name("accessNotAuthorized"));
 		
-		//tratamientoService.deleteTratamiento(TEST_TRATAMIENTO_ID, tratamiento.getInforme().getCita().getPaciente().getMedico().getId());
+		tratamientoService.deleteTratamiento(TEST_TRATAMIENTO_ID, tratamiento.getInforme().getCita().getPaciente().getMedico().getId());
 
 	}
 	
