@@ -22,7 +22,7 @@ public class TratamientoServiceTest {
 	@Test
 	public void testCountWithInitialData() {
 		int count = this.tratamientoService.tratamientoCount();
-		Assertions.assertEquals(count, 3);
+		Assertions.assertEquals(count, 7);
 	}
 	
 	@Test

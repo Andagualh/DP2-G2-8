@@ -32,8 +32,8 @@ public class HistoriaClinicaControllerE2ETest {
 	private MockMvc				mockMvc;
 
 
-	@WithMockUser(username = "admin1", authorities = {
-		"admin"
+	@WithMockUser(username = "pabloMedico", authorities = {
+		"medico"
 	})
 	@Test
 	void testShowHistoriaClinica() throws Exception {
@@ -41,8 +41,8 @@ public class HistoriaClinicaControllerE2ETest {
 			.andExpect(MockMvcResultMatchers.model().attributeExists("historiaclinica")).andExpect(MockMvcResultMatchers.view().name("pacientes/historiaClinicaDetails"));
 	}
 
-	@WithMockUser(username = "admin1", authorities = {
-		"admin"
+	@WithMockUser(username = "pabloMedico", authorities = {
+		"medico"
 	})
 	@Test
 	void testInitCreationForm() throws Exception {
@@ -51,8 +51,8 @@ public class HistoriaClinicaControllerE2ETest {
 	}
 
 	//La descripcion no puede estar vacia
-	@WithMockUser(username = "admin1", authorities = {
-		"admin"
+	@WithMockUser(username = "pabloMedico", authorities = {
+		"medico"
 	})
 	@Test
 	void testProcessCreationFormHasErrors() throws Exception {
@@ -61,8 +61,8 @@ public class HistoriaClinicaControllerE2ETest {
 
 	}
 
-	@WithMockUser(username = "admin1", authorities = {
-		"admin"
+	@WithMockUser(username = "pabloMedico", authorities = {
+		"medico"
 	})
 	@Test
 	void testProcessCreationFormSuccess() throws Exception {
@@ -71,8 +71,8 @@ public class HistoriaClinicaControllerE2ETest {
 	}
 
 	//El paciente ya tiene una historia clinica
-	@WithMockUser(username = "admin1", authorities = {
-		"admin"
+	@WithMockUser(username = "pabloMedico", authorities = {
+		"medico"
 	})
 	@Test
 	void testProcessCreationFormFailure() throws Exception {
@@ -81,8 +81,8 @@ public class HistoriaClinicaControllerE2ETest {
 
 	}
 
-	@WithMockUser(username = "admin1", authorities = {
-		"admin"
+	@WithMockUser(username = "pabloMedico", authorities = {
+		"medico"
 	})
 	@Test
 	void testInitUpdateForm() throws Exception {
@@ -91,8 +91,8 @@ public class HistoriaClinicaControllerE2ETest {
 
 	}
 
-	@WithMockUser(username = "admin1", authorities = {
-		"admin"
+	@WithMockUser(username = "pabloMedico", authorities = {
+		"medico"
 	})
 	@Test
 	void testProcessUpdateFormSuccess() throws Exception {
@@ -103,8 +103,8 @@ public class HistoriaClinicaControllerE2ETest {
 	}
 
 	//La descripcion esta vacia
-	@WithMockUser(username = "admin1", authorities = {
-		"admin"
+	@WithMockUser(username = "pabloMedico", authorities = {
+		"medico"
 	})
 	@Test
 	void testProcessUpdateFormHasErrors() throws Exception {

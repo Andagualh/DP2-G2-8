@@ -23,7 +23,6 @@ import org.springframework.samples.petclinic.service.HistoriaClinicaService;
 import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -59,13 +58,16 @@ class HistoriaClinicaControllerTests {
 	private static final int			TEST_MEDICO_ID								= 1;
 	private static final String			TEST_USER_ID								= "1";
 	private static final String			TEST_MEDICOUSER_ID							= "medico";
-	
+
+
 	private Medico						medico;
 
 	private User						medicoUser;
-	private Paciente						pepe;
 
 	private Authorities					authorities;
+
+	private Paciente					pepe;
+
 
 
 	@BeforeEach
@@ -90,7 +92,7 @@ class HistoriaClinicaControllerTests {
 		this.authorities = new Authorities();
 		this.authorities.setUsername(HistoriaClinicaControllerTests.TEST_MEDICOUSER_ID);
 		this.authorities.setAuthority("medico");
-		
+
 		this.pepe = new Paciente();
 		this.pepe.setId(HistoriaClinicaControllerTests.TEST_PACIENTE_ID);
 		this.pepe.setNombre("Pepe");
@@ -104,6 +106,8 @@ class HistoriaClinicaControllerTests {
 		this.pepe.setMedico(this.medico);
 		
 		BDDMockito.given(this.pacienteService.findPacienteById(HistoriaClinicaControllerTests.TEST_PACIENTE_ID)).willReturn(Optional.of(new Paciente()));
+
+		BDDMockito.given(this.pacienteService.findPacienteById(HistoriaClinicaControllerTests.TEST_PACIENTE_ID)).willReturn(Optional.of(this.pepe));
 		BDDMockito.given(this.historiaService.findHistoriaClinicaByPacienteId(HistoriaClinicaControllerTests.TEST_PACIENTE_ID)).willReturn(new HistoriaClinica());
 
 	}
@@ -145,87 +149,72 @@ class HistoriaClinicaControllerTests {
 		HistoriaClinica hc = new HistoriaClinica();
 		hc.setPaciente(paciente);
 		BDDMockito.given(this.pacienteService.findHistoriaClinicaByPaciente(paciente)).willReturn(hc);
-		
-		this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/historiaclinica/new", HistoriaClinicaControllerTests.TEST_PACIENTE_ID)
-			.with(SecurityMockMvcRequestPostProcessors.csrf())
-			.param("descripcion", "historia clinica oups")
-			.param("paciente.id", Integer.toString(HistoriaClinicaControllerTests.TEST_PACIENTE_ID)))
-			.andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-			.andExpect(MockMvcResultMatchers.view().name("redirect:/oups"));
+
+		this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/historiaclinica/new", HistoriaClinicaControllerTests.TEST_PACIENTE_ID).with(SecurityMockMvcRequestPostProcessors.csrf()).param("descripcion", "historia clinica oups")
+			.param("paciente.id", Integer.toString(HistoriaClinicaControllerTests.TEST_PACIENTE_ID))).andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andExpect(MockMvcResultMatchers.view().name("redirect:/oups"));
 	}
 
 	@WithMockUser(value = "spring")
 	@Test
 	void testCrearHistoriaClinicaHasErrors() throws Exception {
 		Paciente paciente = new Paciente();
-	    paciente.setId(HistoriaClinicaControllerTests.TEST_PACIENTE_ID);
-	    BDDMockito.given(this.pacienteService.findHistoriaClinicaByPaciente(paciente)).willReturn(new HistoriaClinica());
-	    
-	    this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/historiaclinica/new", TEST_PACIENTE_ID)
-	    		.with(SecurityMockMvcRequestPostProcessors.csrf())
-	    		.param("descripcion", "Nueva descripción para la historia clinica")
-	    		.param("paciente.id", "?"))
-	    		.andExpect(MockMvcResultMatchers.model().hasErrors())
-	    		.andExpect(MockMvcResultMatchers.status().isOk())
-	    		.andExpect(MockMvcResultMatchers.view().name(VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM));
+		paciente.setId(HistoriaClinicaControllerTests.TEST_PACIENTE_ID);
+		BDDMockito.given(this.pacienteService.findHistoriaClinicaByPaciente(paciente)).willReturn(new HistoriaClinica());
+
+		this.mockMvc
+			.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/historiaclinica/new", HistoriaClinicaControllerTests.TEST_PACIENTE_ID).with(SecurityMockMvcRequestPostProcessors.csrf())
+				.param("descripcion", "Nueva descripción para la historia clinica").param("paciente.id", "?"))
+			.andExpect(MockMvcResultMatchers.model().hasErrors()).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.view().name(HistoriaClinicaControllerTests.VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM));
 	}
-	
+
 	@WithMockUser(value = "spring")
 	@Test
-	void testInitUpdateForm() throws Exception{
-		
+	void testInitUpdateForm() throws Exception {
+
 		Paciente paciente = new Paciente();
-	    paciente.setId(HistoriaClinicaControllerTests.TEST_PACIENTE_ID);
-	    BDDMockito.given(this.pacienteService.findHistoriaClinicaByPaciente(paciente)).willReturn(new HistoriaClinica());
-		
-		this.mockMvc.perform(MockMvcRequestBuilders.get("/pacientes/{pacienteId}/historiaclinica/edit", HistoriaClinicaControllerTests.TEST_PACIENTE_ID))
-		.andExpect(MockMvcResultMatchers.status().isOk())
-		.andExpect(MockMvcResultMatchers.model().attributeExists("historiaclinica"))
-		.andExpect(MockMvcResultMatchers.model().attributeExists("paciente"))
-		.andExpect(MockMvcResultMatchers.view().name(HistoriaClinicaControllerTests.VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM));
+		paciente.setId(99);
+		HistoriaClinica hc = new HistoriaClinica();
+		hc.setId(99);
+		hc.setDescripcion("desc");
+		hc.setPaciente(paciente);
+		BDDMockito.given(this.pacienteService.findHistoriaClinicaByPaciente(paciente)).willReturn(hc);
+		BDDMockito.given(this.pacienteService.findPacienteById(paciente.getId())).willReturn(Optional.of(paciente));
+
+		this.mockMvc.perform(MockMvcRequestBuilders.get("/pacientes/{pacienteId}/historiaclinica/edit", paciente.getId())).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.model().attributeExists("historiaclinica"))
+			.andExpect(MockMvcResultMatchers.model().attributeExists("paciente")).andExpect(MockMvcResultMatchers.view().name(HistoriaClinicaControllerTests.VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM));
 	}
-	
+
 	@WithMockUser(value = "spring")
 	@Test
-	void testProcessUpdateFormSuccess() throws Exception{
+	void testProcessUpdateFormSuccess() throws Exception {
 		Paciente paciente = new Paciente();
-	    paciente.setId(HistoriaClinicaControllerTests.TEST_PACIENTE_ID);
-	    BDDMockito.given(this.pacienteService.findHistoriaClinicaByPaciente(paciente)).willReturn(new HistoriaClinica());
-	    
-	    this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/historiaclinica/edit", TEST_PACIENTE_ID)
-	    		.with(SecurityMockMvcRequestPostProcessors.csrf())
-	    		.param("paciente.id", Integer.toString(TEST_PACIENTE_ID))
-				.param("paciente.nombre", "test")
-            	.param("paciente.apellidos", "test")
-           	 	.param("paciente.f_nacimiento", "1997/09/09")
-            	.param("paciente.f_alta", "2020/08/08")
-            	.param("paciente.DNI", "12345689Q")
-           		.param("paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
-           		.param("paciente.medico.nombre", "test")
-           		.param("paciente.medico.apellidos", "test")
-				.param("paciente.medico.domicilio", "test")
-				.param("paciente.medico.user.username", "test")
-				.param("paciente.medico.user.password", "test")
-				.param("descripcion", "Nueva descripción para la historia clinica"))
-	    		.andExpect(MockMvcResultMatchers.status().is3xxRedirection())
-	    		.andExpect(MockMvcResultMatchers.view().name("redirect:/pacientes/{pacienteId}"));
+		paciente.setId(HistoriaClinicaControllerTests.TEST_PACIENTE_ID);
+		HistoriaClinica hc = new HistoriaClinica();
+		hc.setId(99);
+		hc.setDescripcion("desc");
+		hc.setPaciente(paciente);
+		BDDMockito.given(this.pacienteService.findHistoriaClinicaByPaciente(paciente)).willReturn(hc);
+		BDDMockito.given(this.pacienteService.findPacienteById(paciente.getId())).willReturn(Optional.of(paciente));
+
+		this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/historiaclinica/edit", HistoriaClinicaControllerTests.TEST_PACIENTE_ID).with(SecurityMockMvcRequestPostProcessors.csrf())
+			.param("paciente.id", Integer.toString(HistoriaClinicaControllerTests.TEST_PACIENTE_ID)).param("paciente.nombre", "test").param("paciente.apellidos", "test").param("paciente.f_nacimiento", "1997/09/09").param("paciente.f_alta", "2020/08/08")
+			.param("paciente.DNI", "12345689Q").param("paciente.medico.id", Integer.toString(HistoriaClinicaControllerTests.TEST_MEDICO_ID)).param("paciente.medico.nombre", "test").param("paciente.medico.apellidos", "test")
+			.param("paciente.medico.domicilio", "test").param("paciente.medico.user.username", "test").param("paciente.medico.user.password", "test").param("descripcion", "Nueva descripción para la historia clinica"))
+			.andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andExpect(MockMvcResultMatchers.view().name("redirect:/pacientes/{pacienteId}"));
 	}
-	
+
 	//Intento de actualizar historia clinica con errores en el result
 	@WithMockUser(value = "spring")
 	@Test
-	void testProcessUpdateFormHasErrors() throws Exception{
+	void testProcessUpdateFormHasErrors() throws Exception {
 		Paciente paciente = new Paciente();
-	    paciente.setId(HistoriaClinicaControllerTests.TEST_PACIENTE_ID);
-	    BDDMockito.given(this.pacienteService.findHistoriaClinicaByPaciente(paciente)).willReturn(new HistoriaClinica());
-	    
-	    this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/historiaclinica/edit", TEST_PACIENTE_ID)
-	    		.with(SecurityMockMvcRequestPostProcessors.csrf())
-	    		.param("descripcion", "Nueva descripción para la historia clinica"))
-	    		.andExpect(MockMvcResultMatchers.model().hasErrors())
-	    		.andExpect(MockMvcResultMatchers.status().isOk())
-	    		.andExpect(MockMvcResultMatchers.view().name(VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM));
+		paciente.setId(HistoriaClinicaControllerTests.TEST_PACIENTE_ID);
+		BDDMockito.given(this.pacienteService.findHistoriaClinicaByPaciente(paciente)).willReturn(new HistoriaClinica());
+
+		this.mockMvc
+			.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/historiaclinica/edit", HistoriaClinicaControllerTests.TEST_PACIENTE_ID).with(SecurityMockMvcRequestPostProcessors.csrf()).param("descripcion",
+				"Nueva descripción para la historia clinica"))
+			.andExpect(MockMvcResultMatchers.model().hasErrors()).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.view().name(HistoriaClinicaControllerTests.VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM));
 	}
-	
 
 }

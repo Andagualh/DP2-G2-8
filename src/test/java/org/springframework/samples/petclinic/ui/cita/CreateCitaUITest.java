@@ -1,4 +1,4 @@
-package org.springframework.samples.petclinic.ui;
+package org.springframework.samples.petclinic.ui.cita;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
