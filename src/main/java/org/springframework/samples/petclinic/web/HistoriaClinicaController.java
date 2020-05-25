@@ -68,12 +68,12 @@ public class HistoriaClinicaController {
 	public String initCreationForm(@PathVariable("pacienteId") final int pacienteId, final ModelMap model) {
 		HistoriaClinica historiaclinica = new HistoriaClinica();
 		Paciente paciente = this.pacienteService.findPacienteById(pacienteId).get();
-		if(paciente.getMedico().equals(this.userService.getCurrentMedico())) {
+		if(this.medicoOk(paciente)) {
 			model.put("historiaclinica", historiaclinica);
 			model.put("paciente", paciente);
 			return HistoriaClinicaController.VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM;
 		}else{
-			model.addAttribute("errorhc", "No puede crear una historia clinica para otro medico");
+			model.put("errorhc", "No puede crear una historia clinica para otro medico");
 			return "redirect:/pacientes";
 		}
 	}
