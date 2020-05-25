@@ -44,6 +44,7 @@ import org.springframework.samples.petclinic.service.InformeService;
 import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.TratamientoService;
+import org.springframework.samples.petclinic.service.UserService;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.MOCK)
@@ -71,6 +72,8 @@ public class TratamientoE2ETest {
 	
 	@Autowired
 	private HistoriaClinicaService historiaClinicaService;
+	@Autowired
+	private UserService userService;
 	
 	private static int TEST_INFORME_ID = 1;
 	private static int TEST_CITA_ID = 1;
@@ -262,10 +265,11 @@ public class TratamientoE2ETest {
 	@Test
     void testDeleteTratamientoSuccess() throws Exception{
 		Tratamiento tratamiento = new Tratamiento();
-		Medico medico = createDummyMedico();
+		Medico medico = userService.getCurrentMedico();
 		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
 		Cita cita = createDummyCita1(paciente);
 		citaService.save(cita);
+
 		Informe informe = new Informe();
 		informe.setCita(cita);
 		informe.setDiagnostico("Dermatitis");
@@ -294,15 +298,19 @@ public class TratamientoE2ETest {
 	@Test
     void testDeleteTratamientoCantDeletePastDate() throws Exception{
 		Tratamiento tratamiento = new Tratamiento();
-		Medico medico = createDummyMedico();
+		Medico medico = userService.getCurrentMedico();
 		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
 		Cita cita = createDummyCita1(paciente);
 		citaService.save(cita);
+
 		Informe informe = new Informe();
 		informe.setCita(cita);
 		informe.setDiagnostico("Dermatitis");
         informe.setMotivo_consulta("Picor en frente");
-        informeService.saveInforme(informe);
+		informeService.saveInforme(informe);
+		
+		cita.setFecha(LocalDate.parse("2020-01-01"));
+		citaService.saveOldDate(cita);
         
 		tratamiento.setId(TEST_TRATAMIENTO_ID);
     	tratamiento.setMedicamento("aspirina1");
@@ -311,7 +319,7 @@ public class TratamientoE2ETest {
 		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
 		tratamiento.setInforme(informe);
 		tratamiento.getInforme().setCita(cita);
-		cita.setFecha(LocalDate.parse("2020-04-20"));
+		
 		
 		tratamientoService.save(tratamiento);
 		
@@ -323,7 +331,8 @@ public class TratamientoE2ETest {
 		.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/citas/" + cita.getPaciente().getMedico().getId() + "/informes/"
 				+ informe.getId()));
 		
-		tratamientoService.deleteTratamiento(TEST_TRATAMIENTO_ID, tratamiento.getInforme().getCita().getPaciente().getMedico().getId());
+		
+		//tratamientoService.deleteTratamiento(TEST_TRATAMIENTO_ID, tratamiento.getInforme().getCita().getPaciente().getMedico().getId());
 		
 		
 	}
