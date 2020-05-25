@@ -189,7 +189,6 @@ public class TratamientoE2ETest {
 		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
 		.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
 				+ tratamiento.getInforme().getId()));
-		TEST_TRATAMIENTO_ID = 0;	
 	}
 	
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
@@ -210,7 +209,11 @@ public class TratamientoE2ETest {
 		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
 		.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
 				+ tratamiento.getInforme().getId()));
-		TEST_TRATAMIENTO_ID = 0;	
+		
+		tratamiento.getInforme().getCita().setFecha(LocalDate.now());
+		tratamientoService.deleteTratamiento(TEST_TRATAMIENTO_ID, tratamiento.getInforme().getCita().getPaciente().getMedico().getId());
+		
+		
 	}
 	
 	@WithMockUser(username="andresMedico",authorities= {"medico"})
@@ -227,8 +230,11 @@ public class TratamientoE2ETest {
 		tratamientoService.save(tratamiento);
 		
 		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
-		.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/"));
-		TEST_TRATAMIENTO_ID = 0;	
+		.andExpect(status().isOk())
+		.andExpect(view().name("accessNotAuthorized"));
+		
+		//tratamientoService.deleteTratamiento(TEST_TRATAMIENTO_ID, tratamiento.getInforme().getCita().getPaciente().getMedico().getId());
+
 	}
 	
 	

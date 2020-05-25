@@ -9,9 +9,12 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Informe;
+import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.Tratamiento;
 import org.springframework.samples.petclinic.service.InformeService;
+import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.TratamientoService;
+import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -32,6 +35,10 @@ public class TratamientoController {
 	private TratamientoService	tratamientoService;
 	@Autowired
 	private InformeService		informeService;
+	@Autowired
+	private MedicoService medicoService;
+	@Autowired
+	private UserService userService;
 
 	private static final String	VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM	= "tratamientos/createOrUpdateTratamientosForm";
 
@@ -89,8 +96,13 @@ public class TratamientoController {
 			throws DataAccessException, IllegalAccessException {
 		Optional<Tratamiento> tratamiento = this.tratamientoService.findTratamientoById(tratamientoId);
 		int idMedico = tratamiento.get().getInforme().getCita().getPaciente().getMedico().getId();
+		Medico medic = this.userService.getCurrentMedico();
 		
-		if (tratamiento.get().getInforme().getCita().getPaciente().getMedico().getId() == idMedico && tratamiento.get().getInforme().getCita().getFecha().equals(LocalDate.now())) {
+		if(!medic.getId().equals(idMedico)){
+			return "accessNotAuthorized";
+		}
+
+		if (medic.getId().equals(idMedico) && tratamiento.get().getInforme().getCita().getPaciente().getMedico().getId() == idMedico && tratamiento.get().getInforme().getCita().getFecha().equals(LocalDate.now())) {
 			this.tratamientoService.deleteTratamiento(tratamientoId, idMedico);
 			modelMap.addAttribute("message", "Tratamiento succesfully deleted");
 		} else {

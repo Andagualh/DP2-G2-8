@@ -140,7 +140,8 @@ public class TratamientoControllerTest {
         this.informe1.setId(TEST_INFORME_ID);
         this.informe1.setDiagnostico("diagnostico test");
         this.informe1.setHistoriaClinica(null);
-        this.informe1.setMotivo_consulta("motivo test");
+		this.informe1.setMotivo_consulta("motivo test");
+		
         
 
 		this.tratamiento = new Tratamiento();
@@ -384,7 +385,10 @@ public class TratamientoControllerTest {
     @WithMockUser(value = "spring")
     @Test
     void testDeleteTratamientoSuccess() throws Exception{
-    	Tratamiento tratamiento = new Tratamiento();
+		Tratamiento tratamiento = new Tratamiento();
+		Medico medic = new Medico();
+		medic.setId(this.medico1.getId());
+		this.informe1.setCita(cita1);
     	
     	tratamiento.setId(TEST_TRATAMIENTO_ID);
     	tratamiento.setMedicamento("aspirina1");
@@ -394,18 +398,22 @@ public class TratamientoControllerTest {
 		tratamiento.setInforme(informe1);
 		
 		BDDMockito.given(tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
+		BDDMockito.given(userService.getCurrentMedico()).willReturn(medic);
+
 		
 		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
-		.andExpect(status().is2xxSuccessful());
-				//is3xxRedirection())
-		//.andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
-				//+ tratamiento.getInforme().getId()));
+		.andExpect(status().is3xxRedirection())
+		.andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
+			+ tratamiento.getInforme().getId()));
     }
     
     @WithMockUser(value = "spring")
     @Test
     void testDeleteTratamientoCantDeletePastDate() throws Exception{
-    	Tratamiento tratamiento = new Tratamiento();
+		Tratamiento tratamiento = new Tratamiento();
+		Medico medic = new Medico();
+		medic.setId(this.medico1.getId());
+		this.informe1.setCita(cita1);
     	
     	tratamiento.setId(TEST_TRATAMIENTO_ID);
     	tratamiento.setMedicamento("aspirina1");
@@ -417,11 +425,36 @@ public class TratamientoControllerTest {
 		tratamiento.getInforme().getCita().setFecha(LocalDate.parse("2020-04-20"));
 		
 		BDDMockito.given(tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
-		
+		BDDMockito.given(userService.getCurrentMedico()).willReturn(medic);
+
 		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
 		.andExpect(status().is3xxRedirection())
 		.andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
 				+ tratamiento.getInforme().getId()));
+	}
+	
+	@WithMockUser(value = "spring")
+    @Test
+    void testDeleteTratamientoWrongMedico() throws Exception{
+		Tratamiento tratamiento = new Tratamiento();
+		Medico medic = new Medico();
+		medic.setId(99999);
+		this.informe1.setCita(cita1);
+    	
+    	tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.now());
+		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
+		tratamiento.setInforme(informe1);
+		
+		BDDMockito.given(tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
+		BDDMockito.given(userService.getCurrentMedico()).willReturn(medic);
+		
+		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
+		.andExpect(status().is2xxSuccessful())
+		.andExpect(view().name("accessNotAuthorized"));
+		
     }
 
 }
