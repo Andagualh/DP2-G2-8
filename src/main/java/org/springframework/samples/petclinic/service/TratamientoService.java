@@ -54,6 +54,11 @@ public class TratamientoService {
 		}
 	}
 
+	@Transactional
+	public Tratamiento saveTratamientoOldCita(final Tratamiento tratamiento) {
+		return this.tratamientoRepo.save(tratamiento);
+	}
+	
 	@Transactional(readOnly = true)
 	public Optional<Tratamiento> findTratamientoById(final int id) throws DataAccessException {
 		return this.tratamientoRepo.findById(id);
@@ -73,11 +78,12 @@ public class TratamientoService {
 	}
 
 	@Transactional
-	public void deleteTratamiento(final int id, final int idMedico) throws DataAccessException, IllegalAccessException{
+	public void deleteTratamiento(final int id, final int idMedico) throws DataAccessException, IllegalAccessException {
 		Tratamiento tratamiento = findTratamientoById(id).get();
-		
-		if(tratamiento.getInforme().getCita().getPaciente().getMedico().getId() == idMedico && tratamiento.getInforme().getCita().getFecha().equals(LocalDate.now())){
-		this.tratamientoRepo.deleteById(id);
+
+		if (tratamiento.getInforme().getCita().getPaciente().getMedico().getId() == idMedico
+				&& tratamiento.getInforme().getCita().getFecha().equals(LocalDate.now())) {
+			this.tratamientoRepo.deleteById(id);
 		} else {
 			throw new IllegalAccessException("No se puede borrar este tratamiento");
 		}

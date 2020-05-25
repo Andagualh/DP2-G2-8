@@ -34,6 +34,11 @@ public class InformeService {
 			throw new IllegalAccessException("No se puede crear un informe para esta cita");
 		}
 	}
+	
+	@Transactional
+	public void saveInformeOldDate(final Informe informe) throws DataAccessException, IllegalAccessException {
+		this.informeRepository.save(informe);
+	}
 
 	@Transactional
 	public void updateInforme(final Informe informe) throws DataAccessException, IllegalAccessException{

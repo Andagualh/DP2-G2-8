@@ -1,5 +1,45 @@
 package org.springframework.samples.petclinic.web.e2e;
 
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
+import java.time.LocalDate;
+
+import javax.management.InvalidAttributeValueException;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataAccessException;
+import org.springframework.samples.petclinic.model.Authorities;
+import org.springframework.samples.petclinic.model.Cita;
+import org.springframework.samples.petclinic.model.HistoriaClinica;
+import org.springframework.samples.petclinic.model.Informe;
+import org.springframework.samples.petclinic.model.Medico;
+import org.springframework.samples.petclinic.model.Paciente;
+import org.springframework.samples.petclinic.model.Tratamiento;
+import org.springframework.samples.petclinic.model.User;
+import org.springframework.samples.petclinic.service.CitaService;
+import org.springframework.samples.petclinic.service.HistoriaClinicaService;
+import org.springframework.samples.petclinic.service.InformeService;
+import org.springframework.samples.petclinic.service.MedicoService;
+import org.springframework.samples.petclinic.service.PacienteService;
+import org.springframework.samples.petclinic.service.TratamientoService;
+import org.springframework.samples.petclinic.service.UserService;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -313,7 +353,7 @@ public class TratamientoE2ETest {
 			tratamiento.getInforme().setCita(cita);
 			
 			
-			tratamientoService.save(tratamiento);
+			tratamientoService.saveTratamientoOldCita(tratamiento);
 			
 			//mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
 			//.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
