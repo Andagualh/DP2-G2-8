@@ -29,6 +29,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.ui.Model;
 
 @WebMvcTest(value = HistoriaClinicaController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class), excludeAutoConfiguration = SecurityConfiguration.class)
 
@@ -58,6 +59,7 @@ class HistoriaClinicaControllerTests {
 	private static final String			TEST_USER_ID								= "1";
 	private static final String			TEST_MEDICOUSER_ID							= "medico";
 
+
 	private Medico						medico;
 
 	private User						medicoUser;
@@ -65,6 +67,7 @@ class HistoriaClinicaControllerTests {
 	private Authorities					authorities;
 
 	private Paciente					pepe;
+
 
 
 	@BeforeEach
@@ -101,6 +104,8 @@ class HistoriaClinicaControllerTests {
 		this.pepe.setEmail("pepeloa@gmail.com");
 		this.pepe.setF_alta(LocalDate.now());
 		this.pepe.setMedico(this.medico);
+		
+		BDDMockito.given(this.pacienteService.findPacienteById(HistoriaClinicaControllerTests.TEST_PACIENTE_ID)).willReturn(Optional.of(new Paciente()));
 
 		BDDMockito.given(this.pacienteService.findPacienteById(HistoriaClinicaControllerTests.TEST_PACIENTE_ID)).willReturn(Optional.of(this.pepe));
 		BDDMockito.given(this.historiaService.findHistoriaClinicaByPacienteId(HistoriaClinicaControllerTests.TEST_PACIENTE_ID)).willReturn(new HistoriaClinica());
@@ -110,6 +115,10 @@ class HistoriaClinicaControllerTests {
 	@WithMockUser(value = "spring")
 	@Test
 	void testShowHistoriaClinica() throws Exception {
+		
+		BDDMockito.given(this.pacienteService.findPacienteById(TEST_PACIENTE_ID)).willReturn(Optional.of(this.pepe));
+		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico);
+		
 		this.mockMvc.perform(MockMvcRequestBuilders.get("/pacientes/{pacienteId}/historiaclinica", HistoriaClinicaControllerTests.TEST_PACIENTE_ID)).andExpect(MockMvcResultMatchers.status().isOk())
 			.andExpect(MockMvcResultMatchers.model().attributeExists("historiaclinica")).andExpect(MockMvcResultMatchers.view().name("pacientes/historiaClinicaDetails"));
 	}

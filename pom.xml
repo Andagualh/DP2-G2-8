@@ -276,6 +276,7 @@
                      <exclude>**/*UITest.java</exclude>
                     <exclude>**/*ControllerIntegrationTest*</exclude>
                     <exclude>**/*APITest.java</exclude>
+                     <exclude>**/*ControllerIntegrationTest*</exclude>
                     </excludes>
                 </configuration>   
             </plugin>

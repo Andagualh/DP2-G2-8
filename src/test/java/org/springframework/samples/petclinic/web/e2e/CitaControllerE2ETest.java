@@ -1,4 +1,4 @@
-package org.springframework.samples.petclinic.web.e2e;
+package org.springframework.samples.petclinic.web.E2E;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
