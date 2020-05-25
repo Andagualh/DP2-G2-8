@@ -28,6 +28,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.model.Tratamiento;
+import org.springframework.samples.petclinic.service.CitaService;
 import org.springframework.samples.petclinic.service.InformeService;
 import org.springframework.samples.petclinic.service.TratamientoService;
 
@@ -45,6 +46,9 @@ public class TratamientoE2ETest {
 	
 	@Autowired
 	private TratamientoService tratamientoService;
+	
+	@Autowired
+	private CitaService citaService;
 	
 	private static int TEST_INFORME_ID = 1;
 	private static int TEST_CITA_ID = 1;
@@ -168,6 +172,66 @@ public class TratamientoE2ETest {
         .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
         );
 }
+	
+	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
+	@Test
+    void testDeleteTratamientoSuccess() throws Exception{
+		Tratamiento tratamiento = new Tratamiento();
+		tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.now());
+		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
+		tratamiento.setInforme(informeService.findInformeById(TEST_INFORME_ID).get());
+		
+		tratamientoService.save(tratamiento);
+		
+		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
+		.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
+				+ tratamiento.getInforme().getId()));
+		TEST_TRATAMIENTO_ID = 0;	
+	}
+	
+	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
+	@Test
+    void testDeleteTratamientoCantDeletePastDate() throws Exception{
+		Tratamiento tratamiento = new Tratamiento();
+		tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.now());
+		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
+		tratamiento.setInforme(informeService.findInformeById(TEST_INFORME_ID).get());
+		tratamiento.getInforme().setCita(citaService.findCitaById(TEST_CITA_ID).orElse(null));
+		tratamiento.getInforme().getCita().setFecha(LocalDate.parse("2020-04-20"));
+		
+		tratamientoService.save(tratamiento);
+		
+		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
+		.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
+				+ tratamiento.getInforme().getId()));
+		TEST_TRATAMIENTO_ID = 0;	
+	}
+	
+	@WithMockUser(username="andresMedico",authorities= {"medico"})
+	@Test
+    void testDeleteTratamientoCantDeleteWrongAuthority() throws Exception{
+		Tratamiento tratamiento = new Tratamiento();
+		tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.now());
+		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
+		tratamiento.setInforme(informeService.findInformeById(TEST_INFORME_ID).get());
+		
+		tratamientoService.save(tratamiento);
+		
+		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
+		.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/"));
+		TEST_TRATAMIENTO_ID = 0;	
+	}
+	
+	
 
 
 }

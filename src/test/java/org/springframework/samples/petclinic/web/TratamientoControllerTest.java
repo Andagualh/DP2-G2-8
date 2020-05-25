@@ -380,5 +380,48 @@ public class TratamientoControllerTest {
             .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
             );
     }
+        
+    @WithMockUser(value = "spring")
+    @Test
+    void testDeleteTratamientoSuccess() throws Exception{
+    	Tratamiento tratamiento = new Tratamiento();
+    	
+    	tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.now());
+		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
+		tratamiento.setInforme(informe1);
+		
+		BDDMockito.given(tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
+		
+		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
+		.andExpect(status().is2xxSuccessful());
+				//is3xxRedirection())
+		//.andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
+				//+ tratamiento.getInforme().getId()));
+    }
+    
+    @WithMockUser(value = "spring")
+    @Test
+    void testDeleteTratamientoCantDeletePastDate() throws Exception{
+    	Tratamiento tratamiento = new Tratamiento();
+    	
+    	tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.now());
+		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
+		tratamiento.setInforme(informe1);
+		tratamiento.getInforme().setCita(cita1);
+		tratamiento.getInforme().getCita().setFecha(LocalDate.parse("2020-04-20"));
+		
+		BDDMockito.given(tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
+		
+		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
+		.andExpect(status().is3xxRedirection())
+		.andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
+				+ tratamiento.getInforme().getId()));
+    }
 
 }

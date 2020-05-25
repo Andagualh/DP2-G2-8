@@ -85,7 +85,7 @@ public class TratamientoController {
 	}
 	
 	@GetMapping(path = "delete/{tratamientoId}")
-	public String borrarInforme(@PathVariable("tratamientoId") final int tratamientoId, final ModelMap modelMap)
+	public String borrarTratamiento(@PathVariable("tratamientoId") final int tratamientoId, final ModelMap modelMap)
 			throws DataAccessException, IllegalAccessException {
 		Optional<Tratamiento> tratamiento = this.tratamientoService.findTratamientoById(tratamientoId);
 		int idMedico = tratamiento.get().getInforme().getCita().getPaciente().getMedico().getId();
@@ -96,7 +96,9 @@ public class TratamientoController {
 		} else {
 			modelMap.addAttribute("message", "Tratamiento couldn't be deleted. You must be the doctor that created it and it must be created today.");
 		}
-		return "redirect:/";
+		return "redirect:/citas/" + tratamiento.get().getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
+				+ tratamiento.get().getInforme().getId();
+		//return "redirect:/citas/" + String.valueOf(tratamiento.get().getInforme().getCita().getId()) + "/informes/" + String.valueOf(tratamiento.get().getInforme().getId());
 	}
 
 }
