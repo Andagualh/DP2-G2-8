@@ -49,7 +49,7 @@
 			<spring:param name="informeId" value="${informe.id}" />
 			<spring:param name="citaId" value="${informe.cita.id}"/>
 		</spring:url>
-		<a href="${fn:escapeXml(addToHistoriaClinicaUrl)}" class="btn btn-default">Añadir Informe a Historia Clinica</a>
+		<a href="${fn:escapeXml(addToHistoriaClinicaUrl)}" class="btn btn-default">Aï¿½adir Informe a Historia Clinica</a>
 	</c:if>
 	<c:if test="${informe.historiaClinica != null}">
 		<spring:url value="/citas/{citaId}/informes/{informeId}/detelefromhistoriaclinica" var="deleteFromHistoriaClinicaUrl">
@@ -104,7 +104,7 @@
                             </td>
                             <td>
 								<c:choose>
-    								<c:when test="${vigentes[index.index]==true}">
+    								<c:when test="${editTratamientoOk}">
     									<spring:url value="/tratamientos/delete/{tratamientoId}" var="deleteUrl">
 										<spring:param name="tratamientoId" value="${tratamiento.id}" />
 										</spring:url>
@@ -123,9 +123,10 @@
         </c:forEach>
     </table>
     </c:if>
-    
+    <c:if test="${editTratamientoOk}">
     <spring:url value="/tratamientos/new/{informeId}" var="createTratUrl">
 				<spring:param name="informeId" value="${informe.id}" />
 	</spring:url>
 	<a href="${fn:escapeXml(createTratUrl)}" class="btn btn-default">Crear Tratamiento</a>
+	</c:if>
 </petclinic:layout>

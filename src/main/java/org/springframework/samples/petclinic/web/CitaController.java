@@ -157,6 +157,7 @@ public class CitaController {
 		} else {
 			// multiple citas found
 			model.put("selections", citas);
+			model.put("dateOfToday", LocalDate.now());
 			return "citas/listCitas";
 		}
 	}

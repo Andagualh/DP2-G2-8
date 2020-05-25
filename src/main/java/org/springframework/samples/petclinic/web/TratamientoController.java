@@ -48,7 +48,6 @@ public class TratamientoController {
 		return userService.getCurrentMedico().getId().equals(informe.getCita().getPaciente().getMedico().getId());
 	}
 
-	//TODO: Comparar con Cita Fecha, no con final de tratamiento
 	
 	private boolean esVigente(Tratamiento tratamiento) {
 		return tratamiento.getInforme().getCita().getFecha().equals(LocalDate.now());
@@ -84,7 +83,7 @@ public class TratamientoController {
 		Tratamiento tratamiento = new Tratamiento();
 		Informe informe = this.informeService.findInformeById(informeId).get();
 		boolean autorizado = authorizeTratamiento(informe);
-		if(autorizado) {
+		if(autorizado && informe.getCita().getFecha().equals(LocalDate.now())) {
 			model.addAttribute("informe", informe);
 			model.addAttribute("tratamiento", tratamiento);
 			
