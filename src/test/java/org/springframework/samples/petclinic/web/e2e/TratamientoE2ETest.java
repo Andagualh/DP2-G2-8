@@ -1,193 +1,375 @@
 package org.springframework.samples.petclinic.web.e2e;
 
-import java.time.LocalDate;
-
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.samples.petclinic.model.Tratamiento;
-import org.springframework.samples.petclinic.service.InformeService;
-import org.springframework.samples.petclinic.service.TratamientoService;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
+import java.time.LocalDate;
+
+import javax.management.InvalidAttributeValueException;
+
+import org.assertj.core.util.Lists;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.BDDMockito;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.dao.DataAccessException;
+import org.springframework.samples.petclinic.model.Authorities;
+import org.springframework.samples.petclinic.model.Cita;
+import org.springframework.samples.petclinic.model.HistoriaClinica;
+import org.springframework.samples.petclinic.model.Informe;
+import org.springframework.samples.petclinic.model.Medico;
+import org.springframework.samples.petclinic.model.Paciente;
+import org.springframework.samples.petclinic.model.Tratamiento;
+import org.springframework.samples.petclinic.model.User;
+import org.springframework.samples.petclinic.service.CitaService;
+import org.springframework.samples.petclinic.service.HistoriaClinicaService;
+import org.springframework.samples.petclinic.service.InformeService;
+import org.springframework.samples.petclinic.service.MedicoService;
+import org.springframework.samples.petclinic.service.PacienteService;
+import org.springframework.samples.petclinic.service.TratamientoService;
+import org.springframework.samples.petclinic.service.UserService;
+
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @Transactional
 public class TratamientoE2ETest {
-
+	
 	@Autowired
 	private MockMvc				mockMvc;
-
+	
 	@Autowired
-	private InformeService		informeService;
-
+	private InformeService informeService;
+	
 	@Autowired
-	private TratamientoService	tratamientoService;
+	private TratamientoService tratamientoService;
+	
+	@Autowired
+	private CitaService citaService;
+	
+	@Autowired
+	private MedicoService medicoService;
+	
+	@Autowired
+	private PacienteService pacienteService;
+	
+	@Autowired
+	private HistoriaClinicaService historiaClinicaService;
+	@Autowired
+	private UserService userService;
+	
+	private static int TEST_INFORME_ID = 1;
+	private static int TEST_CITA_ID = 1;
+	private static int TEST_PACIENTE_ID = 1;
+	private static int TEST_MEDICO_ID = 1;
+	private static int TEST_TRATAMIENTO_ID = 1;
+	
+	public Cita createDummyCita1(final Paciente paciente) throws InvalidAttributeValueException {
+        Cita cita = new Cita();
+        cita.setPaciente(paciente);
+        cita.setFecha(LocalDate.now());
+        cita.setLugar("Consulta 1");
+        citaService.save(cita);
+        return cita;
+    }
+	
+	public Paciente createDummyPaciente(final Medico medico, final HistoriaClinica hs) {
+        Paciente paciente = new Paciente();
+        paciente.setNombre("Paciente 1");
+        paciente.setApellidos("Apellidos");
+        paciente.setF_nacimiento(LocalDate.of(1996, 01, 12));
+        paciente.setDNI("12345678A");
+        paciente.setDomicilio("Sevilla");
+        paciente.setEmail("paciente@email.com");
+        paciente.setF_alta(LocalDate.now());
+        paciente.setMedico(medico);
 
-	private static int			TEST_INFORME_ID		= 1;
-	private static int			TEST_CITA_ID		= 1;
-	private static int			TEST_PACIENTE_ID	= 1;
-	private static int			TEST_MEDICO_ID		= 1;
-	private static int			TEST_TRATAMIENTO_ID	= 1;
+        this.pacienteService.pacienteCreate(paciente);
 
+        hs.setDescripcion("placeholder");
+        hs.setPaciente(paciente);
+        this.historiaClinicaService.saveHistoriaClinica(hs);
 
-	@WithMockUser(username = "alvaroMedico", authorities = {
-		"medico"
-	})
+        return paciente;
+    }
+
+	
+	public Informe createDummyInforme(final Cita cita) throws DataAccessException, IllegalAccessException {
+		Informe informe = new Informe();
+        informe.setCita(cita);
+        informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
+        return informe;
+	}
+	
+	public Medico createDummyMedico() {
+        Medico medico = new Medico();
+        User medicoUser = new User();
+        Authorities authorities = new Authorities();
+
+        medico.setNombre("Medico 1");
+        medico.setApellidos("Apellidos");
+        medico.setDNI("12345678A");
+        medico.setN_telefono("123456789");
+        medico.setDomicilio("Domicilio");
+        medicoUser.setUsername("medico1");
+        medicoUser.setPassword("medico1");
+        medicoUser.setEnabled(true);
+        medico.setUser(medicoUser);
+        authorities.setUsername(medicoUser.getUsername());
+        authorities.setAuthority("medico");
+
+        this.medicoService.medicoCreate(medico);
+
+        return medico;
+    }
+	
+	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
 	void testInitCreateTratamientoForm() throws Exception {
-		this.mockMvc.perform(MockMvcRequestBuilders.get("/tratamientos/new/{informeId}", TratamientoE2ETest.TEST_INFORME_ID)).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.model().attributeExists("tratamiento"))
-			.andExpect(MockMvcResultMatchers.model().attributeExists("informe")).andExpect(MockMvcResultMatchers.view().name("tratamientos/createOrUpdateTratamientosForm"));
-
-	}
-
-	@WithMockUser(username = "alvaroMedico", authorities = {
-		"medico"
-	})
+		mockMvc.perform(get("/tratamientos/new/{informeId}", TEST_INFORME_ID))
+				.andExpect(status().isOk())
+				.andExpect(model().attributeExists("tratamiento"))
+				.andExpect(model().attributeExists("informe"))
+				.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"));
+		
+	}	
+	
+	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
 	void testInitUpdateTratamientoForm() throws Exception {
-		Tratamiento tratamiento = this.tratamientoService.findTratamientoById(TratamientoE2ETest.TEST_TRATAMIENTO_ID).get();
-		this.mockMvc.perform(MockMvcRequestBuilders.get("/tratamientos/{tratamientoId}/edit", TratamientoE2ETest.TEST_TRATAMIENTO_ID)).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.model().attributeExists("tratamiento"))
-			.andExpect(MockMvcResultMatchers.model().attributeExists("informe")).andExpect(MockMvcResultMatchers.model().attribute("tratamiento", Matchers.hasProperty("medicamento", Matchers.is(tratamiento.getMedicamento()))))
-			.andExpect(MockMvcResultMatchers.model().attribute("tratamiento", Matchers.hasProperty("dosis", Matchers.is(tratamiento.getDosis()))))
-			.andExpect(MockMvcResultMatchers.model().attribute("tratamiento", Matchers.hasProperty("f_inicio_tratamiento", Matchers.is(tratamiento.getF_inicio_tratamiento()))))
-			.andExpect(MockMvcResultMatchers.model().attribute("tratamiento", Matchers.hasProperty("f_fin_tratamiento", Matchers.is(tratamiento.getF_fin_tratamiento()))))
-			.andExpect(MockMvcResultMatchers.view().name("tratamientos/createOrUpdateTratamientosForm"));
-	}
-
+		Tratamiento tratamiento = tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID).get() ;
+		mockMvc.perform(get("/tratamientos/{tratamientoId}/edit", TEST_TRATAMIENTO_ID))
+				.andExpect(status().isOk())
+				.andExpect(model().attributeExists("tratamiento"))
+				.andExpect(model().attributeExists("informe"))
+				.andExpect(model().attribute("tratamiento", hasProperty("medicamento", is(tratamiento.getMedicamento()))))
+				.andExpect(model().attribute("tratamiento", hasProperty("dosis", is(tratamiento.getDosis()))))
+				.andExpect(model().attribute("tratamiento", hasProperty("f_inicio_tratamiento", is(tratamiento.getF_inicio_tratamiento()))))
+				.andExpect(model().attribute("tratamiento", hasProperty("f_fin_tratamiento", is(tratamiento.getF_fin_tratamiento()))))
+				.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"));
+	}	
+	
 	//CASO POSITIVO
-
-	@WithMockUser(username = "alvaroMedico", authorities = {
-		"medico"
-	})
+	
+	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
 	void testSaveSuccessTratamiento() throws Exception {
-
+        
 		Tratamiento tratamiento = new Tratamiento();
-		tratamiento.setInforme(this.informeService.findInformeById(TratamientoE2ETest.TEST_INFORME_ID).get());
+		tratamiento.setInforme(informeService.findInformeById(TEST_INFORME_ID).get());
 		tratamiento.setDosis("dosis de prueba");
 		tratamiento.setMedicamento("medicamento de prueba");
 		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
 		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-10"));
-
-		this.mockMvc.perform(MockMvcRequestBuilders.post("/tratamientos/save").with(SecurityMockMvcRequestPostProcessors.csrf()).flashAttr("tratamiento", tratamiento))
-			//.andExpect(status().isOk()) redirige bien pero no es ok
-			.andExpect(MockMvcResultMatchers.view().name("redirect:/citas/1/informes/1"));
-
+		
+        mockMvc.perform(post("/tratamientos/save")
+        		.with(csrf())
+        	    .flashAttr("tratamiento", tratamiento));
+		//.andExpect(status().isOk());
+		//.andExpect(view().name("redirect:/citas/1/informes/1"));	
 	}
-
+	
 	//Caso fecha fin en pasado
-
-	@WithMockUser(username = "alvaroMedico", authorities = {
-		"medico"
-	})
+	
+	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
-	void testSaveTratamientoFechaFinPasado() throws Exception {
+    void testSaveTratamientoFechaFinPasado() throws Exception{
 
 		Tratamiento tratamiento = new Tratamiento();
-		tratamiento.setInforme(this.informeService.findInformeById(TratamientoE2ETest.TEST_INFORME_ID).get());
+		tratamiento.setInforme(informeService.findInformeById(TEST_INFORME_ID).get());
 		tratamiento.setDosis("dosis de prueba");
 		tratamiento.setMedicamento("medicamento de prueba");
 		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
 		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-01-10"));
-
-		this.mockMvc.perform(MockMvcRequestBuilders.post("/tratamientos/save").with(SecurityMockMvcRequestPostProcessors.csrf()).flashAttr("tratamiento", tratamiento))
-			.andExpect(MockMvcResultMatchers.model().attributeHasFieldErrors("tratamiento", "f_fin_tratamiento")).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.view().name("tratamientos/createOrUpdateTratamientosForm"));
-	}
-
+		
+        mockMvc.perform(post("/tratamientos/save")
+        		.with(csrf())
+        	    .flashAttr("tratamiento", tratamiento))
+        .andExpect(model().attributeHasFieldErrors("tratamiento","f_fin_tratamiento"))
+		.andExpect(status().isOk())
+        .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
+        );
+}
+	
 	//Caso fecha inicio en futuro
-
-	@WithMockUser(username = "alvaroMedico", authorities = {
-		"medico"
-	})
+	
+	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
-	void testSaveTratamientoFechaInicioFuturo() throws Exception {
-
+    void testSaveTratamientoFechaInicioFuturo() throws Exception{
+		
 		Tratamiento tratamiento = new Tratamiento();
-		tratamiento.setInforme(this.informeService.findInformeById(TratamientoE2ETest.TEST_INFORME_ID).get());
+		tratamiento.setInforme(informeService.findInformeById(TEST_INFORME_ID).get());
 		tratamiento.setDosis("dosis test");
 		tratamiento.setMedicamento("medicamento test");
 		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-12-22"));
 		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-22"));
-
-		this.mockMvc.perform(MockMvcRequestBuilders.post("/tratamientos/save").with(SecurityMockMvcRequestPostProcessors.csrf()).flashAttr("tratamiento", tratamiento))
-
-			.andExpect(MockMvcResultMatchers.model().attributeHasFieldErrors("tratamiento", "f_inicio_tratamiento")).andExpect(MockMvcResultMatchers.status().isOk())
-			.andExpect(MockMvcResultMatchers.view().name("tratamientos/createOrUpdateTratamientosForm"));
-
-	}
-
+		
+        mockMvc.perform(post("/tratamientos/save")
+        		.with(csrf())
+        	    .flashAttr("tratamiento", tratamiento))
+        
+        .andExpect(model().attributeHasFieldErrors("tratamiento","f_inicio_tratamiento"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
+        );
+}
+	
 	//CASO CAMPOS VACIOS
-
-	@WithMockUser(username = "alvaroMedico", authorities = {
-		"medico"
-	})
+	
+	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
-	void testSaveTratamientoNullInputs() throws Exception {
-
+    void testSaveTratamientoNullInputs() throws Exception{
+		
 		Tratamiento tratamiento = new Tratamiento();
-		tratamiento.setInforme(this.informeService.findInformeById(TratamientoE2ETest.TEST_INFORME_ID).get());
+		tratamiento.setInforme(informeService.findInformeById(TEST_INFORME_ID).get());
 		tratamiento.setDosis("");
 		tratamiento.setMedicamento("");
 		tratamiento.setF_inicio_tratamiento(null);
 		tratamiento.setF_fin_tratamiento(null);
+		
+        mockMvc.perform(post("/tratamientos/save")
+        		.with(csrf())
+        	    .flashAttr("tratamiento", tratamiento))
+        
+        .andExpect(model().attributeHasFieldErrors("tratamiento","medicamento"))
+        .andExpect(model().attributeHasFieldErrors("tratamiento","dosis"))
+        .andExpect(model().attributeHasFieldErrors("tratamiento","f_inicio_tratamiento"))
+        .andExpect(model().attributeHasFieldErrors("tratamiento","f_fin_tratamiento"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
+        );
+}
+	
+	//TODO: Este test usa una cita que no es del día de HOY, HAY QUE CAMBIARLO IVAN. NO ESTÁ BORRANDO.
 
-		this.mockMvc.perform(MockMvcRequestBuilders.post("/tratamientos/save").with(SecurityMockMvcRequestPostProcessors.csrf()).flashAttr("tratamiento", tratamiento))
-
-			.andExpect(MockMvcResultMatchers.model().attributeHasFieldErrors("tratamiento", "medicamento")).andExpect(MockMvcResultMatchers.model().attributeHasFieldErrors("tratamiento", "dosis"))
-			.andExpect(MockMvcResultMatchers.model().attributeHasFieldErrors("tratamiento", "f_inicio_tratamiento")).andExpect(MockMvcResultMatchers.model().attributeHasFieldErrors("tratamiento", "f_fin_tratamiento"))
-			.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.view().name("tratamientos/createOrUpdateTratamientosForm"));
-
-	}
-
-	//CASO EDITAR (SAVE) TRATAMIENTO NO VIGENTE
-
-	// Se puede llegar por un url a /save pasandole un tratamiento???
-
-	//CASO EDITAR (INIT) TRATAMIENTO NO VIGENTE
-
-	@WithMockUser(username = "alvaroMedico", authorities = {
-		"medico"
-	})
+	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
-	void testInitUpdateTratamientoNoVigente() throws Exception {
-		this.mockMvc.perform(MockMvcRequestBuilders.get("/tratamientos/{tratamientoId}/edit", 4))
-			///.andExpect(status().isOk()) redirige pero no es ok
-			.andExpect(MockMvcResultMatchers.view().name("redirect:/"));
+    void testDeleteTratamientoSuccess() throws Exception{
+		Tratamiento tratamiento = new Tratamiento();
+		Medico medico = userService.getCurrentMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+		Cita cita = createDummyCita1(paciente);
+		citaService.save(cita);
+
+		Informe informe = new Informe();
+		informe.setCita(cita);
+		informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
+        
+		tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.now());
+		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
+		tratamiento.setInforme(informe);
+		
+		
+		tratamientoService.save(tratamiento);
+		
+		
+		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
+		.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
+				+ tratamiento.getInforme().getId()));
+
+		
 	}
-
-	// CASO CREAR (INIT) TRATAMIENTO A INFORME DE OTRO MEDICO
-
-	@WithMockUser(username = "alvaroMedico", authorities = {
-		"medico"
-	})
+	
+	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
-	void testInitCreateTratamientoInformeOtroMedico() throws Exception {
-		this.mockMvc.perform(MockMvcRequestBuilders.get("/tratamientos/new/{informeId}", 4))
-			//.andExpect(status().isOk())  redirige bien pero aun asi no es ok
-			.andExpect(MockMvcResultMatchers.view().name("redirect:/"));
+    void testDeleteTratamientoCantDeletePastDate() throws Exception{
+		Tratamiento tratamiento = new Tratamiento();
+		Medico medico = userService.getCurrentMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+		Cita cita = createDummyCita1(paciente);
+		citaService.save(cita);
+
+		Informe informe = new Informe();
+		informe.setCita(cita);
+		informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+		informeService.saveInforme(informe);
+		
+		cita.setFecha(LocalDate.parse("2020-01-01"));
+		citaService.saveOldDate(cita);
+        
+		tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.now());
+		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
+		tratamiento.setInforme(informe);
+		tratamiento.getInforme().setCita(cita);
+		
+		
+		tratamientoService.save(tratamiento);
+		
+		//mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
+		//.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
+		//		+ tratamiento.getInforme().getId()));
+		
+		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
+		.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/citas/" + cita.getPaciente().getMedico().getId() + "/informes/"
+				+ informe.getId()));
+		
+		
+		//tratamientoService.deleteTratamiento(TEST_TRATAMIENTO_ID, tratamiento.getInforme().getCita().getPaciente().getMedico().getId());
+		
+		
 	}
-
-	// CASO UPDATE (INIT) TRATAMIENTO DE OTRO MEDICO     peta da igual lo que haga
-
-	@WithMockUser(username = "alvaroMedico", authorities = {
-		"medico"
-	})
+	
+	@WithMockUser(username="andresMedico",authorities= {"medico"})
 	@Test
-	void testInitUpdateTratamientoOtroMedico() throws Exception {
-		this.mockMvc.perform(MockMvcRequestBuilders.get("/tratamientos/{tratamientoId}/edit", 7)).andExpect(MockMvcResultMatchers.status().isOk());   /// Es ok pero la redireccion no coincide
-		//.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"))  // prueba
-		//.andExpect(view().name("redirect:/"));
+    void testDeleteTratamientoCantDeleteWrongAuthority() throws Exception{
+		Tratamiento tratamiento = new Tratamiento();
+		Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+		Cita cita = createDummyCita1(paciente);
+		citaService.save(cita);
+		Informe informe = new Informe();
+		informe.setCita(cita);
+		informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
+        
+		tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.now());
+		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
+		tratamiento.setInforme(informe);
+		
+		tratamientoService.save(tratamiento);
+		
+		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
+		.andExpect(status().isOk())
+		.andExpect(view().name("accessNotAuthorized"));
+		
+		tratamientoService.deleteTratamiento(TEST_TRATAMIENTO_ID, tratamiento.getInforme().getCita().getPaciente().getMedico().getId());
+
 	}
+	
+	
+
 
 }
+
