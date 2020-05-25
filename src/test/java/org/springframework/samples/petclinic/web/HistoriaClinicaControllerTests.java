@@ -1,6 +1,7 @@
 
 package org.springframework.samples.petclinic.web;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -12,8 +13,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
+import org.springframework.samples.petclinic.model.Authorities;
 import org.springframework.samples.petclinic.model.HistoriaClinica;
+import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.Paciente;
+import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.HistoriaClinicaService;
 import org.springframework.samples.petclinic.service.MedicoService;
@@ -26,6 +30,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.ui.Model;
 
 @WebMvcTest(value = HistoriaClinicaController.class, excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class), excludeAutoConfiguration = SecurityConfiguration.class)
 
@@ -53,11 +58,51 @@ class HistoriaClinicaControllerTests {
 	private static final int			TEST_PACIENTE_ID							= 1;
 	private static final int			TEST_MEDICO_ID								= 1;
 	private static final String			TEST_USER_ID								= "1";
+	private static final String			TEST_MEDICOUSER_ID							= "medico";
+	
+	private Medico						medico;
+
+	private User						medicoUser;
+	private Paciente						pepe;
+
+	private Authorities					authorities;
 
 
 	@BeforeEach
 	void setup() {
 
+		this.medico = new Medico();
+		this.medico.setId(HistoriaClinicaControllerTests.TEST_MEDICO_ID);
+		this.medico.setNombre("Medico 1");
+		this.medico.setApellidos("Apellidos");
+		this.medico.setDNI("12345672Z");
+		this.medico.setN_telefono("123456789");
+		this.medico.setDomicilio("Domicilio");
+
+		this.medicoUser = new User();
+		this.medicoUser.setUsername(HistoriaClinicaControllerTests.TEST_MEDICOUSER_ID);
+		this.medicoUser.setPassword("medico1");
+		this.medicoUser.setEnabled(true);
+
+		this.medico.setUser(this.medicoUser);
+		this.medico.getUser().setEnabled(true);
+
+		this.authorities = new Authorities();
+		this.authorities.setUsername(HistoriaClinicaControllerTests.TEST_MEDICOUSER_ID);
+		this.authorities.setAuthority("medico");
+		
+		this.pepe = new Paciente();
+		this.pepe.setId(HistoriaClinicaControllerTests.TEST_PACIENTE_ID);
+		this.pepe.setNombre("Pepe");
+		this.pepe.setApellidos("Rodriguez");
+		this.pepe.setF_nacimiento(LocalDate.of(1996, 2, 8));
+		this.pepe.setDNI("12345671Z");
+		this.pepe.setDomicilio("Ecija");
+		this.pepe.setN_telefono(615345987);
+		this.pepe.setEmail("pepeloa@gmail.com");
+		this.pepe.setF_alta(LocalDate.now());
+		this.pepe.setMedico(this.medico);
+		
 		BDDMockito.given(this.pacienteService.findPacienteById(HistoriaClinicaControllerTests.TEST_PACIENTE_ID)).willReturn(Optional.of(new Paciente()));
 		BDDMockito.given(this.historiaService.findHistoriaClinicaByPacienteId(HistoriaClinicaControllerTests.TEST_PACIENTE_ID)).willReturn(new HistoriaClinica());
 
@@ -66,6 +111,10 @@ class HistoriaClinicaControllerTests {
 	@WithMockUser(value = "spring")
 	@Test
 	void testShowHistoriaClinica() throws Exception {
+		
+		BDDMockito.given(this.pacienteService.findPacienteById(TEST_PACIENTE_ID)).willReturn(Optional.of(this.pepe));
+		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico);
+		
 		this.mockMvc.perform(MockMvcRequestBuilders.get("/pacientes/{pacienteId}/historiaclinica", HistoriaClinicaControllerTests.TEST_PACIENTE_ID)).andExpect(MockMvcResultMatchers.status().isOk())
 			.andExpect(MockMvcResultMatchers.model().attributeExists("historiaclinica")).andExpect(MockMvcResultMatchers.view().name("pacientes/historiaClinicaDetails"));
 	}
