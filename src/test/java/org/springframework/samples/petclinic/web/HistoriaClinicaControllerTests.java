@@ -187,17 +187,18 @@ class HistoriaClinicaControllerTests {
 	
 	@WithMockUser(value = "spring")
 	@Test
-	void testInitUpdateForm() throws Exception{
-		
-		Paciente paciente = new Paciente();
-	    paciente.setId(HistoriaClinicaControllerTests.TEST_PACIENTE_ID);
-	    BDDMockito.given(this.pacienteService.findHistoriaClinicaByPaciente(paciente)).willReturn(new HistoriaClinica());
-		
-		this.mockMvc.perform(MockMvcRequestBuilders.get("/pacientes/{pacienteId}/historiaclinica/edit", HistoriaClinicaControllerTests.TEST_PACIENTE_ID))
+	void testInitUpdateFormAuthorized() throws Exception{
+
+		BDDMockito.given(this.pacienteService.findPacienteById(TEST_PACIENTE_ID)).willReturn(Optional.of(this.javier));	
+		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.javier.getMedico());
+	    BDDMockito.given(this.pacienteService.findHistoriaClinicaByPaciente(this.javier));
+	    
+	    
+		this.mockMvc.perform(MockMvcRequestBuilders.get("/pacientes/{pacienteId}/historiaclinica/edit", TEST_PACIENTE_ID))
 		.andExpect(MockMvcResultMatchers.status().isOk())
 		.andExpect(MockMvcResultMatchers.model().attributeExists("historiaclinica"))
 		.andExpect(MockMvcResultMatchers.model().attributeExists("paciente"))
-		.andExpect(MockMvcResultMatchers.view().name(HistoriaClinicaControllerTests.VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM));
+		.andExpect(MockMvcResultMatchers.view().name(VIEWS_HISTORIACLINICA_CREATE_OR_UPDATE_FORM));
 	}
 	
 	@WithMockUser(value = "spring")
