@@ -102,7 +102,7 @@ public class TratamientoController {
 			return "accessNotAuthorized";
 		}
 
-		if (medic.getId().equals(idMedico) && tratamiento.get().getInforme().getCita().getPaciente().getMedico().getId() == idMedico && tratamiento.get().getInforme().getCita().getFecha().equals(LocalDate.now())) {
+		if (tratamiento.get().getInforme().getCita().getFecha().equals(LocalDate.now())) {
 			this.tratamientoService.deleteTratamiento(tratamientoId, idMedico);
 			modelMap.addAttribute("message", "Tratamiento succesfully deleted");
 		} else {
