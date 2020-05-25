@@ -519,7 +519,7 @@ public class PacienteControllerE2ETest {
     @Test
     void testProcessCreatePacienteFormSuccess() throws Exception {
 		
-		int prox_id = this.pacienteService.pacienteCount()+3;
+		int prox_id = this.pacienteService.pacienteCount()+4;
 		
 		mockMvc.perform(post("/pacientes/new")
 				.with(csrf())
