@@ -19,10 +19,10 @@ public class TratamientoService {
 
 	@Autowired
 	private TratamientoRepository	tratamientoRepo;
+
 	@Autowired
 	private InformeService			informeService;
-
-
+	
 	@Transactional
 	public int tratamientoCount() {
 		return (int) this.tratamientoRepo.count();
@@ -54,7 +54,7 @@ public class TratamientoService {
 
 		return tratamientos;
 	}
-	
+
 	@Transactional
 	public void deleteTratamiento(final int id, final int idMedico) throws DataAccessException, IllegalAccessException{
 		Tratamiento tratamiento = findTratamientoById(id).get();
@@ -65,4 +65,5 @@ public class TratamientoService {
 			throw new IllegalAccessException("No se puede borrar este tratamiento");
 		}
 	}
+
 }

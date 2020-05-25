@@ -11,6 +11,7 @@ import javax.management.InvalidAttributeValueException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Cita;
+import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.repository.CitaRepository;
 import org.springframework.stereotype.Service;
@@ -41,12 +42,6 @@ public class CitaService {
 		return this.citaRepo.save(cita).getId();
 	}
 
-	// No esta terminada
-	@Transactional
-	public Iterable<Cita> findAllByMedicoId(final int medicoId) {
-		return this.citaRepo.findAll();
-	}
-
 	@Transactional
 	public Collection<Cita> findAllByPaciente(final Paciente paciente) {
 		return this.citaRepo.findCitasByPaciente(paciente);
@@ -55,7 +50,7 @@ public class CitaService {
 	@Transactional
 	public Cita save(final Cita cita) throws InvalidAttributeValueException {
 		if (cita.getFecha().isBefore(LocalDate.now())) {
-			throw new InvalidAttributeValueException();
+			throw new InvalidAttributeValueException("No se puede poner una fecha en pasado");
 		} else {
 			return this.citaRepo.save(cita);
 		}
@@ -93,10 +88,27 @@ public class CitaService {
 	}
 
 	@Transactional(readOnly = true)
-	public Collection<Cita> findCitasByFecha(final LocalDate fecha) throws DataAccessException {
+	public Collection<Cita> findCitasByFecha(final LocalDate fecha, final Medico medic) throws DataAccessException {
 		Collection<Cita> citas = new ArrayList<>();
+		Collection <Cita> res = new ArrayList<>();
 		citas.addAll(this.citaRepo.findByDate(fecha));
-		return citas;
+			for(Cita c: citas){
+				if(c.getPaciente().getMedico().equals(medic)){
+					res.add(c);
+				}
+			}
+
+		return res;
+	}
+
+	@Transactional(readOnly = true)
+	public Boolean existsCitaPacienteDate(final LocalDate fecha, final Paciente paciente) throws DataAccessException {
+		Boolean exists = false;
+		Cita cita = this.citaRepo.findCitaByPacienteAndFecha(paciente, fecha);
+		if(cita != null){
+			exists = true;
+		}
+		return exists;
 	}
 
 }

@@ -24,25 +24,25 @@
     </jsp:attribute>
 	<jsp:body>
 	<h2>
-		<c:if test="${isNewPaciente}">New </c:if>
+		<c:if test="${isNewPaciente}">Nuevo </c:if>
 		Paciente
 	</h2>
 	<form:form modelAttribute="paciente" class="form-horizontal" id="add-paciente-form">
 		<div class="form-group has-feedback">
-			<petclinic:inputField label="First Name" name="nombre" />
-			<petclinic:inputField label="Last Name" name="apellidos" />
-			<petclinic:customDateInput label="Fecha Nacimiento" name="f_nacimiento"/>
+			<petclinic:inputField label="Nombre completo" name="nombre" />
+			<petclinic:inputField label="Apellidos" name="apellidos" />
+			<petclinic:customDateInput label="Fecha de nacimiento" name="f_nacimiento"/>
 			<petclinic:inputField label="DNI" name="DNI" />
-			<petclinic:inputField label="Address" name="domicilio" />
-			<petclinic:inputField label="Telephone" name="n_telefono" />
+			<petclinic:inputField label="Dirección del domicilio" name="domicilio" />
+			<petclinic:inputField label="Teléfono" name="n_telefono" />
 			<petclinic:inputField label="Email" name="email" />
-			<petclinic:customDateInput label="Fecha de Alta" name="f_alta"/>
+			<petclinic:customDateInput label="Fecha alta" name="f_alta"/>
 						
 			<spring:bind path="medico">
 				<c:set var="cssGroup" value="form-group ${status.error ? 'error' : '' }" />
 				<c:set var="valid" value="${not status.error and not empty status.actualValue}" />
 				<div class="${cssGroup}">
-					<label class="col-sm-2 control-label">Medico</label>
+					<label class="col-sm-2 control-label">Médico Asignado</label>
 
 					<div class="col-sm-10">
 						<form:select class="form-control" path="medico">

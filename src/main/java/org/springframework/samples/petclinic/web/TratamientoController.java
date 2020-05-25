@@ -18,10 +18,8 @@ import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,15 +38,27 @@ public class TratamientoController {
 	@Autowired
 	private UserService userService;
 
+
 	private static final String	VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM	= "tratamientos/createOrUpdateTratamientosForm";
 
+	
+	public boolean authorizeTratamiento(Informe informe) {
+		return userService.getCurrentMedico().getId().equals(informe.getCita().getPaciente().getMedico().getId());
+	}
 
+	//TODO: Comparar con Cita Fecha, no con final de tratamiento
+	
+	private boolean esVigente(Tratamiento tratamiento) {
+		return tratamiento.getF_fin_tratamiento().isAfter(LocalDate.now());
+	}
+	
 	@GetMapping(value = "/{tratamientoId}/edit")
 	public String initUpdateTratamientosForm(@PathVariable("tratamientoId") final int tratamientoId, final ModelMap model) {
 		Tratamiento tratamiento = this.tratamientoService.findTratamientoById(tratamientoId).get();
-		boolean esVigente = tratamiento.getF_fin_tratamiento().isAfter(LocalDate.now());
-		if(esVigente) {
-			Informe informe = this.informeService.findInformeById(tratamiento.getId()).get();
+		Informe informe = this.informeService.findInformeById(tratamiento.getId()).get();
+		boolean esVigente = esVigente(tratamiento);
+		boolean autorizado = authorizeTratamiento(informe);
+		if(esVigente && autorizado) {
 			model.addAttribute("informe", informe);
 			model.addAttribute("tratamiento", tratamiento);
 			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
@@ -61,27 +71,30 @@ public class TratamientoController {
 	public String initCreateTratamientosForm(@PathVariable("informeId") final int informeId, final ModelMap model) {
 		Tratamiento tratamiento = new Tratamiento();
 		Informe informe = this.informeService.findInformeById(informeId).get();
-		model.addAttribute("informe", informe);
-		model.addAttribute("tratamiento", tratamiento);
-		return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
+		boolean autorizado = authorizeTratamiento(informe);
+		if(autorizado) {
+			model.addAttribute("informe", informe);
+			model.addAttribute("tratamiento", tratamiento);
+			
+			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
+		}else {
+			return "redirect:/";
+		}
 	}
 
-	//He quitado el calculo de la variable isAdmin porque peta los test de integracion(al menos a mi), por eso esta simplemente en false.
-	// Debe de ser porque al desactivar security en los test si luego llamas a algo de seguridad simplemente peta.
-	// Creo que esto ya se controla bien con el segurity configuration.
 	@PostMapping(value = "/save")
-	public String saveTratamiento(@Valid final Tratamiento tratamiento, final BindingResult result) {
+	public String saveTratamiento(@Valid final Tratamiento tratamiento, final BindingResult result, final ModelMap modelMap) {
+		
+		if(!authorizeTratamiento(tratamiento.getInforme())){
+			return "accessNotAuthorized";
+		}
 
-		// boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("admin"));
 
-		if (result.hasErrors()) {
+		else if(result.hasErrors()) {
+			modelMap.addAttribute("informe", tratamiento.getInforme());
+			modelMap.addAttribute("tratamiento", tratamiento);
 			System.out.println("ERRORES: " + result.getAllErrors());
 			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
-	/*	} else if (isAdmin) {
-			tratamiento.setId(tratamiento.getId());
-			this.tratamientoService.save(tratamiento);
-			return "redirect:/tratamientos/{tratamientoId}";
-			*/
 		} else {
 			Informe informe = this.informeService.findInformeById(tratamiento.getInforme().getId()).get();
 			tratamiento.setId(tratamiento.getId());
