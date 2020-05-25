@@ -1,4 +1,3 @@
-
 package org.springframework.samples.petclinic.service;
 
 import java.time.LocalDate;
@@ -71,6 +70,17 @@ public class TratamientoService {
 		}
 
 		return tratamientos;
+	}
+
+	@Transactional
+	public void deleteTratamiento(final int id, final int idMedico) throws DataAccessException, IllegalAccessException{
+		Tratamiento tratamiento = findTratamientoById(id).get();
+		
+		if(tratamiento.getInforme().getCita().getPaciente().getMedico().getId() == idMedico && tratamiento.getInforme().getCita().getFecha().equals(LocalDate.now())){
+		this.tratamientoRepo.deleteById(id);
+		} else {
+			throw new IllegalAccessException("No se puede borrar este tratamiento");
+		}
 	}
 
 }

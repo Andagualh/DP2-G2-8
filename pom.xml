@@ -273,8 +273,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <excludes>
-                     <exclude>**/*UITest.java</exclude>
-                    <exclude>**/*ControllerIntegrationTest*</exclude>
+                      <exclude>**/*UITest.java</exclude>
                     <exclude>**/*APITest.java</exclude>
                      <exclude>**/*ControllerIntegrationTest*</exclude>
                     </excludes>

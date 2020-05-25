@@ -1,3 +1,4 @@
+
 package org.springframework.samples.petclinic.web;
 
 import java.time.LocalDate;
@@ -173,17 +174,32 @@ public class InformeController {
 	@GetMapping(value = "/informes/{informeId}/addtohistoriaclinica")
 	public String addHistoriaClinicaToInforme(@PathVariable("informeId") final int informeId) throws DataAccessException, IllegalAccessException {
 		Informe informe = this.informeService.findInformeById(informeId).get();
-		HistoriaClinica hc = this.historiaClinicaService.findHistoriaClinicaByPaciente(informe.getCita().getPaciente());
-		informe.setHistoriaClinica(hc);
-		this.informeService.saveInformeWithHistoriaClinica(informe);
-		return "redirect:/pacientes/" + informe.getCita().getPaciente().getId() + "/historiaclinica";
+		Medico medicoactual = this.userService.getCurrentMedico();
+		Medico medicocorrecto = informe.getCita().getPaciente().getMedico();
+
+		if (!medicoactual.equals(medicocorrecto)) {
+			return InformeController.VIEWS_ACCESS_NOT_AUTHORIZED;
+		} else {
+
+			HistoriaClinica hc = this.historiaClinicaService.findHistoriaClinicaByPaciente(informe.getCita().getPaciente());
+			informe.setHistoriaClinica(hc);
+			this.informeService.saveInformeWithHistoriaClinica(informe);
+			return "redirect:/pacientes/" + informe.getCita().getPaciente().getId() + "/historiaclinica";
+		}
 	}
 
 	@GetMapping(value = "/informes/{informeId}/detelefromhistoriaclinica")
 	public String deleteFromHistoriaClinica(@PathVariable("informeId") final int informeId) throws DataAccessException, IllegalAccessException {
 		Informe informe = this.informeService.findInformeById(informeId).get();
-		this.informeService.deleteInformeToHistoriaClinica(informe);
-		return "redirect:/citas/" + informe.getCita().getPaciente().getMedico().getId() + "/informes/" + informe.getId();
+		Medico medicoactual = this.userService.getCurrentMedico();
+		Medico medicocorrecto = informe.getCita().getPaciente().getMedico();
+
+		if (!medicoactual.equals(medicocorrecto)) {
+			return InformeController.VIEWS_ACCESS_NOT_AUTHORIZED;
+		} else {
+			this.informeService.deleteInformeToHistoriaClinica(informe);
+			return "redirect:/citas/" + informe.getCita().getPaciente().getMedico().getId() + "/informes/" + informe.getId();
+		}
 	}
 
 	@GetMapping(value = "/informes/{informeId}/edit")
