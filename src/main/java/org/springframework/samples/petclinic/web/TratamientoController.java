@@ -71,8 +71,6 @@ public class TratamientoController {
 			model.addAttribute("tratamiento", tratamiento);
 			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
 		}else {
-			
-			
 			return "redirect:/";
 		}
 	}
@@ -85,7 +83,7 @@ public class TratamientoController {
 		if(!authorizeTratamiento(tratamiento.getInforme())){
 			return "accessNotAuthorized";
 		}else if(result.hasErrors()){
-			
+			modelMap.addAttribute("informe",informeService.findInformeById(tratamiento.getInforme().getId()).get());
 			modelMap.addAttribute("tratamiento", tratamiento);
 			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
 		}else if(!fechasCorrectas) {
