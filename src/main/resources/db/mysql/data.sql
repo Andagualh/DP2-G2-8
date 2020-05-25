@@ -106,7 +106,7 @@ VALUES (9,'Borrar','Borrar Borrar','1983-11-12','66100313S',605708609,'Borrar Bo
 
 INSERT INTO cita VALUES (1, 'nombre4','2020-03-09','Consulta 1',1);
 INSERT INTO cita VALUES (2, 'nombre5','2022-07-09','Consulta 2',1);
-INSERT INTO cita VALUES (3, 'nombre6','2021-03-10','Consulta 3',2);
+INSERT INTO cita VALUES (3, 'nombre6','2021-03-10','Consulta 3',2);	
 INSERT INTO cita VALUES (4, 'nombre7','2025-04-09','Consulta 4',2);
 INSERT INTO cita VALUES (5, 'nombre8','2023-05-09','Consulta 5',3);
 INSERT INTO cita VALUES (6, 'nombre9','2023-05-09','Consulta 6',3);

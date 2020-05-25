@@ -1,4 +1,3 @@
-
 package org.springframework.samples.petclinic.web.e2e;
 
 import java.time.LocalDate;

@@ -277,7 +277,7 @@ public class PacienteController {
 		} else {
 			int pacienteId = this.pacienteService.savePacienteByMedico(paciente,
 					this.userService.getCurrentMedico().getId());
-
+			
 			return "redirect:/pacientes/" + pacienteId;
 		}
 	}
