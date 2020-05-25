@@ -122,15 +122,8 @@ public class InformeController {
 			mav.getModel().put("cannotbedeleted", !canBeDeleted);
 
 			Collection<Tratamiento> tratamientos = this.tratamientoService.findTratamientosByInforme(informe);
-			Collection<Boolean> vigentes = new ArrayList();
-			for (Tratamiento tratamiento : tratamientos) {
-				vigentes.add(tratamiento.getF_fin_tratamiento().isAfter(LocalDate.now()));
-			}
+			mav.getModel().put("editTratamientoOk", cita.getFecha().equals(LocalDate.now()));
 			mav.getModel().put("tratamientos", tratamientos);
-			mav.getModel().put("vigentes", vigentes);
-
-			// Boolean informeInHistoriaClinica = informe.getHistoriaClinica() != null;
-			// mav.getModel().put("informeInHistoriaClinica", informeInHistoriaClinica);
 
 			Boolean canBeEdited = informe.getCita().getFecha().equals(LocalDate.now());
 			mav.getModel().put("canbeedited", canBeEdited);

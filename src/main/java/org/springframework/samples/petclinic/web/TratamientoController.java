@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.model.Informe;
 import org.springframework.samples.petclinic.model.Tratamiento;
+import org.springframework.samples.petclinic.service.CitaService;
 import org.springframework.samples.petclinic.service.InformeService;
 import org.springframework.samples.petclinic.service.TratamientoService;
 import org.springframework.samples.petclinic.service.UserService;
@@ -28,7 +29,9 @@ public class TratamientoController {
 	@Autowired
 	private InformeService		informeService;
 	@Autowired
-	private UserService		userService;
+	private CitaService 		citaService;
+	@Autowired
+	private UserService			userService;
 	
 
 	private static final String	VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM	= "tratamientos/createOrUpdateTratamientosForm";
@@ -41,15 +44,25 @@ public class TratamientoController {
 	//TODO: Comparar con Cita Fecha, no con final de tratamiento
 	
 	private boolean esVigente(Tratamiento tratamiento) {
-		return tratamiento.getF_fin_tratamiento().isAfter(LocalDate.now());
+		return tratamiento.getInforme().getCita().getFecha().equals(LocalDate.now());
+	}
+		
+	private boolean fechaInicioFinOk(Tratamiento tratamiento) {
+		if(tratamiento.getF_inicio_tratamiento().equals(tratamiento.getF_fin_tratamiento()) || 
+				tratamiento.getF_inicio_tratamiento().isBefore(tratamiento.getF_fin_tratamiento())) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	@GetMapping(value = "/{tratamientoId}/edit")
 	public String initUpdateTratamientosForm(@PathVariable("tratamientoId") final int tratamientoId, final ModelMap model) {
 		Tratamiento tratamiento = this.tratamientoService.findTratamientoById(tratamientoId).get();
-		Informe informe = this.informeService.findInformeById(tratamiento.getId()).get();
+		Informe informe = this.informeService.findInformeById(tratamiento.getInforme().getId()).get();
 		boolean esVigente = esVigente(tratamiento);
 		boolean autorizado = authorizeTratamiento(informe);
+
 		if(esVigente && autorizado) {
 			model.addAttribute("informe", informe);
 			model.addAttribute("tratamiento", tratamiento);
@@ -76,15 +89,17 @@ public class TratamientoController {
 
 	@PostMapping(value = "/save")
 	public String saveTratamiento(@Valid final Tratamiento tratamiento, final BindingResult result, final ModelMap modelMap) {
-		
 		if(!authorizeTratamiento(tratamiento.getInforme())){
 			return "accessNotAuthorized";
-		}
-
-
-		else if(result.hasErrors()) {
+		} else if(result.hasErrors()) {
 			modelMap.addAttribute("informe", tratamiento.getInforme());
 			modelMap.addAttribute("tratamiento", tratamiento);
+			System.out.println("ERRORES: " + result.getAllErrors());
+			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
+		} else if(!fechaInicioFinOk(tratamiento)) {
+			modelMap.addAttribute("informe", tratamiento.getInforme());
+			modelMap.addAttribute("tratamiento", tratamiento);
+			result.rejectValue("f_fin_tratamiento", "error.fechaTratamiento", "La fecha de finalización del tratamiento no puede ser anterior a la fecha de inicio del tratamiento");
 			System.out.println("ERRORES: " + result.getAllErrors());
 			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
 		} else {

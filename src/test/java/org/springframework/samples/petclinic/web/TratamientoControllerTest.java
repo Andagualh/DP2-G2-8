@@ -132,7 +132,7 @@ public class TratamientoControllerTest {
         this.cita1.setId(TEST_CITA_ID);
         this.cita1.setName("nombreTest");
         this.cita1.setLugar("lugarTest");
-        this.cita1.setFecha(LocalDate.parse("2020-06-15"));
+        this.cita1.setFecha(LocalDate.now());
         this.cita1.setPaciente(javier);
         
         this.informe1 = new Informe();

@@ -91,9 +91,9 @@
                         <tr>
                             <td>
                             	<c:choose>
-    								<c:when test="${vigentes[index.index]==true}">
+    								<c:when test="${editTratamientoOk}">
     									<spring:url value="/tratamientos/{tratamientoId}/edit" var="editUrl">
-										<spring:param name="tratamientoId" value="${paciente.id}" />
+										<spring:param name="tratamientoId" value="${tratamiento.id}" />
 										</spring:url>
 										<a href="${fn:escapeXml(editUrl)}" class="btn btn-default">Editar Tratamiento</a>
     								</c:when>    

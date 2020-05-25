@@ -1,4 +1,4 @@
-package org.springframework.samples.petclinic.web.E2E;
+package org.springframework.samples.petclinic.web.e2e;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
