@@ -114,11 +114,11 @@
     </table>
     </c:if>
     
-    <c:when test="${tratamientoEditable==true}">
+    <c:if test="${tratamientoEditable==true}">
     	<spring:url value="/tratamientos/new/{informeId}" var="createTratUrl">
 				<spring:param name="informeId" value="${informe.id}" />
 		</spring:url>
 		<a href="${fn:escapeXml(createTratUrl)}" class="btn btn-default">Crear Tratamiento</a>
-	</c:when>
+	</c:if>
 	
 </petclinic:layout>

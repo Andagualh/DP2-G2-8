@@ -38,8 +38,6 @@ public class TratamientoController {
 		return userService.getCurrentMedico().getId().equals(informe.getCita().getPaciente().getMedico().getId());
 	}
 
-	//TODO: Comparar con Cita Fecha, no con final de tratamiento
-	
 	private boolean esVigente(Tratamiento tratamiento) {
 		return tratamiento.getInforme().getCita().getFecha().isEqual(LocalDate.now());
 	}
@@ -47,15 +45,17 @@ public class TratamientoController {
 	@GetMapping(value = "/{tratamientoId}/edit")
 	public String initUpdateTratamientosForm(@PathVariable("tratamientoId") final int tratamientoId, final ModelMap model) {
 		Tratamiento tratamiento = this.tratamientoService.findTratamientoById(tratamientoId).get();
-		Informe informe = this.informeService.findInformeById(tratamiento.getId()).get();
+		Informe informe = tratamiento.getInforme(); 
 		boolean esVigente = esVigente(tratamiento);
 		boolean autorizado = authorizeTratamiento(informe);
-		if(esVigente && autorizado) {
+		if(!autorizado) {
+			return "redirect:/";
+	    }else if(!esVigente) {    	
+	    	return "redirect:/";
+		}else {
 			model.addAttribute("informe", informe);
 			model.addAttribute("tratamiento", tratamiento);
 			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
-		}else {
-			return "redirect:/";
 		}
 	}
 	
@@ -64,27 +64,33 @@ public class TratamientoController {
 		Tratamiento tratamiento = new Tratamiento();
 		Informe informe = this.informeService.findInformeById(informeId).get();
 		boolean autorizado = authorizeTratamiento(informe);
+		tratamiento.setInforme(informe);
 		boolean esVigente = esVigente(tratamiento);
 		if(autorizado && esVigente) {
 			model.addAttribute("informe", informe);
 			model.addAttribute("tratamiento", tratamiento);
-			
 			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
 		}else {
+			
+			
 			return "redirect:/";
 		}
 	}
 
 	@PostMapping(value = "/save")
 	public String saveTratamiento(@Valid final Tratamiento tratamiento, final BindingResult result, final ModelMap modelMap) {
+		
         boolean fechasCorrectas = tratamiento.getF_fin_tratamiento().isAfter(tratamiento.getF_inicio_tratamiento());
+        
 		if(!authorizeTratamiento(tratamiento.getInforme())){
 			return "accessNotAuthorized";
-		}else if(!fechasCorrectas){
+		}else if(result.hasErrors()){
+			
+			modelMap.addAttribute("tratamiento", tratamiento);
+			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
+		}else if(!fechasCorrectas) {
 			result.rejectValue("f_fin_tratamiento", "error.fechasErroneas", "La fecha de inicio es mayor a fecha de fin.");
 			result.rejectValue("f_inicio_tratamiento", "error.fechasErroneas", "La fecha de inicio es mayor a fecha de fin.");
-			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
-		}else if(result.hasErrors()) {
 			modelMap.addAttribute("informe", tratamiento.getInforme());
 			modelMap.addAttribute("tratamiento", tratamiento);
 			return TratamientoController.VIEWS_TRATAMIENTOS_CREATE_OR_UPDATE_FORM;
