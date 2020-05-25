@@ -86,7 +86,9 @@ public class TratamientoControllerTest {
 
     private Authorities         authorities;
     
-    private Cita                cita1;
+	private Cita                cita1;
+	
+	private Cita 				cita2;
     
     private Informe             informe1;
 	
@@ -135,7 +137,15 @@ public class TratamientoControllerTest {
         this.cita1.setLugar("lugarTest");
         this.cita1.setFecha(LocalDate.parse("2020-06-15"));
         this.cita1.setPaciente(javier);
+		
+		this.cita2 = new Cita();
+        this.cita2.setId(TEST_CITA_ID);
+        this.cita2.setName("nombreTest");
+        this.cita2.setLugar("lugarTest");
+        this.cita2.setFecha(LocalDate.now());
+        this.cita2.setPaciente(javier);
         
+
         this.informe1 = new Informe();
         this.informe1.setId(TEST_INFORME_ID);
         this.informe1.setDiagnostico("diagnostico test");
@@ -388,7 +398,7 @@ public class TratamientoControllerTest {
 		Tratamiento tratamiento = new Tratamiento();
 		Medico medic = new Medico();
 		medic.setId(this.medico1.getId());
-		this.informe1.setCita(cita1);
+		this.informe1.setCita(cita2);
     	
     	tratamiento.setId(TEST_TRATAMIENTO_ID);
     	tratamiento.setMedicamento("aspirina1");

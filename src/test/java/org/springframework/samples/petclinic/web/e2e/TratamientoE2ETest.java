@@ -173,6 +173,8 @@ public class TratamientoE2ETest {
         );
 }
 	
+	//TODO: Este test usa una cita que no es del día de HOY, HAY QUE CAMBIARLO IVAN. NO ESTÁ BORRANDO.
+
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
     void testDeleteTratamientoSuccess() throws Exception{
@@ -184,11 +186,15 @@ public class TratamientoE2ETest {
 		tratamiento.setF_fin_tratamiento(LocalDate.now().plusDays(5));
 		tratamiento.setInforme(informeService.findInformeById(TEST_INFORME_ID).get());
 		
+		
 		tratamientoService.save(tratamiento);
+		
 		
 		mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
 		.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
 				+ tratamiento.getInforme().getId()));
+
+		
 	}
 	
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
