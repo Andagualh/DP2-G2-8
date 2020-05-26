@@ -50,6 +50,11 @@ public class UserService {
 	}
 
 	@Transactional
+	public int userCount() throws DataAccessException {
+		return (int) this.userRepository.count();
+	}
+	
+	@Transactional
 	public void saveUser(final User user) throws DataAccessException {
 		user.setEnabled(true);
 		this.userRepository.save(user);
@@ -83,8 +88,8 @@ public class UserService {
 		this.userRepository.findAll().forEach(users::add);
 		return users;
 	}
+	
 	@Transactional(readOnly = true)
-
 	public Collection<User> findUsersByUsername(final String username) throws DataAccessException {
 		return this.userRepository.findUsersByUsername(username);
 	}
