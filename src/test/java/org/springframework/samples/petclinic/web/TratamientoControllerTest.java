@@ -198,7 +198,7 @@ public class TratamientoControllerTest {
 		BDDMockito.given(this.tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID2)).willReturn(Optional.of(tratamiento2));
 		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
 	}
-	 
+	 /*
 	@WithMockUser(value = "spring")
 	@Test
 	void testInit() throws Exception {
@@ -274,7 +274,7 @@ public class TratamientoControllerTest {
 		//.andExpect(status().is2xxSuccessful());
 		.andExpect(view().name("redirect:/citas/1/informes/1"));	
 	}
-    
+    */
     @WithMockUser(value = "spring")
 	@Test
     void testSaveTratamientoNullFecha() throws Exception{

@@ -86,19 +86,19 @@ class MedicoControllerTests {
         .andExpect(view().name("exception"));
     }
     
-    /*@WithMockUser(value = "spring")
+    @WithMockUser(value = "spring")
         @Test
     void testInitFindForm() throws Exception{
         mockMvc.perform(get("/medicos/find"))
         .andExpect(status().isOk())
         .andExpect(view().name("medicos/findMedicos"))
         .andExpect(model().attributeExists("medico"));
-    }*/
+    }
 
     @WithMockUser(value = "spring")
         @Test
-    void testProcessFindFormSuccess() throws Exception{
-       
+    void testProcessFindFormSuccessWhenMoreThanOneMedicIsPresent() throws Exception{
+       //No surname search
         Collection<Medico> res = new ArrayList<>();
         Medico medic = new Medico();
         medic.setNombre("Medico");
@@ -127,6 +127,110 @@ class MedicoControllerTests {
         .andExpect(view().name("medicos/medicosList"))
         .andExpect(model().attributeExists("selections"));
     }
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testProcessFindFormOnlyOneMedicoPresent() throws Exception{
+       //No Surname Search
+        Collection<Medico> res = new ArrayList<>();
+        Medico medic = new Medico();
+        medic.setNombre("Medico");
+        medic.setApellidos("De Prueba");
+        medic.setDomicilio("Domicilio");
+        medic.setDNI("22645219V");
+        medic.setN_telefono("645568848");
+        medic.setUser(new User());
+        medic.setId(987);
+
+        res.add(medic);
+
+
+       given(this.medicoService.getMedicos()).willReturn(res);
+
+        mockMvc.perform(get("/medicos"))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/medicos/" + medic.getId()));
+    }
+
+    @WithMockUser(value = "spring")
+    @Test
+    void testProcessFindFormPreciseApellido() throws Exception{
+   //Surname Search
+
+
+    Collection<Medico> res = new ArrayList<>();
+    Medico medic = new Medico();
+    medic.setNombre("Medico");
+    medic.setApellidos("De Prueba");
+    medic.setDomicilio("Domicilio");
+    medic.setDNI("22645219V");
+    medic.setN_telefono("645568848");
+    medic.setUser(new User());
+    medic.setId(987);
+
+    res.add(medic);
+
+
+   given(this.medicoService.findMedicoByApellidos(BDDMockito.anyString())).willReturn(res);
+
+    mockMvc.perform(get("/medicos?apellidos={apellidos}", medic.getApellidos()))
+    .andExpect(status().is3xxRedirection())
+    .andExpect(view().name("redirect:/medicos/" + medic.getId()));
+}
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testProcessFindFormPreciseApellidoManyResults() throws Exception{
+   //Surname Search
+    Collection<Medico> res = new ArrayList<>();
+    Medico medic = new Medico();
+    medic.setNombre("Medico");
+    medic.setApellidos("De Prueba");
+    medic.setDomicilio("Domicilio");
+    medic.setDNI("22645219V");
+    medic.setN_telefono("645568848");
+    medic.setUser(new User());
+    medic.setId(987);
+
+    Medico medic2 = new Medico();
+    medic2.setNombre("Nombre");
+    medic2.setApellidos("De Prueba");
+    medic2.setDomicilio("Domicilio");
+    medic2.setDNI("98279809G");
+    medic2.setN_telefono("645568848");
+    medic2.setUser(new User());
+    medic2.setId(988);
+
+
+    res.add(medic);
+    res.add(medic2);
+
+
+   given(this.medicoService.findMedicoByApellidos(BDDMockito.anyString())).willReturn(res);
+
+    mockMvc.perform(get("/medicos?apellidos={apellidos}", medic.getApellidos()))
+        .andExpect(status().isOk())
+        .andExpect(view().name("medicos/medicosList"))
+        .andExpect(model().attributeExists("selections"));
+    }
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testProcessFindFormPreciseApellidoEmptyResults() throws Exception{
+   //Surname Search
+    Collection<Medico> res = new ArrayList<>();
+    
+   given(this.medicoService.findMedicoByApellidos(BDDMockito.anyString())).willReturn(res);
+
+    mockMvc.perform(get("/medicos?apellidos={apellidos}", "apellidosProbando"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("medicos/findMedicos"));
+    }
+
+
+
+
+
 
     
 
