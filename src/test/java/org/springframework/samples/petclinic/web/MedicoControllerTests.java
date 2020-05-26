@@ -16,9 +16,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
+
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.apache.tomcat.jni.Local;
 import org.assertj.core.util.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,25 +29,30 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
 import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.User;
+import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.UserService;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 
 import org.springframework.context.annotation.FilterType;
 
 @WebMvcTest(value = MedicoController.class,
 		excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class),
 		excludeAutoConfiguration= SecurityConfiguration.class)
-public class MedicoControllerTests {
+class MedicoControllerTests {
     
     @Autowired
     private MedicoController medicoController;
+   
     @MockBean
     private MedicoService medicoService;
+    @MockBean
+    private UserService userService;
+    @MockBean
+    private AuthoritiesService authoService;
     
     @Autowired
     private MockMvc mockMvc;
@@ -54,13 +60,30 @@ public class MedicoControllerTests {
     @WithMockUser(value = "spring")
         @Test
     void testShowMedico() throws Exception{
+
+        Medico medic = new Medico();
+        medic.setNombre("Pruebas");
+        medic.setApellidos("De Medico");
+        medic.setDNI("20709000F");
+        medic.setDomicilio("Domicilio");
+        medic.setId(999);
     
-    given(this.medicoService.getMedicoById(BDDMockito.anyInt())).willReturn(new Medico());
+    given(this.medicoService.getMedicoById(BDDMockito.anyInt())).willReturn(medic);
     
-    mockMvc.perform(get("/medicos/1"))
+    mockMvc.perform(get("/medicos/{medicoId}", 999))
         .andExpect(status().isOk())
         .andExpect(view().name("medicos/medicoDetails"))
         .andExpect(model().attributeExists("medico"));
+    }
+    //Illegal action
+    @WithMockUser(value = "spring")
+        @Test
+    void testShowNonExistingMedico() throws Exception{
+    given(this.medicoService.getMedicoById(BDDMockito.anyInt())).willReturn(null);
+    
+    mockMvc.perform(get("/medicos/{medicoId}", 585))
+        .andExpect(status().isOk())
+        .andExpect(view().name("exception"));
     }
     
     /*@WithMockUser(value = "spring")
@@ -104,5 +127,7 @@ public class MedicoControllerTests {
         .andExpect(view().name("medicos/medicosList"))
         .andExpect(model().attributeExists("selections"));
     }
+
+    
 
 }
