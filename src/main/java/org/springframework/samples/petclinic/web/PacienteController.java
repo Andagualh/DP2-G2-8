@@ -144,6 +144,8 @@ public class PacienteController {
 		}
 	}
 
+	//TODO: Este método de borrado podría recibir una buena refactorización, muchas de las condiciones pueden añadirse en métodos auxiliares
+
 	@RequestMapping(value = "/pacientes/{pacienteId}/delete")
 	public String borrarPaciente(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 		String view = "/pacientes";
@@ -181,6 +183,7 @@ public class PacienteController {
 			}
 		} else {
 			modelMap.addAttribute("message", "Paciente no encontrado");
+			view = "accessNotAuthorized";
 		}
 		return view;
 	}

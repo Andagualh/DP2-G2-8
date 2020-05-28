@@ -1068,7 +1068,7 @@ public class PacienteControllerTest {
 							.with(csrf())
 							.param("pacienteId", "40"))
 				.andExpect(status().isOk())
-				.andExpect(view().name("/pacientes"));
+				.andExpect(view().name("accessNotAuthorized"));
 	}
         
         @WithMockUser(value = "spring")

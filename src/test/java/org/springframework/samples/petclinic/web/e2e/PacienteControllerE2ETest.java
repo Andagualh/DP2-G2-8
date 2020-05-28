@@ -248,7 +248,11 @@ public class PacienteControllerE2ETest {
 	@Test
 	void testBorrarPacienteNoEncontrado() throws Exception {
 
-		this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/delete", 20).with(SecurityMockMvcRequestPostProcessors.csrf())).andExpect(MockMvcResultMatchers.model().attributeExists("message"));
+		this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/delete", 20)
+		.with(SecurityMockMvcRequestPostProcessors.csrf()))
+		.andExpect(MockMvcResultMatchers.model().attributeExists("message"))
+		.andExpect(MockMvcResultMatchers.status().isOk())
+		.andExpect(MockMvcResultMatchers.view().name("accessNotAuthorized"));
 	}
 
 	@WithMockUser(username = "alvaroMedico", authorities = {

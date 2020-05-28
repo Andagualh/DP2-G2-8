@@ -417,3 +417,16 @@ ADVERTENCIA: Unmatched cancel notification for request id 50
 2020.05.28 04:45:55 WARN  no build target for: C:\Users\acofp\Documents\DisenoPruebas\DP2\DP2-2-G8\DP2-G2-8\src\performance\historiaUsuario11alter.scala
 2020.05.28 04:46:06 WARN  no build target for: C:\Users\acofp\Documents\DisenoPruebas\DP2\DP2-2-G8\DP2-G2-8\src\performance\historiaUsuario11alter.scala
 2020.05.28 04:46:10 INFO  shutting down Metals
+2020.05.28 17:19:47 INFO  started: Metals version 0.9.0 in workspace 'C:\Users\acofp\Documents\DisenoPruebas\DP2\DP2-2-G8\DP2-G2-8'
+2020.05.28 17:19:48 INFO  time: initialize in 0.41s
+2020.05.28 17:19:49 INFO  skipping build import with status 'Dismissed'
+2020.05.28 17:19:49 INFO  no build target: using presentation compiler with only scala-library
+2020.05.28 17:19:52 WARN  no build target for: C:\Users\acofp\Documents\DisenoPruebas\DP2\DP2-2-G8\DP2-G2-8\src\performance\historiaUsuario11alter.scala
+2020.05.28 17:29:52 WARN  no build target for: C:\Users\acofp\Documents\DisenoPruebas\DP2\DP2-2-G8\DP2-G2-8\src\performance\historiaUsuario5.scala
+2020.05.28 17:29:54 WARN  no build target for: C:\Users\acofp\Documents\DisenoPruebas\DP2\DP2-2-G8\DP2-G2-8\src\performance\historiaUsuario1.scala
+2020.05.28 19:27:43 WARN  code navigation does not work for the file 'C:\Users\acofp\Documents\DisenoPruebas\DP2\DP2-2-G8\DP2-G2-8\src\performance\historiaUsuario1.scala' because it doesn't belong to a build target.
+2020.05.28 20:11:32 INFO  shutting down Metals
+2020.05.28 20:17:03 INFO  started: Metals version 0.9.0 in workspace 'C:\Users\acofp\Documents\DisenoPruebas\DP2\DP2-2-G8\DP2-G2-8'
+2020.05.28 20:17:04 INFO  time: initialize in 0.49s
+2020.05.28 20:17:05 INFO  skipping build import with status 'Dismissed'
+2020.05.28 20:57:00 INFO  shutting down Metals
