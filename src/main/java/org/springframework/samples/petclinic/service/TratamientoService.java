@@ -41,7 +41,7 @@ public class TratamientoService {
 	public Tratamiento save(final Tratamiento tratamiento) {
 		try {
 			if (esVigente(tratamiento)) {
-				if (fechaInicioFinOk(tratamiento)) {
+				if (fechaInicioFinOk(tratamiento) && tratamiento.getDosis() != null) {
 					return this.tratamientoRepo.save(tratamiento);
 				} else {
 					throw new IllegalArgumentException("El tratamiento no ha podido guardarse.");
@@ -58,7 +58,7 @@ public class TratamientoService {
 	public Tratamiento saveTratamientoOldCita(final Tratamiento tratamiento) {
 		return this.tratamientoRepo.save(tratamiento);
 	}
-	
+
 	@Transactional(readOnly = true)
 	public Optional<Tratamiento> findTratamientoById(final int id) throws DataAccessException {
 		return this.tratamientoRepo.findById(id);

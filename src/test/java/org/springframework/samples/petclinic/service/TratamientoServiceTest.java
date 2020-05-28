@@ -249,7 +249,7 @@ public class TratamientoServiceTest {
 	}
 	/*
 	@Test
-	public void testUpdateTratamiento() {
+	public void testUpdateTratamiento() throws DataAccessException, InvalidAttributeValueException, IllegalAccessException {
 		
 		Tratamiento tratamiento = tratamientoService.findTratamientoById(2).get();
 
@@ -259,7 +259,8 @@ public class TratamientoServiceTest {
 		tratamiento.setDosis("1 pastilla cada 12 horas");
 		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
 		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-22"));
-
+		tratamiento.setInforme(this.createDummyInforme(this.createDummyCita1(this.createDummyPaciente(this.createDummyMedico(), new HistoriaClinica()))));
+		
 		this.tratamientoService.save(tratamiento);
 
 		Assert.assertTrue(this.tratamientoService.findTratamientoById(2).get().getMedicamento().equals("aspirina"));
@@ -269,7 +270,7 @@ public class TratamientoServiceTest {
 	}
 	
 	@Test
-	public void testUpdateTratamientoWithNullDosis() {
+	public void testUpdateTratamientoWithNullDosis() throws DataAccessException, InvalidAttributeValueException, IllegalAccessException {
 		
 		Tratamiento tratamiento = tratamientoService.findTratamientoById(2).get();
 
@@ -280,10 +281,9 @@ public class TratamientoServiceTest {
 		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
 		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-22"));
 
-		this.tratamientoService.save(tratamiento);
+		tratamiento.setInforme(this.createDummyInforme(this.createDummyCita1(this.createDummyPaciente(this.createDummyMedico(), new HistoriaClinica()))));
+		//this.tratamientoService.save(tratamiento);
 		
-		/*
-	
 		Assertions.assertThrows(IllegalArgumentException.class, () -> {
 			this.tratamientoService.save(tratamiento);
 		});
@@ -306,6 +306,7 @@ public class TratamientoServiceTest {
 
 		
 		Assertions.assertThrows(IllegalArgumentException.class, () -> {
+			tratamiento.setInforme(this.createDummyInforme(this.createDummyCita1(this.createDummyPaciente(this.createDummyMedico(), new HistoriaClinica()))));
 			this.tratamientoService.save(tratamiento);
 		});
 		

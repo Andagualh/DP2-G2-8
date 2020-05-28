@@ -198,22 +198,37 @@ public class TratamientoControllerTest {
 		BDDMockito.given(this.tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID2)).willReturn(Optional.of(tratamiento2));
 		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
 	}
-	 /*
-	@WithMockUser(value = "spring")
-	@Test
-	void testInit() throws Exception {
-		mockMvc.perform(get("/tratamientos/{tratamientoId}/edit", TEST_TRATAMIENTO_ID))
-		.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"));
-	}
+	 
+//	@WithMockUser(value = "spring")
+//	@Test
+//	void testInit() throws Exception {
+//		mockMvc.perform(get("/tratamientos/{tratamientoId}/edit", TEST_TRATAMIENTO_ID))
+//		.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"));
+//	}
 	
 	@WithMockUser(username="medico1",authorities= {"medico"})
 	@Test
 	void testInitUpdateTratamientoForm() throws Exception {
+		Tratamiento tratamiento = new Tratamiento();
+		Medico medic = new Medico();
+		medic.setId(this.medico1.getId());
+		this.informe1.setCita(cita2);
+    	
+    	tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-22"));
+		tratamiento.setInforme(informe1);
+		
+		BDDMockito.given(tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
+		BDDMockito.given(userService.getCurrentMedico()).willReturn(medic);
+		
 		mockMvc.perform(get("/tratamientos/{tratamientoId}/edit", TEST_TRATAMIENTO_ID))
 				//.andExpect(status().isOk())
 				.andExpect(model().attributeExists("tratamiento"))
-				.andExpect(model().attribute("tratamiento", hasProperty("medicamento", is("medicamento de prueba"))))
-				.andExpect(model().attribute("tratamiento", hasProperty("dosis", is("dosis de prueba"))))
+				.andExpect(model().attribute("tratamiento", hasProperty("medicamento", is("aspirina1"))))
+				.andExpect(model().attribute("tratamiento", hasProperty("dosis", is("1 pastilla cada 8 horas"))))
 				.andExpect(model().attribute("tratamiento", hasProperty("f_inicio_tratamiento", is(LocalDate.parse("2020-04-22")))))
 				.andExpect(model().attribute("tratamiento", hasProperty("f_fin_tratamiento", is(LocalDate.parse("2020-10-22")))))
 				.andExpect(model().attribute("tratamiento", hasProperty("informe", is(this.informe1))))
@@ -223,6 +238,21 @@ public class TratamientoControllerTest {
 	@WithMockUser(username="medico1",authorities= {"medico"})
 	@Test
 	void testInitCreateTratamientoFormSuccess() throws Exception {
+		Tratamiento tratamiento = new Tratamiento();
+		Medico medic = new Medico();
+		medic.setId(this.medico1.getId());
+		this.informe1.setCita(cita2);
+    	
+    	tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-22"));
+		tratamiento.setInforme(informe1);
+		
+		BDDMockito.given(tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
+		BDDMockito.given(userService.getCurrentMedico()).willReturn(medic);
+
 		mockMvc.perform(get("/tratamientos/new/{informeId}", TEST_INFORME_ID))
 				//.andExpect(status().isOk())
 				.andExpect(model().attributeExists("tratamiento"))
@@ -243,6 +273,21 @@ public class TratamientoControllerTest {
 	@Test
 	void testSaveSuccessTratamiento() throws Exception {
         
+		Tratamiento tratamiento = new Tratamiento();
+		Medico medic = new Medico();
+		medic.setId(this.medico1.getId());
+		this.informe1.setCita(cita2);
+    	
+    	tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-22"));
+		tratamiento.setInforme(informe1);
+		
+		BDDMockito.given(tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
+		BDDMockito.given(userService.getCurrentMedico()).willReturn(medic);
+    	
     	 mockMvc.perform(post("/tratamientos/save")
 				 .with(csrf())
 				 .param("dosis", "medicamento de prueba")
@@ -272,9 +317,10 @@ public class TratamientoControllerTest {
 		         .param("informe.cita.paciente.medico.user.password", "test"))
 		//.andExpect(status().isOk())    redirije pero no es ok
 		//.andExpect(status().is2xxSuccessful());
+    	.andExpect(status().is3xxRedirection())
 		.andExpect(view().name("redirect:/citas/1/informes/1"));	
 	}
-    */
+    
     @WithMockUser(value = "spring")
 	@Test
     void testSaveTratamientoNullFecha() throws Exception{
