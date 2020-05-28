@@ -10,7 +10,7 @@ class EditarHistoriaClinica extends Simulation {
 
 	val httpProtocol = http
 		.baseUrl("http://www.dp2.com")
-		.inferHtmlResources(BlackList(""".*.jsp""", """.*.png""", """.*.ico""", """.*.css""", """.*.jar"""), WhiteList())
+		.inferHtmlResources(BlackList(""".*.png""", """.*.ico""", """.*.css""", """.*.js""", """.*.jpg"""), WhiteList())
 		.acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
 		.acceptEncodingHeader("gzip, deflate")
 		.acceptLanguageHeader("es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3")
@@ -107,5 +107,14 @@ class EditarHistoriaClinica extends Simulation {
 
 	
 
-	setUp(success.inject(atOnceUsers(1)),error.inject(atOnceUsers(1))).protocols(httpProtocol)
+	setUp(
+		success.inject(rampUsers(500) during (20 seconds)),
+		error.inject(rampUsers(500) during (20 seconds))
+	)
+	.protocols(httpProtocol)
+	.assertions(
+		global.responseTime.max.lt(5000),
+		global.responseTime.mean.lt(1000),
+		global.successfulRequests.percent.gt(95)
+	)
 }
