@@ -302,7 +302,7 @@ public class PacienteControllerIntegrationTest {
 		int id = 6;
 		ModelMap m = new ModelMap();
 		String view = this.pacienteController.borrarPaciente(id, m);
-		Assertions.assertEquals("redirect:/pacientes/" + id, view);
+		Assertions.assertEquals("redirect:/pacientes", view);
 		this.medicoService.getMedicoById(3).getUser().setEnabled(true);
 	}
 	
