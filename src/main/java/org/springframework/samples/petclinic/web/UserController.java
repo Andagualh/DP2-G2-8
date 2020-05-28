@@ -79,7 +79,6 @@ public class UserController {
 		} else {
 			//creating owner, user, and authority
 			this.medicoService.saveMedico(medico);
-			System.out.println("medico:" + medico);
 			return "redirect:/";
 		}
 	}

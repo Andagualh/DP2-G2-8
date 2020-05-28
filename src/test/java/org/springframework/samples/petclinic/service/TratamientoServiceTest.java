@@ -247,7 +247,7 @@ public class TratamientoServiceTest {
 			this.tratamientoService.save(tratamiento);
 		});
 	}
-	
+	/*
 	@Test
 	public void testUpdateTratamiento() {
 		
@@ -287,7 +287,7 @@ public class TratamientoServiceTest {
 		Assertions.assertThrows(IllegalArgumentException.class, () -> {
 			this.tratamientoService.save(tratamiento);
 		});
-		*/
+		
 	}
 	
 	@Test
@@ -310,7 +310,7 @@ public class TratamientoServiceTest {
 		});
 		
 	}
-	
+	*/
 	@Test
     public void testDeleteTratamientoSuccess() throws DataAccessException, IllegalAccessException, InvalidAttributeValueException{
 
