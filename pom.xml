@@ -30,7 +30,16 @@
         <jacoco.version>0.8.5</jacoco.version>
         <spring-format.version>0.0.19</spring-format.version>
 
-		<selenium.version>3.141.59</selenium.version>
+        <selenium.version>3.141.59</selenium.version>
+
+        <!-- SonarCloud -->
+
+        <sonar.projectKey>Andagualh_DP2-G2-8</sonar.projectKey>
+        <sonar.organization>andagualh</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <!--<sonar.login>b6e6e1d1a3f14e9e36d27ebccc6e7fddb08b74f7</sonar.login>-->
+        
+
     </properties>
 
     <dependencies>
