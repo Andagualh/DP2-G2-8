@@ -150,4 +150,6 @@ INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tra
 VALUES (6, 'nombre6','paracetamol','1 cada dos horas','2020-03-09','2020-12-15',4);
 INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tratamiento,informe_id) 
 VALUES (7, 'nombre7','enantium','1 cada tres dias','2020-03-09','2020-12-15',4);
+INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tratamiento,informe_id) 
+VALUES (8, 'nombre7','enantium','1 cada tres dias',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,5);
 
