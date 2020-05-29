@@ -1,6 +1,7 @@
 package org.springframework.samples.petclinic.ui.tratamiento;
 
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.time.LocalDate;
@@ -61,6 +62,7 @@ public class TratamientoUITest {
 	this.driver.findElement(By.id("password")).clear();
 	this.driver.findElement(By.id("password")).sendKeys("entrar");
 	this.driver.findElement(By.xpath("//button[@type='submit']")).click();
+	assertEquals("ALVAROMEDICO", this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).getText());
 	driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/a")).click();
 	driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/ul/li[2]/a/span[2]")).click();
     driver.findElement(By.linkText("Ver Informe")).click();
@@ -88,6 +90,7 @@ public class TratamientoUITest {
 	this.driver.findElement(By.id("password")).clear();
 	this.driver.findElement(By.id("password")).sendKeys("entrar");
 	this.driver.findElement(By.xpath("//button[@type='submit']")).click();
+	assertEquals("ALVAROMEDICO", this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).getText());
 	driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/a")).click();
 	driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/ul/li[2]/a/span[2]")).click();
     driver.findElement(By.linkText("Ver Informe")).click();
@@ -108,6 +111,7 @@ public class TratamientoUITest {
 	this.driver.findElement(By.id("password")).clear();
 	this.driver.findElement(By.id("password")).sendKeys("entrar");
 	this.driver.findElement(By.xpath("//button[@type='submit']")).click();
+	assertEquals("ALVAROMEDICO", this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).getText());
 	driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/a")).click();
     driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/ul/li[2]/a/span[2]")).click();
     driver.findElement(By.linkText("Ver Informe")).click();
@@ -134,6 +138,7 @@ public class TratamientoUITest {
 	this.driver.findElement(By.id("password")).clear();
 	this.driver.findElement(By.id("password")).sendKeys("entrar");
 	this.driver.findElement(By.xpath("//button[@type='submit']")).click();
+	assertEquals("ALVAROMEDICO", this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).getText());
 	driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/a")).click();
 	driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/ul/li[2]/a/span[2]")).click();
     driver.findElement(By.linkText("Ver Informe")).click();
