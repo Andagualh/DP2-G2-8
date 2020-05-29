@@ -526,3 +526,23 @@ ADVERTENCIA: Unmatched cancel notification for request id 1258
 2020.05.29 05:08:20 WARN  no build target for: C:\Gatling\gatling-charts-highcharts-bundle-3.3.1\user-files\simulations\performance\historiaUsuario20.scala
 2020.05.29 05:09:07 WARN  no build target for: C:\Gatling\gatling-charts-highcharts-bundle-3.3.1\user-files\simulations\performance\historiaUsuario20.scala
 2020.05.29 05:18:49 WARN  no build target for: C:\Gatling\gatling-charts-highcharts-bundle-3.3.1\user-files\simulations\performance\historiaUsuario20.scala
+2020.05.29 05:29:47 INFO  shutting down Metals
+2020.05.29 18:31:41 INFO  started: Metals version 0.9.0 in workspace 'C:\Users\acofp\Documents\DisenoPruebas\DP2\DP2-2-G8\DP2-G2-8'
+2020.05.29 18:31:42 INFO  time: initialize in 0.3s
+2020.05.29 18:31:42 INFO  skipping build import with status 'Dismissed'
+2020.05.29 18:31:42 INFO  no build target: using presentation compiler with only scala-library
+2020.05.29 18:31:44 WARN  no build target for: C:\Gatling\gatling-charts-highcharts-bundle-3.3.1\user-files\simulations\performance\historiaUsuario20.scala
+may 29, 2020 6:31:44 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+ADVERTENCIA: Unmatched cancel notification for request id 2
+may 29, 2020 6:31:44 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+ADVERTENCIA: Unmatched cancel notification for request id 3
+may 29, 2020 6:31:44 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+ADVERTENCIA: Unmatched cancel notification for request id 6
+2020.05.29 18:31:45 WARN  no build target for: C:\Gatling\gatling-charts-highcharts-bundle-3.3.1\user-files\simulations\performance\historiaUsuario20.scala
+2020.05.29 18:34:03 INFO  shutting down Metals
+2020.05.29 18:35:09 INFO  started: Metals version 0.9.0 in workspace 'C:\Users\acofp\Documents\DisenoPruebas\DP2\DP2-2-G8\DP2-G2-8'
+2020.05.29 18:35:10 INFO  time: initialize in 0.97s
+2020.05.29 18:35:11 INFO  skipping build import with status 'Dismissed'
+2020.05.29 18:35:11 INFO  no build target: using presentation compiler with only scala-library
+2020.05.29 18:35:14 WARN  no build target for: C:\Gatling\gatling-charts-highcharts-bundle-3.3.1\user-files\simulations\performance\historiaUsuario20.scala
+2020.05.29 18:45:22 INFO  shutting down Metals
