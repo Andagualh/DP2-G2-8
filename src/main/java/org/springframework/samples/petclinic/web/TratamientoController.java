@@ -53,7 +53,7 @@ public class TratamientoController {
 		return tratamiento.getInforme().getCita().getFecha().equals(LocalDate.now());
 	}
 		
-	private boolean fechaInicioFinOk(Tratamiento tratamiento) {
+	public boolean fechaInicioFinOk(Tratamiento tratamiento) {
 		if(tratamiento.getF_inicio_tratamiento().equals(tratamiento.getF_fin_tratamiento()) || 
 				tratamiento.getF_inicio_tratamiento().isBefore(tratamiento.getF_fin_tratamiento())) {
 			return true;
