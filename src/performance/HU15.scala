@@ -60,32 +60,32 @@ class HU15Diagnosis extends Simulation {
 		
 		object FormNewInforme{
 			val formNewInforme = exec(http("FormNewInforme")
-			.get("/citas/13/informes/new")
+			.get("/citas/14/informes/new")
 			.headers(headers_0)
 			.check(css("input[name=_csrf]", "value").saveAs("stoken")))
 		.pause(24)
 		.exec(http("PostNewInforme")
-			.post("/citas/13/informes/new")
+			.post("/citas/14/informes/new")
 			.headers(headers_3)
 			.formParam("motivo_consulta", "motivo 1")
 			.formParam("diagnostico", "diagnostico 1")
-			.formParam("cita", "13")
+			.formParam("cita", "14")
 			.formParam("_csrf", "${stoken}"))
 		.pause(18)
 		}
 		
 		object FormNewInformeVacio{
 			val formNewInformeVacio = exec(http("FormNewInformeVacio")
-			.get("/citas/13/informes/new")
+			.get("/citas/14/informes/new")
 			.headers(headers_0)
 			.check(css("input[name=_csrf]", "value").saveAs("stoken")))
 		.pause(24)
 		.exec(http("PostNewInformeVacio")
-			.post("/citas/13/informes/new")
+			.post("/citas/14/informes/new")
 			.headers(headers_3)
 			.formParam("motivo_consulta", "")
 			.formParam("diagnostico", "")
-			.formParam("cita", "13")
+			.formParam("cita", "14")
 			.formParam("_csrf", "${stoken}"))
 		.pause(18)
 		}
