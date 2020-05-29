@@ -116,6 +116,7 @@ INSERT INTO cita VALUES (9, 'Cita Test Pasado Informes', '2020-04-20', 'Consulta
 INSERT INTO cita VALUES (10, 'Cita Test Pasado PacienteIntegration', '2015-04-20', 'ConsultaTEST', 8);
 INSERT INTO cita VALUES (11, 'Cita Test Pasado PacienteIntegration2', '2013-04-20', 'ConsultaTEST', 9);
 INSERT INTO cita VALUES (12, 'Cita Test Pasado PacienteIntegration3', '2015-05-26', 'ConsultaTEST', 6);
+INSERT INTO cita VALUES (13, 'nombre4', CURRENT_TIMESTAMP ,'Probando',1);
 
 INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (1,'Descripcion',1);
 INSERT INTO historiaclinica(id,descripcion,paciente_id) VALUES (2,'Descripcion 2',2);
@@ -130,6 +131,7 @@ INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id)
 INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (3, 'cita pasada', 'cita past',9,null);
 
 INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (4, 'cita nueva', 'cita nueva',10,null);
+INSERT INTO informe (id,motivo_consulta,diagnostico,cita_id,historia_clinica_id) VALUES (5, 'cita nueva', 'cita nueva',13,null);
 
 
 INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tratamiento,informe_id) 
