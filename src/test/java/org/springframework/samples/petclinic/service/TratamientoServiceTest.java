@@ -3,6 +3,7 @@ package org.springframework.samples.petclinic.service;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Optional;
 
 import javax.management.InvalidAttributeValueException;
@@ -103,7 +104,79 @@ public class TratamientoServiceTest {
 	@Test
 	public void testCountWithInitialData() {
 		int count = this.tratamientoService.tratamientoCount();
-		Assertions.assertEquals(count, 8);
+		Assertions.assertEquals(count, 7);
+	}
+	
+
+	@Test
+	public void testFechasTratamientoOK() throws InvalidAttributeValueException, DataAccessException, IllegalAccessException {
+		Tratamiento tratamiento = new Tratamiento();
+		Tratamiento tratamiento2 = new Tratamiento();
+		Tratamiento tratamiento3 = new Tratamiento();
+		Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+		Cita cita = createDummyCita1(paciente);
+		citaService.save(cita);
+		Informe informe = new Informe();
+		informe.setCita(cita);
+		informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
+		
+		tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-23"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-25"));
+		tratamiento.setInforme(informe);
+		
+		tratamiento2.setMedicamento("aspirin1");
+		tratamiento2.setDosis("1 pastilla cada 8 horas");
+		tratamiento2.setF_inicio_tratamiento(LocalDate.parse("2020-04-23"));
+		tratamiento2.setF_fin_tratamiento(LocalDate.parse("2020-04-15"));
+		tratamiento2.setInforme(informe);
+		
+		tratamiento3.setMedicamento("aspirin2");
+		tratamiento3.setDosis("1 pastilla cada 8 horas");
+		tratamiento3.setF_inicio_tratamiento(LocalDate.parse("2020-04-15"));
+		tratamiento3.setF_fin_tratamiento(LocalDate.parse("2020-04-15"));
+		tratamiento3.setInforme(informe);
+		
+		this.tratamientoService.save(tratamiento);
+		
+		boolean tratamientoBien = tratamientoService.fechaInicioFinOk(tratamiento);
+		boolean tratamientoMal = tratamientoService.fechaInicioFinOk(tratamiento2);
+		
+		Assertions.assertEquals(tratamientoBien, true);
+		Assertions.assertEquals(tratamientoMal, false);
+	
+	}
+	
+	@Test
+	public void testFindTratamientoByInforme() throws InvalidAttributeValueException, DataAccessException, IllegalAccessException {
+		Tratamiento tratamiento = new Tratamiento();
+		Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+		Cita cita = createDummyCita1(paciente);
+		citaService.save(cita);
+		Informe informe = new Informe();
+		informe.setCita(cita);
+		informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
+		
+		tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-23"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-25"));
+		tratamiento.setInforme(informe);
+		
+		this.tratamientoService.save(tratamiento);
+		
+		Collection<Tratamiento> tratamientos = tratamientoService.findTratamientosByInforme(informe);
+		
+		for (Tratamiento trat:tratamientos) {
+			Assertions.assertEquals(trat.getInforme().getId(), informe.getId());
+		}
 	}
 	
 	@Test
@@ -133,6 +206,23 @@ public class TratamientoServiceTest {
 		int postCount = this.tratamientoService.tratamientoCount();
 		
 		Assertions.assertEquals(postCount, initCount + 1);
+	}
+	
+	@Test
+	public void testCreateTratamientoNoVigente() throws InvalidAttributeValueException, DataAccessException, IllegalAccessException {
+		
+		Tratamiento tratamiento = new Tratamiento();
+		
+		tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-23"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-25"));
+		tratamiento.setInforme(informeService.findInformeById(1).get());
+		
+		Assertions.assertThrows(IllegalAccessError.class, () -> {
+			this.tratamientoService.save(tratamiento);
+		});
+		
 	}
 	
 	@Test
@@ -419,4 +509,5 @@ public class TratamientoServiceTest {
 
 		Assertions.assertTrue(thrown.getMessage().contains("No se puede borrar este tratamiento"));
 	}
+	
 }
