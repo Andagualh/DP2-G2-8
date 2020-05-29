@@ -12,6 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDate;
 import java.util.Optional;
 
+import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
@@ -56,6 +58,8 @@ public class TratamientoControllerTest {
 	private static final int TEST_TRATAMIENTO_ID2 = 2;
 	private static final int TEST_TRATAMIENTO_ID3 = 3;
 	
+	private Medico login ;
+	
 	@Autowired
 	private TratamientoController tratamientoController;
 	
@@ -77,7 +81,6 @@ public class TratamientoControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 	
-	
 	private Paciente            javier;
 
     private Medico              medico1;
@@ -89,6 +92,8 @@ public class TratamientoControllerTest {
 	private Cita                cita1;
 	
 	private Cita 				cita2;
+	
+	private Cita 				cita3;
     
     private Informe             informe1;
     
@@ -151,13 +156,19 @@ public class TratamientoControllerTest {
         this.cita2.setFecha(LocalDate.now());
         this.cita2.setPaciente(javier);
         
+        this.cita3 = new Cita();
+        this.cita3.setId(TEST_CITA_ID);
+        this.cita3.setName("nombreTest");
+        this.cita3.setLugar("lugarTest");
+        this.cita3.setFecha(LocalDate.parse("2020-05-05"));
+        this.cita3.setPaciente(javier);
+        
         this.informe1 = new Informe();
         this.informe1.setId(TEST_INFORME_ID);
         this.informe1.setDiagnostico("diagnostico test");
         this.informe1.setHistoriaClinica(null);
-		    this.informe1.setMotivo_consulta("motivo test");
+		this.informe1.setMotivo_consulta("motivo test");
 		
-        
         this.informe2 = new Informe();
         this.informe2.setId(TEST_INFORME_ID2);
         this.informe2.setDiagnostico("diagnosticos test");
@@ -196,23 +207,69 @@ public class TratamientoControllerTest {
 		BDDMockito.given(this.informeService.findInformeById(TEST_INFORME_ID)).willReturn(Optional.of(this.informe1));
 		BDDMockito.given(this.tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
 		BDDMockito.given(this.tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID2)).willReturn(Optional.of(tratamiento2));
-		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+		
 	}
 	 
-//	@WithMockUser(value = "spring")
-//	@Test
-//	void testInit() throws Exception {
-//		mockMvc.perform(get("/tratamientos/{tratamientoId}/edit", TEST_TRATAMIENTO_ID))
-//		.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"));
-//	}
+
+	
+	@WithMockUser(username="medico",authorities= {"medico"})
+	@Test
+	void testInitUpdateTratamientoNoVigente() throws Exception {
+		
+		Tratamiento tratamiento = new Tratamiento();
+		Medico medic = new Medico();
+		medic.setId(this.medico1.getId());
+		this.informe1.setCita(cita3);
+		
+		login = medic;
+    	
+    	tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-22"));
+		tratamiento.setInforme(informe1);
+		
+		BDDMockito.given(tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
+		BDDMockito.given(userService.getCurrentMedico()).willReturn(medic);
+		
+		mockMvc.perform(get("/tratamientos/{tratamientoId}/edit", TEST_TRATAMIENTO_ID))
+				.andExpect(view().name("redirect:/"));
+	}
+	
+	@WithMockUser(username="medico",authorities= {"medico"})
+	@Test
+	void testInitUpdateTratamientoNoVigenteNoAutorizado() throws Exception {
+		
+		Tratamiento tratamiento = new Tratamiento();
+		Medico medic = new Medico();
+		medic.setId(3);
+		this.informe1.setCita(cita3);
+    	
+    	tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-22"));
+		tratamiento.setInforme(informe1);
+		
+		BDDMockito.given(tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
+		BDDMockito.given(userService.getCurrentMedico()).willReturn(medic);
+		
+		mockMvc.perform(get("/tratamientos/{tratamientoId}/edit", TEST_TRATAMIENTO_ID))
+				.andExpect(view().name("redirect:/"));
+	}
 	
 	@WithMockUser(username="medico1",authorities= {"medico"})
 	@Test
 	void testInitUpdateTratamientoForm() throws Exception {
+		
 		Tratamiento tratamiento = new Tratamiento();
 		Medico medic = new Medico();
 		medic.setId(this.medico1.getId());
 		this.informe1.setCita(cita2);
+		
+		login = medic;
     	
     	tratamiento.setId(TEST_TRATAMIENTO_ID);
     	tratamiento.setMedicamento("aspirina1");
@@ -242,6 +299,8 @@ public class TratamientoControllerTest {
 		Medico medic = new Medico();
 		medic.setId(this.medico1.getId());
 		this.informe1.setCita(cita2);
+		
+		login = medic;
     	
     	tratamiento.setId(TEST_TRATAMIENTO_ID);
     	tratamiento.setMedicamento("aspirina1");
@@ -254,21 +313,31 @@ public class TratamientoControllerTest {
 		BDDMockito.given(userService.getCurrentMedico()).willReturn(medic);
 
 		mockMvc.perform(get("/tratamientos/new/{informeId}", TEST_INFORME_ID))
-				//.andExpect(status().isOk())
 				.andExpect(model().attributeExists("tratamiento"))
 				.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"));
 		
 	}
 	
+	
+	
 	@WithMockUser(username="medico1",authorities= {"medico"})
 	@Test
-	void testEditTratamientoNoVigente() throws Exception {
-		mockMvc.perform(get("/tratamientos/{tratamientoId}/edit", TEST_TRATAMIENTO_ID3))
-				.andExpect(status().isOk())  ;
-				//.andExpect(view().name("redirect:/"));
+	void testFechaInicioFinOk() throws Exception {
+		Tratamiento tratamiento = new Tratamiento();
+		this.informe1.setCita(cita2);
+    	
+    	tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-04-22"));
+		tratamiento.setInforme(informe1);
+		
+		boolean fechaOk = tratamientoController.fechaInicioFinOk(tratamiento);
+		
+		Assertions.assertEquals(fechaOk,true);
 	}
 	
-	// En este test no coincide la view que deberia devolverse
     @WithMockUser(value = "spring")
 	@Test
 	void testSaveSuccessTratamiento() throws Exception {
@@ -315,15 +384,116 @@ public class TratamientoControllerTest {
 		         .param("informe.cita.paciente.medico.domicilio", "test")
 		         .param("informe.cita.paciente.medico.user.username", "test")
 		         .param("informe.cita.paciente.medico.user.password", "test"))
-		//.andExpect(status().isOk())    redirije pero no es ok
-		//.andExpect(status().is2xxSuccessful());
     	.andExpect(status().is3xxRedirection())
 		.andExpect(view().name("redirect:/citas/1/informes/1"));	
 	}
     
     @WithMockUser(value = "spring")
+   	@Test
+   	void testSaveTratamientoEqualFechaInicioFinSuccess() throws Exception {
+           
+    	Tratamiento tratamiento = new Tratamiento();
+		Medico medic = new Medico();
+		medic.setId(this.medico1.getId());
+		this.informe1.setCita(cita2);
+    	
+    	tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-04-22"));
+		tratamiento.setInforme(informe1);
+		
+		BDDMockito.given(tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
+		BDDMockito.given(userService.getCurrentMedico()).willReturn(medic);
+    	
+    	 mockMvc.perform(post("/tratamientos/save")
+				 .with(csrf())
+				 .param("dosis", "medicamento de prueba")
+				 .param("medicamento", "dosis de prueba")
+				 .param("f_inicio_tratamiento", "2020-04-22")
+				 .param("f_fin_tratamiento", "2020-10-22")
+				 
+    	 		 .param("informe.id",Integer.toString(TEST_INFORME_ID))
+    	 		 .param("informe.motivo_consulta","motivoTest")
+    	 		 .param("informe.diagnostico","diagTest")
+    	 		 
+    	 		 .param("informe.cita.id",Integer.toString(TEST_CITA_ID))
+    	 		 .param("informe.cita.fecha","2020-08-10")
+    	 		 .param("informe.cita.lugar","lugarTest")
+    	 		 
+    	 		 .param("informe.cita.paciente.id", Integer.toString(TEST_PACIENTE_ID))
+    	 		 .param("informe.cita.paciente.nombre", "test")
+		         .param("informe.cita.paciente.apellidos", "test")
+		         .param("informe.cita.paciente.f_nacimiento", "1997/09/09")
+		         .param("informe.cita.paciente.f_alta", "2020/08/08")
+		         .param("informe.cita.paciente.DNI", "12345689Q")
+		         .param("informe.cita.paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
+		         .param("informe.cita.paciente.medico.nombre", "test")
+		         .param("informe.cita.paciente.medico.apellidos", "test")
+		         .param("informe.cita.paciente.medico.domicilio", "test")
+		         .param("informe.cita.paciente.medico.user.username", "test")
+		         .param("informe.cita.paciente.medico.user.password", "test"))
+    	.andExpect(status().is3xxRedirection())
+		.andExpect(view().name("redirect:/citas/1/informes/1"));
+   	}
+    
+    @WithMockUser(value = "spring")
+	@Test
+	void testSaveTratamientoNoAutorizado() throws Exception {
+        
+		Tratamiento tratamiento = new Tratamiento();
+		Medico medic = new Medico();
+		medic.setId(3);
+		this.informe1.setCita(cita2);
+    	
+    	tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-22"));
+		tratamiento.setInforme(informe1);
+		
+		BDDMockito.given(tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
+		BDDMockito.given(userService.getCurrentMedico()).willReturn(medic);
+    	
+    	 mockMvc.perform(post("/tratamientos/save")
+				 .with(csrf())
+				 .param("dosis", "medicamento de prueba")
+				 .param("medicamento", "dosis de prueba")
+				 .param("f_inicio_tratamiento", "2020-04-22")
+				 .param("f_fin_tratamiento", "2020-10-22")
+				 
+    	 		 .param("informe.id",Integer.toString(TEST_INFORME_ID))
+    	 		 .param("informe.motivo_consulta","motivoTest")
+    	 		 .param("informe.diagnostico","diagTest")
+    	 		 
+    	 		 .param("informe.cita.id",Integer.toString(TEST_CITA_ID))
+    	 		 .param("informe.cita.fecha","2020-08-10")
+    	 		 .param("informe.cita.lugar","lugarTest")
+    	 		 
+    	 		 .param("informe.cita.paciente.id", Integer.toString(TEST_PACIENTE_ID))
+    	 		 .param("informe.cita.paciente.nombre", "test")
+		         .param("informe.cita.paciente.apellidos", "test")
+		         .param("informe.cita.paciente.f_nacimiento", "1997/09/09")
+		         .param("informe.cita.paciente.f_alta", "2020/08/08")
+		         .param("informe.cita.paciente.DNI", "12345689Q")
+		         .param("informe.cita.paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
+		         .param("informe.cita.paciente.medico.nombre", "test")
+		         .param("informe.cita.paciente.medico.apellidos", "test")
+		         .param("informe.cita.paciente.medico.domicilio", "test")
+		         .param("informe.cita.paciente.medico.user.username", "test")
+		         .param("informe.cita.paciente.medico.user.password", "test"))
+    	
+		.andExpect(view().name("accessNotAuthorized"));	
+	}
+    
+    @WithMockUser(value = "spring")
 	@Test
     void testSaveTratamientoNullFecha() throws Exception{
+    	
+    	BDDMockito.given(this.userService.getCurrentMedico()).willReturn(medico1);
+    	
         mockMvc.perform(post("/tratamientos/save")
         		.with(csrf())
         		.param("dosis", "medicamento de prueba")
@@ -341,8 +511,8 @@ public class TratamientoControllerTest {
    	 		 
    	 		 	.param("informe.cita.paciente.id", Integer.toString(TEST_PACIENTE_ID))
    	 		 	.param("informe.cita.paciente.nombre", "test")
-		         .param("informe.cita.paciente.apellidos", "test")
-		         .param("informe.cita.paciente.f_nacimiento", "1997/09/09")
+		        .param("informe.cita.paciente.apellidos", "test")
+		        .param("informe.cita.paciente.f_nacimiento", "1997/09/09")
 		         .param("informe.cita.paciente.f_alta", "2020/08/08")
 		         .param("informe.cita.paciente.DNI", "12345689Q")
 		         .param("informe.cita.paciente.medico.id", Integer.toString(TEST_MEDICO_ID))
@@ -352,15 +522,17 @@ public class TratamientoControllerTest {
 		         .param("informe.cita.paciente.medico.user.username", "test")
 		         .param("informe.cita.paciente.medico.user.password", "test"))
         
-      //  .andExpect(model().attributeHasFieldErrors("tratamiento","f_fin_tratamiento"))
+        .andExpect(model().attributeHasFieldErrors("tratamiento","f_fin_tratamiento"))
         .andExpect(status().isOk())
-      //  .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"))
+        .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"))
         ; 
     	}
         
         @WithMockUser(value = "spring")
     	@Test
         void testSaveTratamientoFechaInicioAfterFechaFin() throws Exception{
+
+        	BDDMockito.given(this.userService.getCurrentMedico()).willReturn(medico1);
             mockMvc.perform(post("/tratamientos/save")
             		.with(csrf())
             		.param("dosis", "medicamento de prueba")
@@ -389,7 +561,6 @@ public class TratamientoControllerTest {
     		        .param("informe.cita.paciente.medico.user.username", "test")
     		        .param("informe.cita.paciente.medico.user.password", "test"))
             
-            //La fecha esta en pasado
             .andExpect(model().attributeHasFieldErrors("tratamiento","f_fin_tratamiento"))
             .andExpect(status().isOk())
             .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
@@ -399,6 +570,7 @@ public class TratamientoControllerTest {
         @WithMockUser(value = "spring")
     	@Test
         void testSaveTratamientoFechaInicioFuturo() throws Exception{
+        	BDDMockito.given(this.userService.getCurrentMedico()).willReturn(medico1);
             mockMvc.perform(post("/tratamientos/save")
             		.with(csrf())
             		.param("dosis", "")
@@ -435,6 +607,7 @@ public class TratamientoControllerTest {
         @WithMockUser(value = "spring")
     	@Test
         void testSaveTratamientoNull() throws Exception{
+        	BDDMockito.given(this.userService.getCurrentMedico()).willReturn(medico1);
             mockMvc.perform(post("/tratamientos/save")
             		.with(csrf())
             		.param("dosis", "")
