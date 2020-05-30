@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -57,11 +58,8 @@ public class PacienteController {
 	@GetMapping(value = "/pacientes/{pacienteId}")
 	public ModelAndView showPaciente(@PathVariable("pacienteId") final int pacienteId) {
 		ModelAndView mav = new ModelAndView("pacientes/pacienteDetails");
-		Paciente paciente = new Paciente();
-
-		if (this.pacienteService.findPacienteById(pacienteId).isPresent()) {
-			paciente = this.pacienteService.findPacienteById(pacienteId).get();
-		}
+		
+		Paciente paciente = checkPacientePresent(pacienteId);
 
 		mav.addObject(paciente);
 		mav.getModel().put("canBeDeleted", checkDeleteforCitas(paciente));
@@ -83,7 +81,7 @@ public class PacienteController {
 
 		Collection<Paciente> results;
 
-		if (paciente.getApellidos() == "") {
+		if (paciente.getApellidos().equals("")) {
 			results = this.pacienteService.getPacientes();
 		} else {
 			results = this.pacienteService.findPacienteByApellidos(paciente.getApellidos());
@@ -119,7 +117,7 @@ public class PacienteController {
 		}
 	}
 
-	@RequestMapping(value = "/pacientes/{pacienteId}/delete")
+	@RequestMapping(value = "/pacientes/{pacienteId}/delete", method = RequestMethod.POST)
 	public String borrarPaciente(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 		String view = "/pacientes";
 
@@ -133,13 +131,10 @@ public class PacienteController {
 
 			if (puedeBorrarse) {
 				this.pacienteService.deletePacienteByMedico(pacienteId, this.userService.getCurrentMedico().getId());
-				modelMap.addAttribute("message", "Paciente borrado exitosamiente");
 				view = "redirect:/pacientes";
 			} else if (!sameMedico(paciente)) {
-				modelMap.addAttribute("message", "No tiene acceso para borrar a este paciente");
 				view = "redirect:/pacientes/" + pacienteId;
 			} else {
-				modelMap.addAttribute("message", "Paciente no puede borrarse");
 				view = "redirect:/pacientes/" + pacienteId;
 			}
 		} else {
@@ -150,13 +145,9 @@ public class PacienteController {
 	}
 
 	@GetMapping(value = "/pacientes/{pacienteId}/edit")
-	public String initUpdatePacientesForm(@PathVariable("pacienteId") final int pacientesId, final ModelMap model) {
+	public String initUpdatePacientesForm(@PathVariable("pacienteId") final int pacienteId, final ModelMap model) {
 
-		Paciente paciente = new Paciente();
-
-		if (this.pacienteService.findPacienteById(pacientesId).isPresent()) {
-			paciente = this.pacienteService.findPacienteById(pacientesId).get();
-		}
+		Paciente paciente = checkPacientePresent(pacienteId);
 
 		if (sameMedico(paciente)) {
 			model.addAttribute("paciente", paciente);
@@ -164,7 +155,7 @@ public class PacienteController {
 			model.addAttribute("isNewPaciente", false);
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else {
-			return "redirect:/pacientes/" + pacientesId;
+			return "redirect:/pacientes/" + pacienteId;
 
 		}
 	}
@@ -243,7 +234,16 @@ public class PacienteController {
 		}
 	}
 	
-	//Metodos Auxiliares
+	public Paciente checkPacientePresent(int pacienteId) {
+		Optional<Paciente> optionalPaciente = this.pacienteService.findPacienteById(pacienteId);
+		Paciente paciente = new Paciente();
+
+		if (optionalPaciente.isPresent()) {
+			paciente = optionalPaciente.get();
+		}
+		
+		return paciente;
+	}
 	
 	public boolean sameMedico(Paciente paciente) {
 		return paciente.getMedico().equals(this.userService.getCurrentMedico());
@@ -252,7 +252,11 @@ public class PacienteController {
 	public boolean checkDeleteforCitas(Paciente paciente) {
 		Collection<Cita> citas = this.citaService.findAllByPaciente(paciente);
 		if (!citas.isEmpty()) {
-			LocalDate ultimaCita = citas.stream().map(Cita::getFecha).max(LocalDate::compareTo).get();
+			Optional<LocalDate> optionalUltimaCita = citas.stream().map(Cita::getFecha).max(LocalDate::compareTo);
+			LocalDate ultimaCita = null;
+			if(optionalUltimaCita.isPresent()) {
+				ultimaCita = optionalUltimaCita.get();
+			}
 			LocalDate hoy = LocalDate.now();
 			return hoy.compareTo(ultimaCita) >= 6
 					|| hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
@@ -266,6 +270,10 @@ public class PacienteController {
 	}
 
 	public boolean telefonoOk(Paciente paciente) {
-		return ((paciente.getN_telefono() == null) ? true : (paciente.getN_telefono().toString().length() == 9));
+		if((paciente.getN_telefono() == null)) {
+			return true;
+		} else {
+			return paciente.getN_telefono().toString().length() == 9;
+		}
 	}
 }
