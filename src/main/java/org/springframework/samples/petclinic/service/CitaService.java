@@ -9,6 +9,8 @@ import java.util.Optional;
 import javax.management.InvalidAttributeValueException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Medico;
@@ -48,6 +50,7 @@ public class CitaService {
 	}
 
 	@Transactional
+	@CacheEvict(cacheNames="findCitasPersonales", allEntries = true)
 	public Cita save(final Cita cita) throws InvalidAttributeValueException {
 		if (cita.getFecha().isBefore(LocalDate.now())) {
 			throw new InvalidAttributeValueException("No se puede poner una fecha en pasado");
@@ -62,6 +65,7 @@ public class CitaService {
 	}
 
 	@Transactional
+	@CacheEvict(cacheNames="findCitasPersonales", allEntries = true)
 	public void delete(final Cita cita) {
 		this.citaRepo.delete(cita);
 	}
@@ -77,6 +81,7 @@ public class CitaService {
 	}
 
 	@Transactional(readOnly = true)
+	@Cacheable("findCitasPersonales")
 	public Collection<Cita> findCitasByMedicoId(final int medicoId) throws DataAccessException {
 		Collection<Paciente> pacientes = new ArrayList<>();
 		pacientes.addAll(this.citaRepo.findPacientesByMedicoId(medicoId));

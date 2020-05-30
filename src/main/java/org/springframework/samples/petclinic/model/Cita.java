@@ -4,10 +4,10 @@ package org.springframework.samples.petclinic.model;
 import java.time.LocalDate;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.validation.Valid;
-import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -34,6 +34,6 @@ public class Cita extends NamedEntity {
 	private Paciente	paciente;
 
 	@Valid
-	@OneToOne(mappedBy = "cita")
+	@OneToOne(fetch=FetchType.LAZY, mappedBy = "cita")
 	private Informe		informe;
 }
