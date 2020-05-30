@@ -34,6 +34,10 @@ import org.springframework.web.servlet.ModelAndView;
 public class PacienteController {
 
 	private static final String VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM = "pacientes/createOrUpdatePacientesForm";
+	private static final String redirectPacientes = "redirect:/pacientes/";
+	private static final String pacienteString = "paciente";
+	private static final String medicoListString = "medicoList";
+
 	@Autowired
 	private final PacienteService pacienteService;
 	private final MedicoService medicoService;
@@ -58,7 +62,7 @@ public class PacienteController {
 	@GetMapping(value = "/pacientes/{pacienteId}")
 	public ModelAndView showPaciente(@PathVariable("pacienteId") final int pacienteId) {
 		ModelAndView mav = new ModelAndView("pacientes/pacienteDetails");
-		
+
 		Paciente paciente = checkPacientePresent(pacienteId);
 
 		mav.addObject(paciente);
@@ -69,7 +73,7 @@ public class PacienteController {
 
 	@GetMapping(value = "/pacientes/find")
 	public String initFindForm(final Map<String, Object> model) {
-		model.put("paciente", new Paciente());
+		model.put(pacienteString, new Paciente());
 		return "pacientes/findPacientes";
 	}
 
@@ -92,7 +96,7 @@ public class PacienteController {
 			return "pacientes/findPacientes";
 		} else if (results.size() == 1) {
 			paciente = results.iterator().next();
-			return "redirect:/pacientes/" + paciente.getId();
+			return redirectPacientes + paciente.getId();
 		} else {
 			model.put("selections", results);
 			return "pacientes/pacientesList";
@@ -102,7 +106,7 @@ public class PacienteController {
 	@GetMapping(value = "/pacientes/findByMedico")
 	public String initFindMedForm(final Map<String, Object> model) {
 		int idMedico = this.userService.getCurrentMedico().getId();
-		return "redirect:/pacientes/findByMedico/" + idMedico;
+		return redirectPacientes + "findByMedico/" + idMedico;
 	}
 
 	@GetMapping(value = "/pacientes/findByMedico/{medicoId}")
@@ -110,7 +114,7 @@ public class PacienteController {
 
 		Collection<Paciente> results = this.pacienteService.findPacienteByMedicoId(medicoId);
 		if (results.isEmpty()) {
-			return "redirect:/pacientes/";
+			return redirectPacientes;
 		} else {
 			model.put("selections", results);
 			return "pacientes/pacientesListMedico";
@@ -120,25 +124,26 @@ public class PacienteController {
 	@RequestMapping(value = "/pacientes/{pacienteId}/delete", method = RequestMethod.POST)
 	public String borrarPaciente(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 		String view = "/pacientes";
-
 		Optional<Paciente> optionalPaciente = this.pacienteService.findPacienteById(pacienteId);
+		String labelMessage = "message";
 
 		if (optionalPaciente.isPresent()) {
 			Paciente paciente = optionalPaciente.get();
-
 			boolean puedeBorrarse = checkDeleteforCitas(paciente) && sameMedico(paciente)
 					&& paciente.getMedico().getUser().isEnabled();
-
 			if (puedeBorrarse) {
 				this.pacienteService.deletePacienteByMedico(pacienteId, this.userService.getCurrentMedico().getId());
+				modelMap.addAttribute(labelMessage, "Paciente borrado exitosamiente");
 				view = "redirect:/pacientes";
 			} else if (!sameMedico(paciente)) {
-				view = "redirect:/pacientes/" + pacienteId;
+				modelMap.addAttribute(labelMessage, "No tiene acceso para borrar a este paciente");
+				view = redirectPacientes + pacienteId;
 			} else {
-				view = "redirect:/pacientes/" + pacienteId;
+				modelMap.addAttribute(labelMessage, "Paciente no puede borrarse");
+				view = redirectPacientes + pacienteId;
 			}
 		} else {
-			modelMap.addAttribute("message", "Paciente no encontrado");
+			modelMap.addAttribute(labelMessage, "Paciente no encontrado");
 			view = "accessNotAuthorized";
 		}
 		return view;
@@ -150,12 +155,12 @@ public class PacienteController {
 		Paciente paciente = checkPacientePresent(pacienteId);
 
 		if (sameMedico(paciente)) {
-			model.addAttribute("paciente", paciente);
-			model.addAttribute("medicoList", this.medicoService.getMedicos());
+			model.addAttribute(pacienteString, paciente);
+			model.addAttribute(medicoListString, this.medicoService.getMedicos());
 			model.addAttribute("isNewPaciente", false);
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else {
-			return "redirect:/pacientes/" + pacienteId;
+			return redirectPacientes + pacienteId;
 
 		}
 	}
@@ -170,7 +175,7 @@ public class PacienteController {
 		model.addAttribute("isNewPaciente", false);
 
 		if (result.hasErrors() || !pacienteValid || !telefonoOk(paciente)) {
-			model.addAttribute("medicoList", this.medicoService.getMedicos());
+			model.addAttribute(medicoListString, this.medicoService.getMedicos());
 			if (hasContact(paciente)) {
 				result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
 			}
@@ -184,7 +189,7 @@ public class PacienteController {
 		} else {
 			paciente.setId(pacienteId);
 			this.pacienteService.savePacienteByMedico(paciente, this.userService.getCurrentMedico().getId());
-			return "redirect:/pacientes/" + pacienteId;
+			return redirectPacientes + pacienteId;
 		}
 	}
 
@@ -193,8 +198,8 @@ public class PacienteController {
 		Paciente paciente = new Paciente();
 		paciente.setMedico(this.userService.getCurrentMedico());
 		paciente.setF_alta(LocalDate.now());
-		model.put("paciente", paciente);
-		model.put("medicoList", this.medicoService.getMedicos());
+		model.put(pacienteString, paciente);
+		model.put(medicoListString, this.medicoService.getMedicos());
 		model.put("isNewPaciente", true);
 
 		return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
@@ -203,14 +208,14 @@ public class PacienteController {
 	@PostMapping(value = "/pacientes/new")
 	public String processCreationForm(@Valid final Paciente paciente, final BindingResult result,
 			final ModelMap model) {
-		
+
 		boolean dniOk = new DniValidator(paciente.getDNI()).validar();
 		boolean pacienteValid = !hasContact(paciente) && dniOk;
 
 		model.addAttribute("isNewPaciente", true);
 
 		if (result.hasErrors() || !pacienteValid || !telefonoOk(paciente) || !sameMedico(paciente)) {
-			model.addAttribute("medicoList", this.medicoService.getMedicos());
+			model.addAttribute(medicoListString, this.medicoService.getMedicos());
 			if (hasContact(paciente)) {
 				result.rejectValue("domicilio", "error.formaContacto", "No tiene forma de contacto.");
 			}
@@ -230,10 +235,10 @@ public class PacienteController {
 			int pacienteId = this.pacienteService.savePacienteByMedico(paciente,
 					this.userService.getCurrentMedico().getId());
 
-			return "redirect:/pacientes/" + pacienteId;
+			return redirectPacientes + pacienteId;
 		}
 	}
-	
+
 	public Paciente checkPacientePresent(int pacienteId) {
 		Optional<Paciente> optionalPaciente = this.pacienteService.findPacienteById(pacienteId);
 		Paciente paciente = new Paciente();
@@ -241,10 +246,10 @@ public class PacienteController {
 		if (optionalPaciente.isPresent()) {
 			paciente = optionalPaciente.get();
 		}
-		
+
 		return paciente;
 	}
-	
+
 	public boolean sameMedico(Paciente paciente) {
 		return paciente.getMedico().equals(this.userService.getCurrentMedico());
 	}
@@ -254,10 +259,11 @@ public class PacienteController {
 		if (!citas.isEmpty()) {
 			Optional<LocalDate> optionalUltimaCita = citas.stream().map(Cita::getFecha).max(LocalDate::compareTo);
 			LocalDate ultimaCita = null;
-			if(optionalUltimaCita.isPresent()) {
+			if (optionalUltimaCita.isPresent()) {
 				ultimaCita = optionalUltimaCita.get();
 			}
 			LocalDate hoy = LocalDate.now();
+
 			return hoy.compareTo(ultimaCita) >= 6
 					|| hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
 		} else {
@@ -270,7 +276,7 @@ public class PacienteController {
 	}
 
 	public boolean telefonoOk(Paciente paciente) {
-		if((paciente.getN_telefono() == null)) {
+		if ((paciente.getN_telefono() == null)) {
 			return true;
 		} else {
 			return paciente.getN_telefono().toString().length() == 9;
