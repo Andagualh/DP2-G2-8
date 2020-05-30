@@ -38,7 +38,6 @@ public class PacienteController {
 	private static final String pacienteString = "paciente";
 	private static final String medicoListString = "medicoList";
 
-	
 	@Autowired
 	private final PacienteService pacienteService;
 	private final MedicoService medicoService;
@@ -122,28 +121,29 @@ public class PacienteController {
 		}
 	}
 
-	@RequestMapping(value = "/pacientes/{pacienteId}/delete", method = RequestMethod.GET)
+	@RequestMapping(value = "/pacientes/{pacienteId}/delete", method = RequestMethod.POST)
 	public String borrarPaciente(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 		String view = "/pacientes";
-
 		Optional<Paciente> optionalPaciente = this.pacienteService.findPacienteById(pacienteId);
+		String labelMessage = "message";
 
 		if (optionalPaciente.isPresent()) {
 			Paciente paciente = optionalPaciente.get();
-
 			boolean puedeBorrarse = checkDeleteforCitas(paciente) && sameMedico(paciente)
 					&& paciente.getMedico().getUser().isEnabled();
-
 			if (puedeBorrarse) {
 				this.pacienteService.deletePacienteByMedico(pacienteId, this.userService.getCurrentMedico().getId());
+				modelMap.addAttribute(labelMessage, "Paciente borrado exitosamiente");
 				view = "redirect:/pacientes";
 			} else if (!sameMedico(paciente)) {
+				modelMap.addAttribute(labelMessage, "No tiene acceso para borrar a este paciente");
 				view = redirectPacientes + pacienteId;
 			} else {
+				modelMap.addAttribute(labelMessage, "Paciente no puede borrarse");
 				view = redirectPacientes + pacienteId;
 			}
 		} else {
-			modelMap.addAttribute("message", "Paciente no encontrado");
+			modelMap.addAttribute(labelMessage, "Paciente no encontrado");
 			view = "accessNotAuthorized";
 		}
 		return view;
@@ -263,6 +263,7 @@ public class PacienteController {
 				ultimaCita = optionalUltimaCita.get();
 			}
 			LocalDate hoy = LocalDate.now();
+
 			return hoy.compareTo(ultimaCita) >= 6
 					|| hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
 		} else {

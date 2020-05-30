@@ -986,7 +986,7 @@ public class PacienteControllerTest {
 	    BDDMockito.given(this.pacienteService.findPacienteById(BDDMockito.anyInt())).willReturn(Optional.of(this.javier));
 	    BDDMockito.given(this.medicoService.getMedicoById(BDDMockito.anyInt())).willReturn(this.medico1);
 
-        mockMvc.perform(get("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
+        mockMvc.perform(post("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
 							.with(csrf())
 							.param("pacienteId", String.valueOf(TEST_PACIENTE_ID)))
 				.andExpect(status().is3xxRedirection())
@@ -1009,7 +1009,7 @@ public class PacienteControllerTest {
 	    BDDMockito.given(this.medicoService.getMedicoById(BDDMockito.anyInt())).willReturn(this.medico1);
 		BDDMockito.given(this.citaService.findAllByPaciente(javier)).willReturn(citas);
 
-        mockMvc.perform(get("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
+        mockMvc.perform(post("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
 							.with(csrf())
 							.param("pacienteId", String.valueOf(TEST_PACIENTE_ID)))
 				.andExpect(status().is3xxRedirection())
@@ -1027,7 +1027,7 @@ public class PacienteControllerTest {
 	    BDDMockito.given(this.pacienteService.findPacienteById(BDDMockito.anyInt())).willReturn(Optional.of(this.javier));
 	    BDDMockito.given(this.medicoService.getMedicoById(BDDMockito.anyInt())).willReturn(this.medico1);
 
-        mockMvc.perform(get("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
+        mockMvc.perform(post("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
 							.with(csrf())
 							.param("pacienteId", String.valueOf(TEST_PACIENTE_ID)))
 				.andExpect(status().is3xxRedirection())
@@ -1050,7 +1050,7 @@ public class PacienteControllerTest {
 	    BDDMockito.given(this.medicoService.getMedicoById(BDDMockito.anyInt())).willReturn(this.medico1);
 		BDDMockito.given(this.citaService.findAllByPaciente(javier)).willReturn(citas);
 
-        mockMvc.perform(get("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
+        mockMvc.perform(post("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
 							.with(csrf())
 							.param("pacienteId", String.valueOf(TEST_PACIENTE_ID)))
 				.andExpect(status().is3xxRedirection())
@@ -1064,7 +1064,7 @@ public class PacienteControllerTest {
 	    BDDMockito.given(this.pacienteService.findPacienteById(BDDMockito.anyInt())).willReturn(Optional.empty());
 	    BDDMockito.given(this.medicoService.getMedicoById(BDDMockito.anyInt())).willReturn(this.medico1);
 
-        mockMvc.perform(get("/pacientes/{pacienteId}/delete", 40)
+        mockMvc.perform(post("/pacientes/{pacienteId}/delete", 40)
 							.with(csrf())
 							.param("pacienteId", "40"))
 				.andExpect(status().isOk())
@@ -1098,7 +1098,7 @@ public class PacienteControllerTest {
 	    BDDMockito.given(this.pacienteService.findPacienteById(1)).willReturn(Optional.of(this.javier));
 	    BDDMockito.given(this.medicoService.getMedicoById(BDDMockito.anyInt())).willReturn(this.medico2);
 
-        mockMvc.perform(get("/pacientes/{pacienteId}/delete", this.javier.getId())
+        mockMvc.perform(post("/pacientes/{pacienteId}/delete", this.javier.getId())
 							.with(csrf())
 							.param("pacienteId", this.javier.getId().toString()))
 				.andExpect(status().is3xxRedirection())
@@ -1114,7 +1114,7 @@ public class PacienteControllerTest {
 	    BDDMockito.given(this.pacienteService.findPacienteById(BDDMockito.anyInt())).willReturn(Optional.of(this.javier));
 	    BDDMockito.given(this.medicoService.getMedicoById(BDDMockito.anyInt())).willReturn(this.medico1);
 
-        mockMvc.perform(get("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
+        mockMvc.perform(post("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
 							.with(csrf())
 							.param("pacienteId", String.valueOf(TEST_PACIENTE_ID)))
 				.andExpect(status().is3xxRedirection())
@@ -1137,7 +1137,7 @@ public class PacienteControllerTest {
 	    BDDMockito.given(this.medicoService.getMedicoById(BDDMockito.anyInt())).willReturn(this.medico1);
 		BDDMockito.given(this.citaService.findAllByPaciente(javier)).willReturn(citas);
 
-        mockMvc.perform(get("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
+        mockMvc.perform(post("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
 							.with(csrf())
 							.param("pacienteId", String.valueOf(TEST_PACIENTE_ID)))
 				.andExpect(status().is3xxRedirection())
@@ -1160,7 +1160,7 @@ public class PacienteControllerTest {
 	    BDDMockito.given(this.medicoService.getMedicoById(BDDMockito.anyInt())).willReturn(this.medico1);
 		BDDMockito.given(this.citaService.findAllByPaciente(javier)).willReturn(citas);
 
-        mockMvc.perform(get("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
+        mockMvc.perform(post("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
 							.with(csrf())
 							.param("pacienteId", String.valueOf(TEST_PACIENTE_ID)))
 				.andExpect(status().is3xxRedirection())
@@ -1182,7 +1182,7 @@ public class PacienteControllerTest {
 	    BDDMockito.given(this.pacienteService.findPacienteById(BDDMockito.anyInt())).willReturn(Optional.of(this.javier));
 	    BDDMockito.given(this.medicoService.getMedicoById(BDDMockito.anyInt())).willReturn(this.medico1);
 		BDDMockito.given(this.citaService.findAllByPaciente(javier)).willReturn(citas);
-        mockMvc.perform(get("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
+        mockMvc.perform(post("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
 							.with(csrf())
 							.param("pacienteId", String.valueOf(TEST_PACIENTE_ID)))
 				.andExpect(status().is3xxRedirection())
