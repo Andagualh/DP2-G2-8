@@ -6,7 +6,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.HistoriaClinica;
@@ -39,6 +42,7 @@ public class PacienteService {
 	}
 
 	@Transactional
+	@Cacheable("pacientes")
 	public Collection<Paciente> getPacientes() {
 		Collection<Paciente> pacientes = new ArrayList<Paciente>();
 		this.pacienteRepo.findAll().forEach(pacientes::add);
@@ -66,6 +70,7 @@ public class PacienteService {
 	}
 
 	@Transactional
+	@CacheEvict(cacheNames="pacientes", allEntries=true)
 	public void savePaciente(final Paciente paciente) {
 		this.pacienteRepo.save(paciente).getId();
 	}
