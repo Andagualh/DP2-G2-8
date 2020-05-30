@@ -4,6 +4,7 @@ package org.springframework.samples.petclinic.model;
 import java.time.LocalDate;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -49,7 +50,7 @@ public class Paciente extends BaseEntity {
 	@NotNull
 	private LocalDate	f_alta;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "medico_id")
 	@NotNull
 	@Valid
