@@ -1,8 +1,11 @@
 package org.springframework.samples.petclinic.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -15,6 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.samples.petclinic.model.Authorities;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.HistoriaClinica;
@@ -508,6 +514,78 @@ public class TratamientoServiceTest {
 		        () -> tratamientoService.deleteTratamiento(tratamiento.getId(), 0), "No se puede borrar este tratamiento");
 
 		Assertions.assertTrue(thrown.getMessage().contains("No se puede borrar este tratamiento"));
+	}
+
+	@Test
+	public void testFindTrata() throws InvalidAttributeValueException, DataAccessException, IllegalAccessException {
+
+		Tratamiento tratamiento = new Tratamiento();
+		Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+		Cita cita = createDummyCita1(paciente);
+		citaService.save(cita);
+		Informe informe = new Informe();
+		informe.setCita(cita);
+		informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
+		
+		tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-23"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-25"));
+		tratamiento.setInforme(informe);
+		
+		this.tratamientoService.save(tratamiento);
+
+		Page<Tratamiento> resultado = this.tratamientoService.findTrata(informe.getId(), PageRequest.of(0, 5));
+		assertNotNull(resultado);
+		assertEquals(resultado.getTotalPages(), 1);
+		assertEquals(resultado.getTotalElements(), 1);
+		
+		
+		for (Tratamiento trat:resultado.getContent()) {
+			Assertions.assertEquals(trat.getInforme().getId(), informe.getId());
+		}	
+
+	}
+
+	@Test
+	public void testFindTrataWithMoreThan1Page() throws InvalidAttributeValueException, DataAccessException, IllegalAccessException {
+
+		Medico medico = createDummyMedico();
+		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
+		Cita cita = createDummyCita1(paciente);
+		citaService.save(cita);
+		Informe informe = new Informe();
+		informe.setCita(cita);
+		informe.setDiagnostico("Dermatitis");
+        informe.setMotivo_consulta("Picor en frente");
+        informeService.saveInforme(informe);
+		
+		//6 objetos, el limite de página es 5 objetos, debe haber un total de 2 páginas
+		for(int i = 1; i < 7; i++){
+		Tratamiento tratamiento = new Tratamiento();
+		tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-23"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-25"));
+		tratamiento.setInforme(informe);
+		
+		this.tratamientoService.save(tratamiento);
+		
+		}
+
+		Page<Tratamiento> resultado = this.tratamientoService.findTrata(informe.getId(), PageRequest.of(0, 5));
+		assertNotNull(resultado);
+		assertEquals(resultado.getTotalPages(), 2);
+		assertEquals(resultado.getTotalElements(), 6);
+		
+		
+		for (Tratamiento trat:resultado.getContent()) {
+			Assertions.assertEquals(trat.getInforme().getId(), informe.getId());
+		}	
+
 	}
 	
 }

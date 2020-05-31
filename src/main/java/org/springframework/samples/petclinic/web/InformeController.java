@@ -10,6 +10,9 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.HistoriaClinica;
 import org.springframework.samples.petclinic.model.Informe;
@@ -100,7 +103,8 @@ public class InformeController {
 	}
 
 	@GetMapping(value = "/informes/{informeId}")
-	public ModelAndView showInforme(@PathVariable("informeId") final int informeId) {
+	public ModelAndView showInforme(@PathVariable("informeId") final int informeId, 
+	@PageableDefault(value = 5, page= 0) Pageable pageable){
 
 		ModelAndView mav = new ModelAndView("informes/informeDetails");
 		Informe informe = this.informeService.findInformeById(informeId).get();
@@ -122,9 +126,11 @@ public class InformeController {
 			Boolean canBeDeleted = informe.getCita().getFecha().plusDays(1).equals(LocalDate.now().plusDays(1)) && informe.getHistoriaClinica() == null;
 			mav.getModel().put("cannotbedeleted", !canBeDeleted);
 
-			Collection<Tratamiento> tratamientos = this.tratamientoService.findTratamientosByInforme(informe);
+			Page<Tratamiento> tratamientos = this.tratamientoService.findTrata(informeId, pageable);
+			
 			mav.getModel().put("editTratamientoOk", cita.getFecha().equals(LocalDate.now()));
-			mav.getModel().put("tratamientos", tratamientos);
+			mav.getModel().put("tratamientos", tratamientos.getContent());
+			mav.getModel().put("tratapages", tratamientos.getTotalPages()-1);
 
 			Boolean canBeEdited = informe.getCita().getFecha().equals(LocalDate.now());
 			mav.getModel().put("canbeedited", canBeEdited);
