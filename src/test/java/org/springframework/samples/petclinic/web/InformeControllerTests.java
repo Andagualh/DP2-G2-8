@@ -2,6 +2,7 @@
 package org.springframework.samples.petclinic.web;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +13,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.samples.petclinic.configuration.SecurityConfiguration;
 import org.springframework.samples.petclinic.model.Authorities;
 import org.springframework.samples.petclinic.model.Cita;
@@ -19,6 +23,7 @@ import org.springframework.samples.petclinic.model.HistoriaClinica;
 import org.springframework.samples.petclinic.model.Informe;
 import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.Paciente;
+import org.springframework.samples.petclinic.model.Tratamiento;
 import org.springframework.samples.petclinic.model.User;
 import org.springframework.samples.petclinic.service.AuthoritiesService;
 import org.springframework.samples.petclinic.service.CitaService;
@@ -449,10 +454,15 @@ class InformeControllerTests {
 		informe.setDiagnostico("Diag");
 		informe.setMotivo_consulta("motivo");
 
+		Page<Tratamiento> page = new PageImpl<>(new ArrayList<>());
+
 		BDDMockito.given(this.informeService.findInformeById(InformeControllerTests.TEST_INFORME_ID)).willReturn(Optional.of(informe));
+		BDDMockito.given(this.tratamientoService.findTrata(informe.getId(), PageRequest.of(0, 5))).willReturn(page);
 
 		this.mockMvc.perform(MockMvcRequestBuilders.get("/citas/{citaId}/informes/{informeId}", InformeControllerTests.TEST_CITA_ID, InformeControllerTests.TEST_INFORME_ID)).andExpect(MockMvcResultMatchers.status().isOk())
-			.andExpect(MockMvcResultMatchers.view().name("informes/informeDetails")).andExpect(MockMvcResultMatchers.model().attributeExists("informe")).andExpect(MockMvcResultMatchers.model().attribute("cannotbedeleted", false))
+			.andExpect(MockMvcResultMatchers.view().name("informes/informeDetails"))
+			.andExpect(MockMvcResultMatchers.model().attributeExists("informe"))
+			.andExpect(MockMvcResultMatchers.model().attribute("cannotbedeleted", false))
 			.andExpect(MockMvcResultMatchers.model().attribute("canbeedited", true)
 
 			);
@@ -468,9 +478,11 @@ class InformeControllerTests {
 		informe.setId(InformeControllerTests.TEST_INFORME_ID);
 		informe.setDiagnostico("Diag");
 		informe.setMotivo_consulta("motivo");
+		Page<Tratamiento> page = new PageImpl<>(new ArrayList<>());
 
 		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico2);
 		BDDMockito.given(this.informeService.findInformeById(InformeControllerTests.TEST_INFORME_ID)).willReturn(Optional.of(informe));
+		BDDMockito.given(this.tratamientoService.findTrata(informe.getId(), PageRequest.of(0, 5))).willReturn(page);
 
 		this.mockMvc.perform(MockMvcRequestBuilders.get("/citas/{citaId}/informes/{informeId}", InformeControllerTests.TEST_CITA_ID, InformeControllerTests.TEST_INFORME_ID)).andExpect(MockMvcResultMatchers.status().isOk())
 			.andExpect(MockMvcResultMatchers.view().name("accessNotAuthorized"));
@@ -486,8 +498,12 @@ class InformeControllerTests {
 		informe.setId(InformeControllerTests.TEST_INFORME_ID);
 		informe.setDiagnostico("Diag");
 		informe.setMotivo_consulta("motivo");
+		Page<Tratamiento> page = new PageImpl<>(new ArrayList<>());
+
 
 		BDDMockito.given(this.informeService.findInformeById(InformeControllerTests.TEST_INFORME_ID)).willReturn(Optional.of(informe));
+		BDDMockito.given(this.tratamientoService.findTrata(informe.getId(), PageRequest.of(0, 5))).willReturn(page);
+
 
 		this.mockMvc.perform(MockMvcRequestBuilders.get("/citas/{citaId}/informes/{informeId}", InformeControllerTests.TEST_CITA3_ID, InformeControllerTests.TEST_INFORME_ID)).andExpect(MockMvcResultMatchers.status().isOk())
 			.andExpect(MockMvcResultMatchers.view().name("informes/informeDetails")).andExpect(MockMvcResultMatchers.model().attributeExists("informe")).andExpect(MockMvcResultMatchers.model().attribute("cannotbedeleted", true))
@@ -508,6 +524,9 @@ class InformeControllerTests {
 		hist.setDescripcion("desc");
 		hist.setPaciente(this.javier);
 		hist.setId(30);
+		Page<Tratamiento> page = new PageImpl<>(new ArrayList<>());
+		BDDMockito.given(this.tratamientoService.findTrata(informe.getId(), PageRequest.of(0, 5))).willReturn(page);
+
 
 		BDDMockito.given(this.historiaClinicaService.findHistoriaClinicaByPaciente(this.javier)).willReturn(hist);
 		informe.setHistoriaClinica(hist);
@@ -533,6 +552,9 @@ class InformeControllerTests {
 		hist.setDescripcion("desc");
 		hist.setPaciente(this.javier);
 		hist.setId(30);
+		Page<Tratamiento> page = new PageImpl<>(new ArrayList<>());
+
+		BDDMockito.given(this.tratamientoService.findTrata(informe.getId(), PageRequest.of(0, 5))).willReturn(page);
 
 		BDDMockito.given(this.historiaClinicaService.findHistoriaClinicaByPaciente(this.javier)).willReturn(hist);
 		informe.setHistoriaClinica(hist);
