@@ -128,7 +128,7 @@
 		<spring:url value="../informes/{informeId}?page=${current}" var="pageUrl">
 		<spring:param name="informeId" value="${informe.id}" />
 		</spring:url>
-	<a href="${fn:escapeXml(pageUrl)}" class="btn btn-default">${current+1}</a>
+	<a href="${fn:escapeXml(pageUrl)}" class="btn btn-default">Pagina ${current+1}</a>
 	</c:forEach>
 	<br>
 	<br>
