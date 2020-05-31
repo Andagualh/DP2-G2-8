@@ -28,8 +28,8 @@
             </resources>
         </cache-template>
         
-	    <cache alias="findCitasPersonales" uses-template="default">
+	   <cache alias="findCitasPersonales" uses-template="default">
 	        <key-type>java.lang.Integer</key-type>
 	        <value-type>java.util.Collection</value-type>
-	    </cache>        
+	    </cache>  
 </config>

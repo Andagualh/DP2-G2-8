@@ -122,7 +122,16 @@
 
         </c:forEach>
     </table>
-    </c:if>
+	</c:if>
+	
+	<c:forEach begin="0" end="${tratapages}" var="current">
+		<spring:url value="../informes/{informeId}?page=${current}" var="pageUrl">
+		<spring:param name="informeId" value="${informe.id}" />
+		</spring:url>
+	<a href="${fn:escapeXml(pageUrl)}" class="btn btn-default">${current+1}</a>
+	</c:forEach>
+	<br>
+	<br>
     <c:if test="${editTratamientoOk}">
     <spring:url value="/tratamientos/new/{informeId}" var="createTratUrl">
 				<spring:param name="informeId" value="${informe.id}" />
