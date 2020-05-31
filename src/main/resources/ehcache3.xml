@@ -27,7 +27,12 @@
                 <heap>1000</heap>
             </resources>
         </cache-template>
-        
+       
+
+	    <cache alias="pacientes" uses-template="default">
+	        <key-type>org.springframework.cache.interceptor.SimpleKey</key-type>
+	        <value-type>java.util.Collection</value-type>
+	    </cache>        
 	   <cache alias="findCitasPersonales" uses-template="default">
 	        <key-type>java.lang.Integer</key-type>
 	        <value-type>java.util.Collection</value-type>
