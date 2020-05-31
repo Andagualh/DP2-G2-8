@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.HistoriaClinica;
 import org.springframework.samples.petclinic.model.Paciente;
@@ -46,17 +45,17 @@ public class PacienteService {
 	}
 
 	@Transactional(readOnly = true)
-	public Paciente getPacienteById(final int id) throws DataAccessException {
-		return this.pacienteRepo.findById(id).get();
+	public Paciente getPacienteById(final int id) {
+		return this.pacienteRepo.findById(id).orElse(null);
 	}
 
 	@Transactional(readOnly = true)
-	public Optional<Paciente> findPacienteById(final int id) throws DataAccessException {
+	public Optional<Paciente> findPacienteById(final int id) {
 		return this.pacienteRepo.findById(id);
 	}
 
 	@Transactional(readOnly = true)
-	public Collection<Paciente> findPacienteByApellidos(final String apellidos) throws DataAccessException {
+	public Collection<Paciente> findPacienteByApellidos(final String apellidos) {
 		return this.pacienteRepo.findPacienteByApellidos(apellidos);
 	}
 
@@ -81,10 +80,9 @@ public class PacienteService {
 				throw new IllegalArgumentException("Dni incorrecto");
 			}
 			if (tieneContacto) {
-				if (tieneTelefono) {
-					if (!(paciente.getN_telefono().toString().length() == 9)) {
-						throw new IllegalArgumentException("Número de teléfono incorrecto");
-					}
+				if (tieneTelefono && paciente.getN_telefono().toString().length() != 9) {
+					throw new IllegalArgumentException("Número de teléfono incorrecto");
+
 				}
 			} else {
 				throw new IllegalArgumentException("No tiene forma de contacto");
@@ -102,16 +100,17 @@ public class PacienteService {
 
 	@Transactional
 	public void deletePacienteByMedico(final int idPaciente, final int idMedico) {
-		Paciente paciente = this.pacienteRepo.findById(idPaciente).get();
+		Paciente paciente = this.pacienteRepo.findById(idPaciente).orElse(null);
 		boolean medicoEnabled = this.medicoService.getMedicoById(idMedico).getUser().isEnabled();
 
 		if (paciente.getMedico().getId() == idMedico && medicoEnabled) {
 			Collection<Cita> citas = this.citaService.findAllByPaciente(paciente);
 			boolean puedeBorrarse = citas.isEmpty();
 			if (!citas.isEmpty()) {
-				LocalDate ultimaCita = citas.stream().map(Cita::getFecha).max(LocalDate::compareTo).get();
+				LocalDate ultimaCita = citas.stream().map(Cita::getFecha).max(LocalDate::compareTo).orElse(null);
 				LocalDate hoy = LocalDate.now();
-				puedeBorrarse = hoy.compareTo(ultimaCita) >= 6 || (hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear());
+				puedeBorrarse = hoy.compareTo(ultimaCita) >= 6
+						|| (hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear());
 			}
 
 			HistoriaClinica hs = this.findHistoriaClinicaByPaciente(paciente);
@@ -139,7 +138,7 @@ public class PacienteService {
 	}
 
 	@Transactional(readOnly = true)
-	public Collection<Paciente> findPacienteByMedicoId(final int id) throws DataAccessException {
+	public Collection<Paciente> findPacienteByMedicoId(final int id) {
 		return this.pacienteRepo.findPacientesByMedicoId(id);
 	}
 
