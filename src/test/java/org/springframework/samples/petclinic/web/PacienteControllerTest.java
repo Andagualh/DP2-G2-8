@@ -1188,4 +1188,23 @@ public class PacienteControllerTest {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:/pacientes/"+this.javier.getId().toString()));
 	}
+        
+    	@WithMockUser(value = "spring")
+    	@Test
+    	void testBorrarPacienteCitasError() throws Exception {
+    		Collection<Cita> citas = new ArrayList<Cita>();
+    		citas.add(new Cita());
+
+    		BDDMockito.given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+    		BDDMockito.given(this.pacienteService.findPacienteById(BDDMockito.anyInt()))
+    				.willReturn(Optional.of(this.javier));
+    		BDDMockito.given(this.medicoService.getMedicoById(BDDMockito.anyInt())).willReturn(this.medico1);
+    		BDDMockito.given(this.citaService.findAllByPaciente(javier)).willReturn(citas);
+
+            mockMvc.perform(post("/pacientes/{pacienteId}/delete", TEST_PACIENTE_ID)
+    							.with(csrf())
+    							.param("pacienteId", String.valueOf(TEST_PACIENTE_ID)))
+    				.andExpect(status().is3xxRedirection())
+    				.andExpect(view().name("redirect:/pacientes"));
+    	}
 }		
