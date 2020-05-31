@@ -264,8 +264,8 @@ public class PacienteController {
 			}
 			LocalDate hoy = LocalDate.now();
 
-			return hoy.compareTo(ultimaCita) >= 6
-					|| hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
+			int compareDate = hoy.compareTo(ultimaCita);
+			return compareDate >= 6 || compareDate == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
 		} else {
 			return true;
 		}
