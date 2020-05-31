@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.NoSuchElementException;
 
 import javax.management.InvalidAttributeValueException;
 
@@ -604,6 +605,23 @@ public class PacienteServiceTests {
 		Assertions.assertNotNull(this.pacienteService.findPacienteById(idPacienteCreado).get());
 
 		Assertions.assertThrows(IllegalStateException.class, () -> {
+			this.pacienteService.deletePacienteByMedico(idPacienteCreado, idMedicoPacienteCreado);
+		});
+	}
+
+	
+	@Test
+	public void testDeletePacienteNull() throws InvalidAttributeValueException {
+		int countPacientes = this.pacienteService.pacienteCount();
+		Medico medico = this.createDummyMedico();
+
+		int idMedicoPacienteCreado = medico.getId();
+		int idPacienteCreado = 2000;
+
+		int count = this.pacienteService.pacienteCount();
+		Assertions.assertEquals(count, countPacientes);
+
+		Assertions.assertThrows(NoSuchElementException.class, () -> {
 			this.pacienteService.deletePacienteByMedico(idPacienteCreado, idMedicoPacienteCreado);
 		});
 	}
