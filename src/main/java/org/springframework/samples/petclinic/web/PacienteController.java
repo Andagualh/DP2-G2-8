@@ -257,7 +257,7 @@ public class PacienteController {
 
 				int compareDate = hoy.compareTo(ultimaCita);
 
-				return compareDate >= 6 || compareDate == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
+				return compareDate >= 6 || compareDate >= 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear();
 			} else {
 				return true;
 			}

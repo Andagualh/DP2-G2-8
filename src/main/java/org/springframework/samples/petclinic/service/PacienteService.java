@@ -4,6 +4,7 @@ package org.springframework.samples.petclinic.service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class PacienteService {
 
 	@Transactional
 	public Collection<Paciente> getPacientes() {
-		Collection<Paciente> pacientes = new ArrayList<Paciente>();
+		Collection<Paciente> pacientes = new ArrayList<>();
 		this.pacienteRepo.findAll().forEach(pacientes::add);
 		return pacientes;
 	}
@@ -103,32 +104,36 @@ public class PacienteService {
 		Paciente paciente = this.pacienteRepo.findById(idPaciente).orElse(null);
 		boolean medicoEnabled = this.medicoService.getMedicoById(idMedico).getUser().isEnabled();
 
-		if (paciente.getMedico().getId() == idMedico && medicoEnabled) {
-			Collection<Cita> citas = this.citaService.findAllByPaciente(paciente);
-			boolean puedeBorrarse = citas.isEmpty();
-			if (!citas.isEmpty()) {
-				LocalDate ultimaCita = citas.stream().map(Cita::getFecha).max(LocalDate::compareTo).orElse(null);
-				LocalDate hoy = LocalDate.now();
-				puedeBorrarse = hoy.compareTo(ultimaCita) >= 6
-						|| (hoy.compareTo(ultimaCita) == 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear());
-			}
-
-			HistoriaClinica hs = this.findHistoriaClinicaByPaciente(paciente);
-
-			if (citas.isEmpty() && hs == null) {
-				this.citaService.deleteAllByPaciente(paciente);
-				this.pacienteRepo.deleteById(idPaciente);
-			} else if (puedeBorrarse) {
-				if (hs != null) {
-					this.historiaClinicaService.deleteHistoriaClinica(hs);
+		if (paciente != null) {
+			if (paciente.getMedico().getId() == idMedico && medicoEnabled) {
+				Collection<Cita> citas = this.citaService.findAllByPaciente(paciente);
+				boolean puedeBorrarse = citas.isEmpty();
+				if (!citas.isEmpty()) {
+					LocalDate ultimaCita = citas.stream().map(Cita::getFecha).max(LocalDate::compareTo).orElse(null);
+					LocalDate hoy = LocalDate.now();
+					puedeBorrarse = hoy.compareTo(ultimaCita) >= 6
+							|| (hoy.compareTo(ultimaCita) >= 5 && hoy.getDayOfYear() > ultimaCita.getDayOfYear());
 				}
-				this.citaService.deleteAllByPaciente(paciente);
-				this.pacienteRepo.deleteById(idPaciente);
+
+				HistoriaClinica hs = this.findHistoriaClinicaByPaciente(paciente);
+
+				if (citas.isEmpty() && hs == null) {
+					this.citaService.deleteAllByPaciente(paciente);
+					this.pacienteRepo.deleteById(idPaciente);
+				} else if (puedeBorrarse) {
+					if (hs != null) {
+						this.historiaClinicaService.deleteHistoriaClinica(hs);
+					}
+					this.citaService.deleteAllByPaciente(paciente);
+					this.pacienteRepo.deleteById(idPaciente);
+				} else {
+					throw new IllegalStateException();
+				}
 			} else {
-				throw new IllegalStateException();
+				throw new IllegalAccessError();
 			}
 		} else {
-			throw new IllegalAccessError();
+			throw new NoSuchElementException();
 		}
 	}
 
