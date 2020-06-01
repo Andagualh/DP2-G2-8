@@ -10,12 +10,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import javax.management.InvalidAttributeValueException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -169,8 +171,6 @@ public class TratamientoE2ETest {
 				.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"));
 	}	
 	
-	//CASO POSITIVO
-	
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
 	void testSaveSuccessTratamiento() throws Exception {
@@ -190,8 +190,6 @@ public class TratamientoE2ETest {
 
 	}
 	
-	//Caso fecha fin en pasado
-	
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
     void testSaveTratamientoFechaFinPasado() throws Exception{
@@ -210,9 +208,7 @@ public class TratamientoE2ETest {
 		.andExpect(status().isOk())
         .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm")
         );
-}
-	
-	//Caso fecha inicio en futuro
+	}
 	
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
@@ -235,9 +231,6 @@ public class TratamientoE2ETest {
         );
 
     }
-
-	
-	//CASO CAMPOS VACIOS
 	
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
@@ -253,29 +246,27 @@ public class TratamientoE2ETest {
         mockMvc.perform(post("/tratamientos/save")
         		.with(csrf())
         	    .flashAttr("tratamiento", tratamiento))
-        /*
+        
         .andExpect(model().attributeHasFieldErrors("tratamiento","medicamento"))
         .andExpect(model().attributeHasFieldErrors("tratamiento","dosis"))
         .andExpect(model().attributeHasFieldErrors("tratamiento","f_inicio_tratamiento"))
         .andExpect(model().attributeHasFieldErrors("tratamiento","f_fin_tratamiento"))
-        */
+        
         .andExpect(status().isOk())
-        //.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"))
+        .andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"))
         ;
 	}
-
-	//CASO EDITAR (INIT) TRATAMIENTO NO VIGENTE
 	
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
 	void testInitUpdateTratamientoNoVigente() throws Exception {
-		mockMvc.perform(get("/tratamientos/{tratamientoId}/edit", 4))
-				.andExpect(status().isOk())
-				//.andExpect(view().name("redirect:/"))
+		Cita cita = tratamientoService.findTratamientoById(6).get().getInforme().getCita();
+		cita.setFecha(LocalDate.now());
+		citaService.save(cita);
+		mockMvc.perform(get("/tratamientos/{tratamientoId}/edit", 6))
+				.andExpect(view().name("redirect:/"))
 				;
 	}
-	
-	// CASO CREAR (INIT) TRATAMIENTO A INFORME DE OTRO MEDICO
 	
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
@@ -283,8 +274,6 @@ public class TratamientoE2ETest {
 		mockMvc.perform(get("/tratamientos/new/{informeId}", 4))
 				.andExpect(view().name("redirect:/"));
 	}
-	
-	// CASO UPDATE (INIT) TRATAMIENTO DE OTRO MEDICO     peta da igual lo que haga
 	
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
 	@Test
@@ -355,18 +344,9 @@ public class TratamientoE2ETest {
 			
 			tratamientoService.saveTratamientoOldCita(tratamiento);
 			
-			//mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
-			//.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/citas/" + tratamiento.getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
-			//		+ tratamiento.getInforme().getId()));
-			
 			mockMvc.perform(get("/tratamientos/delete/{tratamientoId}", TEST_TRATAMIENTO_ID))
 			.andExpect(status().is3xxRedirection()).andExpect(view().name("redirect:/citas/" + cita.getPaciente().getMedico().getId() + "/informes/"
 					+ informe.getId()));
-			
-			
-			//tratamientoService.deleteTratamiento(TEST_TRATAMIENTO_ID, tratamiento.getInforme().getCita().getPaciente().getMedico().getId());
-			
-			
 		}
 		
 		@WithMockUser(username="andresMedico",authorities= {"medico"})
@@ -399,5 +379,27 @@ public class TratamientoE2ETest {
 			tratamientoService.deleteTratamiento(TEST_TRATAMIENTO_ID, tratamiento.getInforme().getCita().getPaciente().getMedico().getId());
 	
 		}
+		
+		@WithMockUser(username="alvaroMedico",authorities= {"medico"})
+		@Test
+		void testSaveTratamientoNoAutorizado() throws Exception {
+	        
+			Tratamiento tratamiento = new Tratamiento();
+			Informe informe = informeService.findInformeById(4).get();
+	    	
+	    	tratamiento.setId(TEST_TRATAMIENTO_ID);
+	    	tratamiento.setMedicamento("aspirina1");
+			tratamiento.setDosis("1 pastilla cada 8 horas");
+			tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
+			tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-22"));
+			tratamiento.setInforme(informe);
+			
+			mockMvc.perform(post("/tratamientos/save")
+	        		.with(csrf())
+	        	    .flashAttr("tratamiento", tratamiento))
+	    	
+			.andExpect(view().name("accessNotAuthorized"));	
+		}
+	    
 
 }

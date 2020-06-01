@@ -54,7 +54,7 @@ public class TratamientoUITest {
   }
   
   @Test
-  public void testCreateTratamiento() throws Exception {
+  public void testCreateTratamientoSuccess() throws Exception {
 	this.driver.get("http://localhost:" + this.port);
 	this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 	this.driver.findElement(By.id("username")).clear();
@@ -103,7 +103,35 @@ public class TratamientoUITest {
   }
   
   @Test
-  public void testEditTratamiento() throws Exception {
+  public void testCreateTratamientoFechaFinMenorFechaInicio() throws Exception {
+	this.driver.get("http://localhost:" + this.port);
+	this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
+	this.driver.findElement(By.id("username")).clear();
+	this.driver.findElement(By.id("username")).sendKeys("alvaroMedico");
+	this.driver.findElement(By.id("password")).clear();
+	this.driver.findElement(By.id("password")).sendKeys("entrar");
+	this.driver.findElement(By.xpath("//button[@type='submit']")).click();
+	assertEquals("ALVAROMEDICO", this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).getText());
+	driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/a")).click();
+	driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/ul/li[2]/a/span[2]")).click();
+    driver.findElement(By.linkText("Ver Informe")).click();
+    driver.findElement(By.linkText("Crear Tratamiento")).click();
+    driver.findElement(By.id("medicamento")).click();
+    driver.findElement(By.id("medicamento")).clear();
+    driver.findElement(By.id("medicamento")).sendKeys("Espidifen");
+    driver.findElement(By.id("dosis")).click();
+    driver.findElement(By.id("dosis")).clear();
+    driver.findElement(By.id("dosis")).sendKeys("1 sobre cada 8 horas");
+    driver.findElement(By.id("f_inicio_tratamiento")).click();
+    driver.findElement(By.linkText("5")).click();
+    driver.findElement(By.id("f_fin_tratamiento")).click();
+    driver.findElement(By.linkText("2")).click();
+    driver.findElement(By.xpath("//button[@type='submit']")).click();
+    Assert.assertEquals("La fecha de finalización del tratamiento no puede ser anterior a la fecha de inicio del tratamiento", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[4]/div")).getText());
+  }
+  
+  @Test
+  public void testEditTratamientoSuccess() throws Exception {
 	this.driver.get("http://localhost:" + this.port);
 	this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 	this.driver.findElement(By.id("username")).clear();
@@ -130,7 +158,7 @@ public class TratamientoUITest {
   }
   
   @Test
-  public void testCreateTratamientoFechaFinPasado() throws Exception {
+  public void testEditTratamientoFechaFinMenorFechaInicio() throws Exception {
 	this.driver.get("http://localhost:" + this.port);
 	this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 	this.driver.findElement(By.id("username")).clear();
@@ -140,22 +168,70 @@ public class TratamientoUITest {
 	this.driver.findElement(By.xpath("//button[@type='submit']")).click();
 	assertEquals("ALVAROMEDICO", this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).getText());
 	driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/a")).click();
-	driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/ul/li[2]/a/span[2]")).click();
-    driver.findElement(By.linkText("Ver Informe")).click();
-    driver.findElement(By.linkText("Crear Tratamiento")).click();
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/ul/li[2]/a/span[2]")).click();
+    driver.findElement(By.xpath("(//a[contains(text(),'Ver Informe')])[4]")).click();
+    driver.findElement(By.linkText("Editar Tratamiento")).click();
+    driver.findElement(By.id("f_fin_tratamiento")).click();
+    driver.findElement(By.xpath("//div[@id='ui-datepicker-div']/div/a/span")).click();
+    driver.findElement(By.linkText("1")).click();
+    driver.findElement(By.xpath("//button[@type='submit']")).click();
+    try {
+      assertEquals("La fecha de finalización del tratamiento no puede ser anterior a la fecha de inicio del tratamiento", driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[4]/div/span[2]")).getText());
+    } catch (Error e) {
+      verificationErrors.append(e.toString());
+    }
+  }
+  
+  @Test
+  public void testEditarTratamientoTodosCamposVacios() throws Exception {
+	this.driver.get("http://localhost:" + this.port);
+	this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
+	this.driver.findElement(By.id("username")).clear();
+	this.driver.findElement(By.id("username")).sendKeys("alvaroMedico");
+	this.driver.findElement(By.id("password")).clear();
+	this.driver.findElement(By.id("password")).sendKeys("entrar");
+	this.driver.findElement(By.xpath("//button[@type='submit']")).click();
+	assertEquals("ALVAROMEDICO", this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).getText());
+	driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/a")).click();
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/ul/li[2]/a/span[2]")).click();
+    driver.findElement(By.xpath("(//a[contains(text(),'Ver Informe')])[4]")).click();
+    driver.findElement(By.linkText("Editar Tratamiento")).click();
     driver.findElement(By.id("medicamento")).click();
     driver.findElement(By.id("medicamento")).clear();
-    driver.findElement(By.id("medicamento")).sendKeys("Espidifen");
+    driver.findElement(By.id("medicamento")).sendKeys("");
     driver.findElement(By.id("dosis")).click();
     driver.findElement(By.id("dosis")).clear();
-    driver.findElement(By.id("dosis")).sendKeys("1 sobre cada 8 horas");
+    driver.findElement(By.id("dosis")).sendKeys("");
     driver.findElement(By.id("f_inicio_tratamiento")).click();
-    driver.findElement(By.linkText("5")).click();
+    driver.findElement(By.id("f_inicio_tratamiento")).clear();
+    driver.findElement(By.id("f_inicio_tratamiento")).sendKeys("");
     driver.findElement(By.id("f_fin_tratamiento")).click();
-    driver.findElement(By.linkText("2")).click();
+    driver.findElement(By.id("f_fin_tratamiento")).clear();
+    driver.findElement(By.id("f_fin_tratamiento")).sendKeys("");
+    driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div[2]/div")).click();
     driver.findElement(By.xpath("//button[@type='submit']")).click();
-    Assert.assertEquals("La fecha de finalización del tratamiento no puede ser anterior a la fecha de inicio del tratamiento", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[4]/div")).getText());
+    try {
+      assertEquals("no puede estar vacío", driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div/div/span[2]")).getText());
+    } catch (Error e) {
+      verificationErrors.append(e.toString());
+    }
+    try {
+      assertEquals("no puede estar vacío", driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[2]/div/span[2]")).getText());
+    } catch (Error e) {
+      verificationErrors.append(e.toString());
+    }
+    try {
+      assertEquals("no puede ser null", driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[3]/div/span[2]")).getText());
+    } catch (Error e) {
+      verificationErrors.append(e.toString());
+    }
+    try {
+      assertEquals("no puede ser null", driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[4]/div/span[2]")).getText());
+    } catch (Error e) {
+      verificationErrors.append(e.toString());
+    }
   }
+ 
 
   @AfterEach
   public void tearDown() throws Exception {

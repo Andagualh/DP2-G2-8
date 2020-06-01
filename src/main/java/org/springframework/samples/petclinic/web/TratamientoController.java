@@ -37,7 +37,7 @@ public class TratamientoController {
 	@Autowired
 	private CitaService 		citaService;
 	@Autowired
-	private MedicoService medicoService;
+	private MedicoService       medicoService;
 	@Autowired
 	private UserService			userService;
 
@@ -136,7 +136,6 @@ public class TratamientoController {
 		}
 		return "redirect:/citas/" + tratamiento.get().getInforme().getCita().getPaciente().getMedico().getId() + "/informes/"
 				+ tratamiento.get().getInforme().getId();
-		//return "redirect:/citas/" + String.valueOf(tratamiento.get().getInforme().getCita().getId()) + "/informes/" + String.valueOf(tratamiento.get().getInforme().getId());
 	}
 
 }
