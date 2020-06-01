@@ -26,10 +26,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+
 @Controller
 @RequestMapping("/citas")
 public class CitaController {
 
+	
+	private static final String accessNotAuthorized = "accessNotAuthorized";
+	private static final String pacienteModelName = "paciente";
+	private static final String VIEW_CREATE_OR_UPDATE_FORM = "citas/createOrUpdateCitaForm";
+	private static final String message = "message";
+	private static final String fecha = "fecha";
+	private static final String VIEW_CITAS = "redirect:/citas";
+	
 	@Autowired
 	private CitaService citaService;
 	@Autowired
@@ -52,7 +61,7 @@ public class CitaController {
 		int idMedico = this.userService.getCurrentMedico().getId();
 
 		if (medicoId != idMedico) {
-			return "accessNotAuthorized";
+			return accessNotAuthorized;
 		} else {
 			Collection<Cita> citas = this.citaService.findCitasByMedicoId(medicoId);
 			if (citas.isEmpty()) {
@@ -75,11 +84,11 @@ public class CitaController {
 		// cita.setName("paciente");
 
 		if (paciente.getMedico().equals(medic)) {
-			modelMap.addAttribute("paciente", paciente);
+			modelMap.addAttribute(pacienteModelName, paciente);
 			modelMap.addAttribute("cita", cita);
-			return "citas/createOrUpdateCitaForm";
+			return VIEW_CREATE_OR_UPDATE_FORM;
 		} else {
-			return "accessNotAuthorized";
+			return accessNotAuthorized;
 		}
 	}
 
@@ -89,23 +98,23 @@ public class CitaController {
 
 		if (result.hasErrors()) {
 			modelMap.addAttribute("cita", cita);
-			modelMap.addAttribute("paciente", cita.getPaciente());
-			return "citas/createOrUpdateCitaForm";
+			modelMap.addAttribute(pacienteModelName, cita.getPaciente());
+			return VIEW_CREATE_OR_UPDATE_FORM;
 		} else if (cita.getFecha().isBefore(LocalDate.now())) {
 			modelMap.addAttribute("cita", cita);
-			modelMap.addAttribute("paciente", cita.getPaciente());
-			modelMap.addAttribute("message", "La fecha debe estar en presente o futuro");
-			result.rejectValue("fecha", "error.fecha", "La fecha debe estar en presente o futuro");
-			return "citas/createOrUpdateCitaForm";
+			modelMap.addAttribute(pacienteModelName, cita.getPaciente());
+			modelMap.addAttribute(message, "La fecha debe estar en presente o futuro");
+			result.rejectValue(fecha, "error.fecha", "La fecha debe estar en presente o futuro");
+			return VIEW_CREATE_OR_UPDATE_FORM;
 		} else if (this.citaService.existsCitaPacienteDate(cita.getFecha(), cita.getPaciente())) {
 			modelMap.addAttribute("cita", cita);
-			modelMap.addAttribute("paciente", cita.getPaciente());
-			result.rejectValue("fecha", "error.citasamedate", "Ya existe una cita para este paciente en esta fecha");
-			return "citas/createOrUpdateCitaForm";
+			modelMap.addAttribute(pacienteModelName, cita.getPaciente());
+			result.rejectValue(fecha, "error.citasamedate", "Ya existe una cita para este paciente en esta fecha");
+			return VIEW_CREATE_OR_UPDATE_FORM;
 		} else {
 			this.citaService.save(cita);
-			modelMap.addAttribute("message", "Cita successfully created");
-			return "redirect:/citas";
+			modelMap.addAttribute(message, "Cita successfully created");
+			return VIEW_CITAS;
 		}
 	}
 
@@ -117,18 +126,18 @@ public class CitaController {
 		if (cita.isPresent() && cita.get().getInforme() == null
 				&& actualMedic.equals(cita.get().getPaciente().getMedico()) && cita.get().getFecha() != null) {
 			if (cita.get().getFecha().isAfter(LocalDate.now()) || cita.get().getFecha().isEqual(LocalDate.now())) {
-				modelMap.addAttribute("message", "Cita successfully deleted");
+				modelMap.addAttribute(message, "Cita successfully deleted");
 				this.citaService.delete(cita.get());
 
-				return "redirect:/citas";
+				return VIEW_CITAS;
 			} else {
-				return "redirect:/citas";
+				return VIEW_CITAS;
 			}
 		} else if (cita.isPresent() && !actualMedic.equals(cita.get().getPaciente().getMedico())) {
-			return "accessNotAuthorized";
+			return accessNotAuthorized;
 		} else {
-			modelMap.addAttribute("message", "Cita cant be deleted");
-			return "redirect:/citas";
+			modelMap.addAttribute(message, "Cita cant be deleted");
+			return VIEW_CITAS;
 		}
 	}
 
@@ -156,7 +165,7 @@ public class CitaController {
 
 		if (citas.isEmpty()) {
 			// no citas found
-			result.rejectValue("fecha", "error.citaNotFound", "No se encontró ninguna cita en el día introducido");
+			result.rejectValue(fecha, "error.citaNotFound", "No se encontró ninguna cita en el día introducido");
 			return "citas/findCitas";
 		} else {
 			// multiple citas found
