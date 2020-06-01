@@ -32,11 +32,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class CitaController {
 
 	
-	private static final String accessNotAuthorized = "accessNotAuthorized";
-	private static final String pacienteModelName = "paciente";
+	private static final String ACCESS_NOT_AUTHORIZED = "accessNotAuthorized";
+	private static final String PACIENTE_MODEL_NAME = "paciente";
 	private static final String VIEW_CREATE_OR_UPDATE_FORM = "citas/createOrUpdateCitaForm";
-	private static final String message = "message";
-	private static final String fecha = "fecha";
+	private static final String MESSAGE = "message";
+	private static final String FECHA = "fecha";
 	private static final String VIEW_CITAS = "redirect:/citas";
 	
 	@Autowired
@@ -61,7 +61,7 @@ public class CitaController {
 		int idMedico = this.userService.getCurrentMedico().getId();
 
 		if (medicoId != idMedico) {
-			return accessNotAuthorized;
+			return ACCESS_NOT_AUTHORIZED;
 		} else {
 			Collection<Cita> citas = this.citaService.findCitasByMedicoId(medicoId);
 			if (citas.isEmpty()) {
@@ -84,11 +84,11 @@ public class CitaController {
 		// cita.setName("paciente");
 
 		if (paciente.getMedico().equals(medic)) {
-			modelMap.addAttribute(pacienteModelName, paciente);
+			modelMap.addAttribute(PACIENTE_MODEL_NAME, paciente);
 			modelMap.addAttribute("cita", cita);
 			return VIEW_CREATE_OR_UPDATE_FORM;
 		} else {
-			return accessNotAuthorized;
+			return ACCESS_NOT_AUTHORIZED;
 		}
 	}
 
@@ -98,22 +98,22 @@ public class CitaController {
 
 		if (result.hasErrors()) {
 			modelMap.addAttribute("cita", cita);
-			modelMap.addAttribute(pacienteModelName, cita.getPaciente());
+			modelMap.addAttribute(PACIENTE_MODEL_NAME, cita.getPaciente());
 			return VIEW_CREATE_OR_UPDATE_FORM;
 		} else if (cita.getFecha().isBefore(LocalDate.now())) {
 			modelMap.addAttribute("cita", cita);
-			modelMap.addAttribute(pacienteModelName, cita.getPaciente());
-			modelMap.addAttribute(message, "La fecha debe estar en presente o futuro");
-			result.rejectValue(fecha, "error.fecha", "La fecha debe estar en presente o futuro");
+			modelMap.addAttribute(PACIENTE_MODEL_NAME, cita.getPaciente());
+			modelMap.addAttribute(MESSAGE, "La fecha debe estar en presente o futuro");
+			result.rejectValue(FECHA, "error.fecha", "La fecha debe estar en presente o futuro");
 			return VIEW_CREATE_OR_UPDATE_FORM;
 		} else if (this.citaService.existsCitaPacienteDate(cita.getFecha(), cita.getPaciente())) {
 			modelMap.addAttribute("cita", cita);
-			modelMap.addAttribute(pacienteModelName, cita.getPaciente());
-			result.rejectValue(fecha, "error.citasamedate", "Ya existe una cita para este paciente en esta fecha");
+			modelMap.addAttribute(PACIENTE_MODEL_NAME, cita.getPaciente());
+			result.rejectValue(FECHA, "error.citasamedate", "Ya existe una cita para este paciente en esta fecha");
 			return VIEW_CREATE_OR_UPDATE_FORM;
 		} else {
 			this.citaService.save(cita);
-			modelMap.addAttribute(message, "Cita successfully created");
+			modelMap.addAttribute(MESSAGE, "Cita successfully created");
 			return VIEW_CITAS;
 		}
 	}
@@ -126,7 +126,7 @@ public class CitaController {
 		if (cita.isPresent() && cita.get().getInforme() == null
 				&& actualMedic.equals(cita.get().getPaciente().getMedico()) && cita.get().getFecha() != null) {
 			if (cita.get().getFecha().isAfter(LocalDate.now()) || cita.get().getFecha().isEqual(LocalDate.now())) {
-				modelMap.addAttribute(message, "Cita successfully deleted");
+				modelMap.addAttribute(MESSAGE, "Cita successfully deleted");
 				this.citaService.delete(cita.get());
 
 				return VIEW_CITAS;
@@ -134,9 +134,9 @@ public class CitaController {
 				return VIEW_CITAS;
 			}
 		} else if (cita.isPresent() && !actualMedic.equals(cita.get().getPaciente().getMedico())) {
-			return accessNotAuthorized;
+			return ACCESS_NOT_AUTHORIZED;
 		} else {
-			modelMap.addAttribute(message, "Cita cant be deleted");
+			modelMap.addAttribute(MESSAGE, "Cita cant be deleted");
 			return VIEW_CITAS;
 		}
 	}
@@ -165,7 +165,7 @@ public class CitaController {
 
 		if (citas.isEmpty()) {
 			// no citas found
-			result.rejectValue(fecha, "error.citaNotFound", "No se encontró ninguna cita en el día introducido");
+			result.rejectValue(FECHA, "error.citaNotFound", "No se encontró ninguna cita en el día introducido");
 			return "citas/findCitas";
 		} else {
 			// multiple citas found
