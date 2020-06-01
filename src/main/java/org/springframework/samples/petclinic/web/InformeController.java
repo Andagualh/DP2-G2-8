@@ -201,7 +201,7 @@ public class InformeController {
 	}
 
 	@PostMapping(value = "/informes/{informeId}/edit")
-	public String processUpdateInformeForm(final Cita cita, @Valid final Informe informe, final BindingResult result, @PathVariable("informeId") final int informeId, final ModelMap model) throws DataAccessException, IllegalAccessException {
+	public String processUpdateInformeForm(final Cita cita, @Valid final Informe informe, final BindingResult result, @PathVariable("informeId") final int informeId, final ModelMap model) throws IllegalAccessException {
 		if (result.hasErrors()) {
 			model.put(InformeController.INFORME_MODELO, informe);
 			return InformeController.VIEWS_INFORME_CREATE_OR_UPDATE_FORM;
