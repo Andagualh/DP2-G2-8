@@ -183,6 +183,7 @@ class InformeControllerTests {
 	@WithMockUser(value = "spring")
 	@Test
 	void testCreateInforme() throws Exception {
+		
 		this.mockMvc.perform(MockMvcRequestBuilders.get("/citas/{citaId}/informes/new", InformeControllerTests.TEST_CITA_ID)).andExpect(MockMvcResultMatchers.status().isOk())
 			.andExpect(MockMvcResultMatchers.view().name("informes/createOrUpdateInformeForm")).andExpect(MockMvcResultMatchers.model().attributeExists("informe"));
 	}
