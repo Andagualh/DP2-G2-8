@@ -105,12 +105,14 @@ public class InformeController {
 
 			Boolean canBeDeleted = informe.getCita().getFecha().plusDays(1).equals(LocalDate.now().plusDays(1)) && informe.getHistoriaClinica() == null;
 			mav.getModel().put("cannotbedeleted", !canBeDeleted);
-
+			
+			if(informe.getTratamientos() != null){
 			Page<Tratamiento> tratamientos = this.tratamientoService.findTrata(informeId, pageable);
 			
 			mav.getModel().put("editTratamientoOk", cita.getFecha().equals(LocalDate.now()));
 			mav.getModel().put("tratamientos", tratamientos.getContent());
 			mav.getModel().put("tratapages", tratamientos.getTotalPages()-1);
+				}
 
 			Boolean canBeEdited = informe.getCita().getFecha().equals(LocalDate.now());
 			mav.getModel().put("canbeedited", canBeEdited);

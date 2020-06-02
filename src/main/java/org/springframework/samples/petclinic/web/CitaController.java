@@ -14,10 +14,8 @@ import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Medico;
 import org.springframework.samples.petclinic.model.Paciente;
 import org.springframework.samples.petclinic.service.CitaService;
-import org.springframework.samples.petclinic.service.MedicoService;
 import org.springframework.samples.petclinic.service.PacienteService;
 import org.springframework.samples.petclinic.service.UserService;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -39,12 +37,14 @@ public class CitaController {
 	private static final String FECHA = "fecha";
 	private static final String VIEW_CITAS = "redirect:/citas";
 	
+	
 	@Autowired
 	private CitaService citaService;
 	@Autowired
 	private PacienteService pacienteService;
 	@Autowired
 	private UserService userService;
+	
 
 	// CUANDO ALGUIEN HAGA EL CITADETAILS POR FAVOR QUE USE ESTA URL EN EL MAPPING:
 	// "/citas/citaDetails/{citaId}"
@@ -59,6 +59,7 @@ public class CitaController {
 	public String listadoCitas(final ModelMap modelMap, @PathVariable("medicoId") final int medicoId) {
 		String vista = "citas/listCitas";
 		int idMedico = this.userService.getCurrentMedico().getId();
+	
 
 		if (medicoId != idMedico) {
 			return ACCESS_NOT_AUTHORIZED;
@@ -67,6 +68,7 @@ public class CitaController {
 			if (citas.isEmpty()) {
 				return "redirect:/";
 			} else {
+				
 				modelMap.put("selections", citas);
 				modelMap.put("dateOfToday", LocalDate.now());
 				return vista;

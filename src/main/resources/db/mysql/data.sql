@@ -152,3 +152,6 @@ INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tra
 VALUES (7, 'nombre7','enantium','1 cada tres dias','2020-03-09','2020-12-15',4);
 INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tratamiento,informe_id) 
 VALUES (8, 'nombre7','enantium','1 cada tres dias',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,5);
+
+INSERT INTO tratamiento(id,name,medicamento,dosis,f_inicio_tratamiento,f_fin_tratamiento,informe_id) 
+VALUES (9, 'nombre5','alprazolam','1 cada tres dias','2020-01-19','2020-03-10',1);

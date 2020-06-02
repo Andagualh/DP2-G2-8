@@ -28,7 +28,7 @@
 		</tr>
 	</table>
 
-	<c:if test="${cannotbedeleted==false}">
+	<c:if test="${cannotbedeleted==false && tratamientos.isEmpty()}">
 		<spring:url value="/citas/{citaId}/informes/delete/{informeId}" var="deleteUrl">
 			<spring:param name="informeId" value="${informe.id}" />
 			<spring:param name="citaId" value="${informe.cita.id}"/>
@@ -124,12 +124,14 @@
     </table>
 	</c:if>
 	
+	<c:if test="${!tratamientos.isEmpty()}">
 	<c:forEach begin="0" end="${tratapages}" var="current">
 		<spring:url value="../informes/{informeId}?page=${current}" var="pageUrl">
 		<spring:param name="informeId" value="${informe.id}" />
 		</spring:url>
 	<a href="${fn:escapeXml(pageUrl)}" class="btn btn-default">Pagina ${current+1}</a>
 	</c:forEach>
+	</c:if>
 	<br>
 	<br>
     <c:if test="${editTratamientoOk}">
@@ -138,4 +140,5 @@
 	</spring:url>
 	<a href="${fn:escapeXml(createTratUrl)}" class="btn btn-default">Crear Tratamiento</a>
 	</c:if>
+
 </petclinic:layout>

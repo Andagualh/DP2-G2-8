@@ -3,12 +3,15 @@ package org.springframework.samples.petclinic.web;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.support.PagedListHolder;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
@@ -446,7 +449,7 @@ class InformeControllerTests {
 
 	@WithMockUser(value = "spring")
 	@Test
-	void testShowInforme() throws Exception {
+	void testShowInformeWithoutTratamiento() throws Exception {
 
 		Informe informe = new Informe();
 		//Cita con LocalDate now
@@ -466,6 +469,90 @@ class InformeControllerTests {
 			.andExpect(MockMvcResultMatchers.model().attribute("cannotbedeleted", false))
 			.andExpect(MockMvcResultMatchers.model().attribute("canbeedited", true)
 
+			);
+	}
+
+	@WithMockUser(value = "spring")
+	@Test
+	void testShowInformeWithTratamiento() throws Exception {
+
+		Informe informe = new Informe();
+		//Cita con LocalDate now
+		informe.setCita(this.cita1);
+		informe.setId(InformeControllerTests.TEST_INFORME_ID);
+		informe.setDiagnostico("Diag");
+		informe.setMotivo_consulta("motivo");
+
+		List<Tratamiento> tratas = new ArrayList<>();
+		Tratamiento tratamiento = new Tratamiento();
+		tratamiento.setDosis("dosis");
+		tratamiento.setMedicamento("medicamento");
+		tratamiento.setF_inicio_tratamiento(cita1.getFecha());
+		tratamiento.setF_fin_tratamiento(cita1.getFecha());
+		tratamiento.setInforme(informe);
+		tratas.add(tratamiento);
+
+		informe.setTratamientos(tratas);
+		
+		//To create a PageObject with the correct Pagination you have to set the Pageable on the constructor
+		Page<Tratamiento> page = new PageImpl<>(tratas, PageRequest.of(0, 5), 6);
+		
+
+		BDDMockito.given(this.informeService.findInformeById(InformeControllerTests.TEST_INFORME_ID)).willReturn(Optional.of(informe));
+		BDDMockito.given(this.tratamientoService.findTrata(informe.getId(), PageRequest.of(0, 5))).willReturn(page);
+
+		this.mockMvc.perform(MockMvcRequestBuilders.get("/citas/{citaId}/informes/{informeId}", InformeControllerTests.TEST_CITA_ID, InformeControllerTests.TEST_INFORME_ID)).andExpect(MockMvcResultMatchers.status().isOk())
+			.andExpect(MockMvcResultMatchers.view().name("informes/informeDetails"))
+			.andExpect(MockMvcResultMatchers.model().attributeExists("informe"))
+			.andExpect(MockMvcResultMatchers.model().attribute("cannotbedeleted", false))
+			.andExpect(MockMvcResultMatchers.model().attribute("canbeedited", true))
+			.andExpect(MockMvcResultMatchers.model().attribute("editTratamientoOk", true))
+			.andExpect(MockMvcResultMatchers.model().attributeExists("tratamientos"))
+			.andExpect(MockMvcResultMatchers.model().attributeExists("tratapages")
+			);
+	}
+
+	@WithMockUser(value = "spring")
+	@Test
+	void testShowInformeWith2PagesTratamiento() throws Exception {
+
+		Informe informe = new Informe();
+		//Cita con LocalDate now
+		informe.setCita(this.cita1);
+		informe.setId(InformeControllerTests.TEST_INFORME_ID);
+		informe.setDiagnostico("Diag");
+		informe.setMotivo_consulta("motivo");
+
+		//Page Constructor type will only accept a List Type
+		List<Tratamiento> tratList = new ArrayList<>();
+		
+		for(int i = 1; i<7; i++){
+		Tratamiento tratamiento = new Tratamiento();
+		tratamiento.setDosis("dosis");
+		tratamiento.setMedicamento("medicamento");
+		tratamiento.setF_inicio_tratamiento(cita1.getFecha());
+		tratamiento.setF_fin_tratamiento(cita1.getFecha());
+		tratamiento.setInforme(informe);
+		tratList.add(tratamiento);
+		}
+
+		informe.setTratamientos(tratList);
+		
+		//To create a PageObject with the correct Pagination you have to set the Pageable on the constructor
+		Page<Tratamiento> page = new PageImpl<>(tratList, PageRequest.of(0, 5), 6);
+		
+		
+		BDDMockito.given(this.informeService.findInformeById(InformeControllerTests.TEST_INFORME_ID)).willReturn(Optional.of(informe));
+		BDDMockito.given(this.tratamientoService.findTrata(informe.getId(), PageRequest.of(0, 5))).willReturn(page);
+
+		this.mockMvc.perform(MockMvcRequestBuilders.get("/citas/{citaId}/informes/{informeId}", InformeControllerTests.TEST_CITA_ID, InformeControllerTests.TEST_INFORME_ID)).andExpect(MockMvcResultMatchers.status().isOk())
+			.andExpect(MockMvcResultMatchers.view().name("informes/informeDetails"))
+			.andExpect(MockMvcResultMatchers.model().attributeExists("informe"))
+			.andExpect(MockMvcResultMatchers.model().attribute("cannotbedeleted", false))
+			.andExpect(MockMvcResultMatchers.model().attribute("canbeedited", true))
+			.andExpect(MockMvcResultMatchers.model().attribute("editTratamientoOk", true))
+			.andExpect(MockMvcResultMatchers.model().attributeExists("tratamientos"))
+			.andExpect(MockMvcResultMatchers.model().attribute("tratapages", 1)
 			);
 	}
 

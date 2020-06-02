@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.dao.DataAccessException;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.model.Informe;
@@ -27,6 +28,7 @@ public class InformeService {
 	}
 
 	@Transactional
+	@CacheEvict(cacheNames="findCitasPersonales", allEntries = true)
 	public void saveInforme(final Informe informe) throws DataAccessException, IllegalAccessException {
 		if (informe.getCita().getFecha().equals(LocalDate.now()) && !citaHasInforme(informe.getCita())){
 			this.informeRepository.save(informe);
@@ -41,6 +43,7 @@ public class InformeService {
 	}
 
 	@Transactional
+	@CacheEvict(cacheNames="findCitasPersonales", allEntries = true)
 	public void updateInforme(final Informe informe) throws DataAccessException, IllegalAccessException{
 		if(informe.getCita().getFecha().equals(LocalDate.now()) && citaHasInforme(informe.getCita())){
 			this.informeRepository.save(informe);
@@ -61,6 +64,7 @@ public class InformeService {
 	}
 
 	@Transactional
+	@CacheEvict(cacheNames="findCitasPersonales", allEntries = true)
 	public void deleteInforme(final int id) throws DataAccessException, IllegalAccessException{
 		Informe informe = findInformeById(id).get();
 		
