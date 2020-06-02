@@ -395,6 +395,21 @@ public class TestInformeControladorE2E {
 
 	}
 
+	@WithMockUser(username = "alvaroMedico", authorities = {"medico"})
+	@Test
+	void testShowInformeWithManyTratamientos() throws Exception{
+		this.mockMvc.perform(MockMvcRequestBuilders.get("/citas/{citaId}/informes/{informeId}", 1, 1))
+		.andExpect(MockMvcResultMatchers.status().isOk())
+			.andExpect(MockMvcResultMatchers.view().name("informes/informeDetails"))
+			.andExpect(MockMvcResultMatchers.model().attributeExists("informe"))
+			.andExpect(MockMvcResultMatchers.model().attribute("cannotbedeleted", true))
+			.andExpect(MockMvcResultMatchers.model().attribute("canbeedited", false))
+			.andExpect(MockMvcResultMatchers.model().attribute("editTratamientoOk", false))
+			.andExpect(MockMvcResultMatchers.model().attributeExists("tratamientos"))
+			.andExpect(MockMvcResultMatchers.model().attribute("tratapages", 1)
+			);
+	}
+
 	@WithMockUser(username = "alvaroMedico", authorities = {
 		"medico"
 	})

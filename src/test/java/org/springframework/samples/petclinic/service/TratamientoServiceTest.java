@@ -110,7 +110,7 @@ public class TratamientoServiceTest {
 	@Test
 	public void testCountWithInitialData() {
 		int count = this.tratamientoService.tratamientoCount();
-		Assertions.assertEquals(count, 8);
+		Assertions.assertEquals(count, 9);
 	}
 	
 
