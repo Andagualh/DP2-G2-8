@@ -42,9 +42,10 @@ public class CreateInformeHasMotErrorUITest {
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
     }
 
+   
     @Test
   public void testCreateInformeHasMotErrorUITest() throws Exception {
-    driver.get("http://localhost:"+this.port);
+    driver.get("http://localhost/");
     driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
     driver.findElement(By.id("username")).clear();
     driver.findElement(By.id("username")).sendKeys("alvaroMedico");
@@ -54,8 +55,8 @@ public class CreateInformeHasMotErrorUITest {
     driver.findElement(By.xpath("//button[@type='submit']")).click();
     driver.findElement(By.xpath("//div/div/div/div")).click();
     driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a")).click();
-    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/ul/li[4]/a")).click();
-    driver.findElement(By.xpath("//a[contains(@href, '/pacientes/1')]")).click();
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/ul/li[4]/a/span[2]")).click();
+    driver.findElement(By.xpath("//a[contains(@href, '/pacientes/4')]")).click();
     driver.findElement(By.xpath("//a[contains(text(),'Crear\n			Cita')]")).click();
     driver.findElement(By.id("lugar")).click();
     driver.findElement(By.id("lugar")).clear();
@@ -63,17 +64,18 @@ public class CreateInformeHasMotErrorUITest {
     driver.findElement(By.id("fecha")).click();
     driver.findElement(By.linkText(Integer.toString(LocalDate.now().getDayOfMonth()))).click();
     driver.findElement(By.xpath("//button[@type='submit']")).click();
-    assertEquals(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE).toString(), driver.findElement(By.xpath("//table[@id='citasTable']/tbody/tr[6]/td")).getText());
-    assertEquals("Crear Informe", driver.findElement(By.xpath("//a[contains(@href, '10/informes/new')]")).getText());
-    driver.findElement(By.xpath("//a[contains(@href, '10/informes/new')]")).click();
+    driver.findElement(By.xpath("//table[@id='citasTable']/tbody/tr[11]/td")).click();
+    assertEquals(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), driver.findElement(By.xpath("//table[@id='citasTable']/tbody/tr[11]/td")).getText());
+    driver.findElement(By.xpath("//a[contains(@href, '14/informes/new')]")).click();
     driver.findElement(By.id("motivo_consulta")).click();
     driver.findElement(By.id("diagnostico")).click();
     driver.findElement(By.id("diagnostico")).clear();
-    driver.findElement(By.id("diagnostico")).sendKeys("Diagn");
+    driver.findElement(By.id("diagnostico")).sendKeys("Diagnostico");
     driver.findElement(By.xpath("//button[@type='submit']")).click();
     driver.findElement(By.xpath("//form[@id='add-informe-form']/div/div/div")).click();
     assertEquals("must not be empty", driver.findElement(By.xpath("//form[@id='add-informe-form']/div/div/div/span[2]")).getText());
   }
+  
 
   @AfterEach
   public void tearDown() throws Exception {
