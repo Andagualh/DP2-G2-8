@@ -216,7 +216,7 @@ public class PacienteControllerE2ETest {
 	@Test
 	void testBorrarPacienteSuccess() throws Exception {
 
-		this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/delete", 9)
+		this.mockMvc.perform(MockMvcRequestBuilders.get("/pacientes/{pacienteId}/delete", 9)
 				.with(SecurityMockMvcRequestPostProcessors.csrf()))
 		.andExpect(MockMvcResultMatchers.status().is3xxRedirection())
 		.andExpect(MockMvcResultMatchers.view().name("redirect:/pacientes"));
@@ -228,7 +228,7 @@ public class PacienteControllerE2ETest {
 	@Test
 	void testBorrarPacienteOtroMedico() throws Exception {
 
-		this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/delete", 1)
+		this.mockMvc.perform(MockMvcRequestBuilders.get("/pacientes/{pacienteId}/delete", 1)
 				.with(SecurityMockMvcRequestPostProcessors.csrf()))
 		.andExpect(MockMvcResultMatchers.status().is3xxRedirection())
 		.andExpect(MockMvcResultMatchers.view().name("redirect:/pacientes/" + 1));
@@ -240,7 +240,7 @@ public class PacienteControllerE2ETest {
 	@Test
 	void testBorrarPacienteCantDelete() throws Exception {
 
-		this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/delete", 1)
+		this.mockMvc.perform(MockMvcRequestBuilders.get("/pacientes/{pacienteId}/delete", 1)
 				.with(SecurityMockMvcRequestPostProcessors.csrf()))
 			.andExpect(MockMvcResultMatchers.status().is3xxRedirection())
 			.andExpect(MockMvcResultMatchers.view().name("redirect:/pacientes/" + 1));
@@ -252,7 +252,7 @@ public class PacienteControllerE2ETest {
 	@Test
 	void testBorrarPacienteNoEncontrado() throws Exception {
 
-		this.mockMvc.perform(MockMvcRequestBuilders.post("/pacientes/{pacienteId}/delete", 20)
+		this.mockMvc.perform(MockMvcRequestBuilders.get("/pacientes/{pacienteId}/delete", 20)
 		.with(SecurityMockMvcRequestPostProcessors.csrf()))
 		.andExpect(MockMvcResultMatchers.model().attributeExists("message"))
 		.andExpect(MockMvcResultMatchers.status().isOk())

@@ -120,7 +120,7 @@ public class PacienteController {
 		}
 	}
 
-	@PostMapping(value = "/pacientes/{pacienteId}/delete")
+	@GetMapping(value = "/pacientes/{pacienteId}/delete")
 	public String borrarPaciente(@PathVariable("pacienteId") final int pacienteId, final ModelMap modelMap) {
 		String view;
 		Optional<Paciente> optionalPaciente = this.pacienteService.findPacienteById(pacienteId);
