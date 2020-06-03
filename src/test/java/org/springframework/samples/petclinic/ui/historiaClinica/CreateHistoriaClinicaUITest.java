@@ -1,5 +1,5 @@
 
-package org.springframework.samples.petclinic.ui;
+package org.springframework.samples.petclinic.ui.historiaClinica;
 
 import java.util.concurrent.TimeUnit;
 
@@ -20,7 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class CreateHistoriaClinicaEmptyUITest {
+public class CreateHistoriaClinicaUITest {
 
 	@LocalServerPort
 	private int				port				= 8080;
@@ -53,8 +53,11 @@ public class CreateHistoriaClinicaEmptyUITest {
 		this.driver.findElement(By.xpath("//a[contains(@href, '/pacientes/7/historiaclinica')]")).click();
 		this.driver.findElement(By.xpath("//a[contains(@href, '/pacientes/7/historiaclinica/new')]")).click();
 		this.driver.findElement(By.id("descripcion")).click();
+		this.driver.findElement(By.id("descripcion")).clear();
+		this.driver.findElement(By.id("descripcion")).sendKeys("Dolor de cabeza");
 		this.driver.findElement(By.xpath("//button[@type='submit']")).click();
-		Assert.assertEquals("La descripcion no puede estar vacia.", this.driver.findElement(By.xpath("//form[@id='add-historiaclinica-form']/div/p")).getText());
+		this.driver.findElement(By.linkText("Historia Clinica")).click();
+		Assert.assertEquals("Dolor de cabeza", this.driver.findElement(By.xpath("//table[2]/tbody/tr[2]/td")).getText());
 	}
 
 	@AfterEach
