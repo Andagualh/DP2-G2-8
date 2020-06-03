@@ -46,7 +46,7 @@ public class CreateCitaWithEmptyFechaUITest {
 
 	  @Test
 	  public void testCrearCitaFechaVacio() throws Exception {
-	    driver.get("http://localhost:8080/");
+	    driver.get("http://localhost:" + this.port);
 	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 	    driver.findElement(By.id("username")).clear();
 	    driver.findElement(By.id("username")).sendKeys("andresMedico");

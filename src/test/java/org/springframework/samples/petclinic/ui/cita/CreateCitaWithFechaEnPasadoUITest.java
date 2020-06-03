@@ -46,7 +46,7 @@ public class CreateCitaWithFechaEnPasadoUITest {
 
 	  @Test
 	  public void testCrearCitaFechaEnPasado() throws Exception {
-	    driver.get("http://localhost:8080/");
+	    driver.get("http://localhost:" + this.port);
 	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 	    driver.findElement(By.id("username")).clear();
 	    driver.findElement(By.id("username")).sendKeys("andresMedico");
@@ -62,7 +62,9 @@ public class CreateCitaWithFechaEnPasadoUITest {
 	    driver.findElement(By.id("lugar")).clear();
 	    driver.findElement(By.id("lugar")).sendKeys("Sevilla");
 	    driver.findElement(By.id("fecha")).click();
-	    driver.findElement(By.xpath("//div[@id='ui-datepicker-div']/table/tbody/tr[2]/td/a")).click();
+	    driver.findElement(By.xpath("//div[@id='ui-datepicker-div']/div/a")).click();
+	    driver.findElement(By.xpath("//div[@id='ui-datepicker-div']/div/a")).click();
+	    driver.findElement(By.xpath("//a[contains(text(),'1')]")).click();
 	    driver.findElement(By.xpath("//button[@type='submit']")).click();
 	    assertEquals("La fecha debe estar en presente o futuro", driver.findElement(By.xpath("//form[@id='add-cita-form']/div/div[2]/div/span[2]")).getText());
 	  }

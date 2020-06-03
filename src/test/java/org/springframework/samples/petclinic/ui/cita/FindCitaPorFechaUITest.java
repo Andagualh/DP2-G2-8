@@ -46,29 +46,39 @@ public class FindCitaPorFechaUITest {
 
 	  @Test
 	  public void testBuscarCitaExistente() throws Exception {
-	    driver.get("http://localhost:8080/");
+	    driver.get("http://localhost:" + this.port);
 	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 	    driver.findElement(By.id("username")).clear();
 	    driver.findElement(By.id("username")).sendKeys("andresMedico");
 	    driver.findElement(By.id("password")).clear();
 	    driver.findElement(By.id("password")).sendKeys("entrar");
 	    driver.findElement(By.xpath("//button[@type='submit']")).click();
-	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a")).click();
-	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/ul/li[4]/a")).click();
-	    driver.findElement(By.xpath("//table[@id='ownersTable']/tbody/tr/td/a")).click();
-	    driver.findElement(By.xpath("//a[contains(text(),'Crear\n			Cita')]")).click();
-	    driver.findElement(By.id("lugar")).click();
-	    driver.findElement(By.id("lugar")).clear();
-	    driver.findElement(By.id("lugar")).sendKeys("Sevilla");
-	    driver.findElement(By.id("fecha")).click();
-	    driver.findElement(By.xpath("//div[@id='ui-datepicker-div']/table/tbody/tr[3]/td[3]/a")).click();
-	    driver.findElement(By.xpath("//button[@type='submit']")).click();
-	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/a")).click();
+//	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a")).click();
+//	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/ul/li[4]/a")).click();
+//	    driver.findElement(By.xpath("//table[@id='ownersTable']/tbody/tr/td/a")).click();
+//	    driver.findElement(By.xpath("//a[contains(text(),'Crear\n			Cita')]")).click();
+//	    driver.findElement(By.id("lugar")).click();
+//	    driver.findElement(By.id("lugar")).clear();
+//	    driver.findElement(By.id("lugar")).sendKeys("Sevilla");
+//	    driver.findElement(By.id("fecha")).click();
+//	    driver.findElement(By.xpath("//div[@id='ui-datepicker-div']/table/tbody/tr[3]/td[3]/a")).click();
+//	    driver.findElement(By.xpath("//button[@type='submit']")).click();
+//	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/a")).click();
+//	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/ul/li[4]/a/span[2]")).click();
+//	    driver.findElement(By.id("fecha")).click();
+//	    driver.findElement(By.xpath("//div[@id='ui-datepicker-div']/table/tbody/tr[3]/td[3]/a")).click();
+//	    driver.findElement(By.xpath("//button[@type='submit']")).click();
+//	    assertEquals("2020-05-12", driver.findElement(By.xpath("//table[@id='citasTable']/tbody/tr/td")).getText());
+	    driver.findElement(By.xpath("//a[contains(text(),'Citas')]")).click();
 	    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/ul/li[4]/a/span[2]")).click();
 	    driver.findElement(By.id("fecha")).click();
-	    driver.findElement(By.xpath("//div[@id='ui-datepicker-div']/table/tbody/tr[3]/td[3]/a")).click();
-	    driver.findElement(By.xpath("//button[@type='submit']")).click();
-	    assertEquals("2020-05-12", driver.findElement(By.xpath("//table[@id='citasTable']/tbody/tr/td")).getText());
+	    driver.findElement(By.id("fecha")).click();
+	    driver.findElement(By.id("fecha")).click();
+	    driver.findElement(By.id("fecha")).clear();
+	    driver.findElement(By.id("fecha")).sendKeys("2015-05-26");
+	    driver.findElement(By.xpath("//html")).click();
+	    driver.findElement(By.xpath("//div[2]/div/button")).click();
+	    assertEquals("2015-05-26", driver.findElement(By.xpath("//table[@id='citasTable']/tbody/tr/td")).getText());
 	  }
 
 	  @AfterEach
