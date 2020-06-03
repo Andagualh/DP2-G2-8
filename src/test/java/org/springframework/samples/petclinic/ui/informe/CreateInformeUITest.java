@@ -43,8 +43,8 @@ public class CreateInformeUITest {
 
     @Test
   public void testCreateInformeSuccess() throws Exception {
-    driver.get("http://localhost/"+ this.port);
-    //driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
+    driver.get("http://localhost/");
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
     driver.findElement(By.id("username")).clear();
     driver.findElement(By.id("username")).sendKeys("alvaroMedico");
     driver.findElement(By.id("password")).click();
