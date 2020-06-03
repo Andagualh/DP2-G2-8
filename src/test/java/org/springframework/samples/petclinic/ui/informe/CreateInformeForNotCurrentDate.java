@@ -42,30 +42,26 @@ public class CreateInformeForNotCurrentDate {
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
     }
 
-    @Test
+    
+      @Test
     public void testCreateInformeForNotCurrentDate() throws Exception {
-      driver.get("http://localhost:" + this.port);
-      driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
-      driver.findElement(By.id("username")).clear();
-      driver.findElement(By.id("username")).sendKeys("alvaroMedico");
-      driver.findElement(By.id("password")).click();
-      driver.findElement(By.id("password")).clear();
-      driver.findElement(By.id("password")).sendKeys("entrar");
-      driver.findElement(By.xpath("//button[@type='submit']")).click();
-      driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a")).click();
-      driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/ul/li[4]/a/span[2]")).click();
-      driver.findElement(By.xpath("//a[contains(@href, '/pacientes/1')]")).click();
-      driver.findElement(By.xpath("//a[contains(text(),'Crear\n			Cita')]")).click();
-      driver.findElement(By.id("lugar")).click();
-      driver.findElement(By.id("lugar")).clear();
-      driver.findElement(By.id("lugar")).sendKeys("Lugar");
-      driver.findElement(By.id("fecha")).click();
-      driver.findElement(By.linkText(Integer.toString(LocalDate.now().plusDays(1).getDayOfMonth()))).click();
-      driver.findElement(By.xpath("//button[@type='submit']")).click();
-      assertEquals(LocalDate.now().plusDays(1).format(DateTimeFormatter.ISO_LOCAL_DATE).toString(), driver.findElement(By.xpath("//table[@id='citasTable']/tbody/tr[6]/td")).getText());
-      assertEquals("No tiene informe", driver.findElement(By.xpath("//table[@id='citasTable']/tbody/tr[6]/td[4]")).getText());
-      assertEquals("Lugar", driver.findElement(By.xpath("//table[@id='citasTable']/tbody/tr[6]/td[2]")).getText());
-    }
+    driver.get("http://localhost/");
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
+    driver.findElement(By.id("username")).clear();
+    driver.findElement(By.id("username")).sendKeys("alvaroMedico");
+    driver.findElement(By.id("password")).clear();
+    driver.findElement(By.id("password")).sendKeys("entrar");
+    driver.findElement(By.xpath("//button[@type='submit']")).click();
+    driver.findElement(By.xpath("//div/div/div/div")).click();
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a")).click();
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/a")).click();
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/ul/li[2]/a/span[2]")).click();
+    driver.findElement(By.xpath("//table[@id='citasTable']/tbody/tr[2]/td")).click();
+    assertEquals("2025-07-09", driver.findElement(By.xpath("//table[@id='citasTable']/tbody/tr[2]/td")).getText());
+    driver.findElement(By.xpath("//table[@id='citasTable']/tbody/tr[2]/td[4]")).click();
+    assertEquals("No tiene informe", driver.findElement(By.xpath("//table[@id='citasTable']/tbody/tr[2]/td[4]")).getText());
+     }
+    
     
     @AfterEach
   public void tearDown() throws Exception {

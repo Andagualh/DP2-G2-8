@@ -42,8 +42,8 @@ public class EditInformeUITest {
     }
 
     @Test
-  public void testUntitledTestCase() throws Exception {
-    driver.get("http://localhost:" + this.port);
+  public void testEditInformeUITest() throws Exception {
+    driver.get("http://localhost/");
     driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
     driver.findElement(By.id("username")).clear();
     driver.findElement(By.id("username")).sendKeys("alvaroMedico");
@@ -51,40 +51,23 @@ public class EditInformeUITest {
     driver.findElement(By.id("password")).clear();
     driver.findElement(By.id("password")).sendKeys("entrar");
     driver.findElement(By.xpath("//button[@type='submit']")).click();
-    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/a")).click();
-    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[2]/ul/li[4]/a/span[2]")).click();
-    driver.findElement(By.xpath("//a[contains(@href, '/pacientes/1')]")).click();
-    driver.findElement(By.xpath("//a[contains(text(),'Crear\n			Cita')]")).click();
-    driver.findElement(By.id("lugar")).click();
-    driver.findElement(By.id("lugar")).clear();
-    driver.findElement(By.id("lugar")).sendKeys("Lugar");
-    driver.findElement(By.id("fecha")).click();
-    driver.findElement(By.linkText(Integer.toString(LocalDate.now().getDayOfMonth()))).click();
-    driver.findElement(By.xpath("//button[@type='submit']")).click();
-    driver.findElement(By.xpath("//a[contains(@href, '10/informes/new')]")).click();
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/a")).click();
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/ul/li[2]/a")).click();
+    driver.findElement(By.xpath("//a[contains(@href, '13/informes/5')]")).click();
+    driver.findElement(By.xpath("//a[contains(@href, '/citas/13/informes/5/edit')]")).click();
+    driver.findElement(By.id("motivo_consulta")).click();
     driver.findElement(By.id("motivo_consulta")).click();
     driver.findElement(By.id("motivo_consulta")).clear();
-    driver.findElement(By.id("motivo_consulta")).sendKeys("Motivo1");
+    driver.findElement(By.id("motivo_consulta")).sendKeys("Motivo");
     driver.findElement(By.id("diagnostico")).click();
     driver.findElement(By.id("diagnostico")).clear();
-    driver.findElement(By.id("diagnostico")).sendKeys("Diag1");
-    driver.findElement(By.xpath("//button[@type='submit']")).click();
-    driver.findElement(By.xpath("//table[@id='citasTable']/tbody/tr[6]/td")).click();
-    assertEquals(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE).toString(), driver.findElement(By.xpath("//table[@id='citasTable']/tbody/tr[6]/td")).getText());
-    driver.findElement(By.xpath("(//a[contains(text(),'Ver Informe')])[4]")).click();
-    assertEquals("Motivo1", driver.findElement(By.xpath("//td")).getText());
-    assertEquals("Diag1", driver.findElement(By.xpath("//tr[2]/td")).getText());
-    driver.findElement(By.xpath("//a[contains(@href, '/citas/10/informes/4/edit')]")).click();
-    driver.findElement(By.id("motivo_consulta")).click();
-    driver.findElement(By.id("motivo_consulta")).clear();
-    driver.findElement(By.id("motivo_consulta")).sendKeys("Motivo2");
-    driver.findElement(By.id("diagnostico")).click();
-    driver.findElement(By.id("diagnostico")).clear();
-    driver.findElement(By.id("diagnostico")).sendKeys("Diag2");
+    driver.findElement(By.id("diagnostico")).sendKeys("Diagnostico");
     driver.findElement(By.xpath("//button[@type='submit']")).click();
     driver.findElement(By.xpath("(//a[contains(text(),'Ver Informe')])[4]")).click();
-    assertEquals("Motivo2", driver.findElement(By.xpath("//td")).getText());
-    assertEquals("Diag2", driver.findElement(By.xpath("//tr[2]/td")).getText());
+    driver.findElement(By.xpath("//td")).click();
+    assertEquals("Motivo", driver.findElement(By.xpath("//td")).getText());
+    driver.findElement(By.xpath("//tr[2]/td")).click();
+    assertEquals("Diagnostico", driver.findElement(By.xpath("//tr[2]/td")).getText());
   }
 
   @AfterEach
