@@ -122,12 +122,12 @@ public class TratamientoServiceTest {
 		Medico medico = createDummyMedico();
 		Paciente paciente = createDummyPaciente(medico, new HistoriaClinica());
 		Cita cita = createDummyCita1(paciente);
-		citaService.save(cita);
+		
 		Informe informe = new Informe();
 		informe.setCita(cita);
 		informe.setDiagnostico("Dermatitis");
         informe.setMotivo_consulta("Picor en frente");
-        informeService.saveInforme(informe);
+        
 		
 		tratamiento.setMedicamento("aspirina1");
 		tratamiento.setDosis("1 pastilla cada 8 horas");
@@ -147,13 +147,13 @@ public class TratamientoServiceTest {
 		tratamiento3.setF_fin_tratamiento(LocalDate.parse("2020-04-15"));
 		tratamiento3.setInforme(informe);
 		
-		this.tratamientoService.save(tratamiento);
-		
 		boolean tratamientoBien = tratamientoService.fechaInicioFinOk(tratamiento);
 		boolean tratamientoMal = tratamientoService.fechaInicioFinOk(tratamiento2);
+		boolean tratamientoIgual = tratamientoService.fechaInicioFinOk(tratamiento3);
 		
 		Assertions.assertEquals(tratamientoBien, true);
 		Assertions.assertEquals(tratamientoMal, false);
+		Assertions.assertEquals(tratamientoIgual, true);
 	
 	}
 	
