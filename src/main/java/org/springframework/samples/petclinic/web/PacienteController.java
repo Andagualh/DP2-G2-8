@@ -188,7 +188,7 @@ public class PacienteController {
 			return PacienteController.VIEWS_PACIENTE_CREATE_OR_UPDATE_FORM;
 		} else {
 			paciente.setId(pacienteId);
-			this.pacienteService.savePacienteByMedico(paciente, this.userService.getCurrentMedico().getId());
+			this.pacienteService.savePacienteByMedico(paciente, paciente.getMedico().getId());
 			return REDIRECT_PACIENTES + pacienteId;
 		}
 	}
