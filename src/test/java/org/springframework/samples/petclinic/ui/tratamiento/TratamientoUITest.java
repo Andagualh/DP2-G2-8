@@ -23,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.samples.petclinic.model.Cita;
 import org.springframework.samples.petclinic.service.CitaService;
+import org.springframework.samples.petclinic.service.TratamientoService;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
@@ -40,6 +41,8 @@ public class TratamientoUITest {
   
   @Autowired
   private CitaService citaService;
+  @Autowired
+  private TratamientoService tratamientoService;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -230,6 +233,27 @@ public class TratamientoUITest {
     } catch (Error e) {
       verificationErrors.append(e.toString());
     }
+  }
+  
+  @Test
+  public void testBorrarTratamientoSuccess() throws Exception {
+	  
+	assertEquals(tratamientoService.findTratamientoById(8).isPresent(),true);
+	
+	this.driver.get("http://localhost:" + this.port);
+	this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
+	this.driver.findElement(By.id("username")).clear();
+	this.driver.findElement(By.id("username")).sendKeys("alvaroMedico");
+	this.driver.findElement(By.id("password")).clear();
+	this.driver.findElement(By.id("password")).sendKeys("entrar");
+	this.driver.findElement(By.xpath("//button[@type='submit']")).click();
+	assertEquals("ALVAROMEDICO", this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a/strong")).getText());
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/a")).click();
+    driver.findElement(By.xpath("//div[@id='main-navbar']/ul/li[3]/ul/li[2]/a/span[2]")).click();
+    driver.findElement(By.xpath("(//a[contains(text(),'Ver Informe')])[4]")).click();
+    driver.findElement(By.linkText("Borrar Tratamiento")).click();
+    
+	assertEquals(tratamientoService.findTratamientoById(8).isPresent(),false);
   }
  
 
