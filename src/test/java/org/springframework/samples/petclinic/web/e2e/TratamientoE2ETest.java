@@ -150,10 +150,24 @@ public class TratamientoE2ETest {
 	void testInitCreateTratamientoForm() throws Exception {
 		mockMvc.perform(get("/tratamientos/new/{informeId}", TEST_INFORME_ID))
 				.andExpect(status().isOk())
-				//.andExpect(model().attributeExists("tratamiento"))
-				//.andExpect(model().attributeExists("informe"))
+				.andExpect(model().attributeExists("tratamiento"))
+				.andExpect(model().attributeExists("informe"))
 				.andExpect(view().name("tratamientos/createOrUpdateTratamientosForm"));
 		
+	}	
+	
+	@WithMockUser(username="andresMedico",authorities= {"medico"})
+	@Test
+	void testInitCreateTratamientoNoVigenteNoAutorizado() throws Exception {
+		mockMvc.perform(get("/tratamientos/new/{informeId}", 2))
+				.andExpect(view().name("redirect:/"));
+	}
+	
+	@WithMockUser(username="andresMedico",authorities= {"medico"})
+	@Test
+	void testInitEditTratamientoNoVigenteNoAutorizado() throws Exception {
+		mockMvc.perform(get("/tratamientos/{tratamientoId}/edit", 7))
+				.andExpect(view().name("redirect:/"));
 	}	
 	
 	@WithMockUser(username="alvaroMedico",authorities= {"medico"})
@@ -185,7 +199,6 @@ public class TratamientoE2ETest {
         mockMvc.perform(post("/tratamientos/save")
         		.with(csrf())
         	    .flashAttr("tratamiento", tratamiento))
-		//.andExpect(status().isOk()) redirige bien pero no es ok
 		.andExpect(view().name("redirect:/citas/1/informes/1"));	
 
 	}

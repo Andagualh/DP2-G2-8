@@ -318,7 +318,30 @@ public class TratamientoControllerTest {
 		
 	}
 	
-	
+	@WithMockUser(username="medico1",authorities= {"medico"})
+	@Test
+	void testInitCreateTratamientoFormInformeNoVigente() throws Exception {
+		Tratamiento tratamiento = new Tratamiento();
+		Medico medic = new Medico();
+		medic.setId(this.medico1.getId());
+		cita2.setFecha(LocalDate.parse("2020-01-20"));
+		this.informe1.setCita(cita2);
+		
+		login = medic;
+    	
+    	tratamiento.setId(TEST_TRATAMIENTO_ID);
+    	tratamiento.setMedicamento("aspirina1");
+		tratamiento.setDosis("1 pastilla cada 8 horas");
+		tratamiento.setF_inicio_tratamiento(LocalDate.parse("2020-04-22"));
+		tratamiento.setF_fin_tratamiento(LocalDate.parse("2020-10-22"));
+		tratamiento.setInforme(informe1);
+		
+		BDDMockito.given(tratamientoService.findTratamientoById(TEST_TRATAMIENTO_ID)).willReturn(Optional.of(tratamiento));
+		BDDMockito.given(userService.getCurrentMedico()).willReturn(medic);
+
+		mockMvc.perform(get("/tratamientos/new/{informeId}", TEST_INFORME_ID))
+				.andExpect(view().name("redirect:/"));
+	}
 	
 	@WithMockUser(username="medico1",authorities= {"medico"})
 	@Test
