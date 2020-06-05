@@ -95,8 +95,8 @@ class HU15Diagnosis extends Simulation {
 		
 
 setUp(
-	addInformeScn.inject(rampUsers(2500) during (15 seconds)),
-	addInformeVacioScn.inject(rampUsers(2500) during (15 seconds))
+	addInformeScn.inject(rampUsers(2500) during (100 seconds)),
+	addInformeVacioScn.inject(rampUsers(2500) during (100 seconds))
 ).protocols(httpProtocol)		
 .assertions(
 	global.responseTime.max.lt(5000),

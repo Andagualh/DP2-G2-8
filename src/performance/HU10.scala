@@ -78,8 +78,8 @@ class HU10Diagnosis extends Simulation {
 		val getNoCitasPorFechaScn = scenario ("GetNoCitasPorFecha").exec(Home.home, Login.login, FormCitasByFecha.formCitasByFecha, GetNoCitasByFecha.getNoCitasByFecha)
 
 	setUp(
-	getCitasPorFechaScn.inject(rampUsers(2000) during (15 seconds)),
-	getNoCitasPorFechaScn.inject(rampUsers(2000) during (15 seconds))
+	getCitasPorFechaScn.inject(rampUsers(2000) during (100 seconds)),
+	getNoCitasPorFechaScn.inject(rampUsers(2000) during (100 seconds))
 ).protocols(httpProtocol)	
 .assertions(
 	global.responseTime.max.lt(5000),
