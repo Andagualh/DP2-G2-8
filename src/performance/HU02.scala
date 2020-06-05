@@ -104,8 +104,8 @@ class HU02Diagnosis extends Simulation {
 
 
 	setUp(
-	deleteSinHCScn.inject(rampUsers(1500) during (15 seconds)),
-	deleteConHCScn.inject(rampUsers(1500) during (15 seconds))
+	deleteSinHCScn.inject(rampUsers(1500) during (100 seconds)),
+	deleteConHCScn.inject(rampUsers(1500) during (100 seconds))
 ).protocols(httpProtocol)
 .assertions(
 	global.responseTime.max.lt(5000),
