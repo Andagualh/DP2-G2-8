@@ -58,6 +58,9 @@ public class TratamientoUITest {
   
   @Test
   public void testCreateTratamientoSuccess() throws Exception {
+	  
+	assertEquals(tratamientoService.findTratamientoById(10).isPresent(),false);
+	
 	this.driver.get("http://localhost:" + this.port);
 	this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 	this.driver.findElement(By.id("username")).clear();
@@ -82,6 +85,13 @@ public class TratamientoUITest {
     driver.findElement(By.xpath("//div[@id='ui-datepicker-div']/div/a[2]/span")).click();
     driver.findElement(By.linkText("15")).click();
     driver.findElement(By.xpath("//button[@type='submit']")).click();
+    
+    assertEquals(tratamientoService.findTratamientoById(10).isPresent(),true);
+    
+    assertEquals(tratamientoService.findTratamientoById(10).get().getMedicamento(),"Espidifen");
+    assertEquals(tratamientoService.findTratamientoById(10).get().getDosis(),"1 sobre cada 8 horas");
+    assertEquals(tratamientoService.findTratamientoById(10).get().getF_inicio_tratamiento(),LocalDate.parse("2020-06-29"));
+    assertEquals(tratamientoService.findTratamientoById(10).get().getF_fin_tratamiento(),LocalDate.parse("2020-07-15"));
   }
   
   @Test
@@ -135,6 +145,7 @@ public class TratamientoUITest {
   
   @Test
   public void testEditTratamientoSuccess() throws Exception {
+	  
 	this.driver.get("http://localhost:" + this.port);
 	this.driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 	this.driver.findElement(By.id("username")).clear();
@@ -149,15 +160,21 @@ public class TratamientoUITest {
     driver.findElement(By.linkText("Editar Tratamiento")).click();
     driver.findElement(By.id("medicamento")).click();
     driver.findElement(By.id("medicamento")).clear();
-    driver.findElement(By.id("medicamento")).sendKeys("ibuprofeno");
+    driver.findElement(By.id("medicamento")).sendKeys("ibuprofenoModificado");
     driver.findElement(By.id("dosis")).click();
     driver.findElement(By.id("dosis")).clear();
-    driver.findElement(By.id("dosis")).sendKeys("1 pastilla cada 24 horas");
+    driver.findElement(By.id("dosis")).sendKeys("1 pastilla cada 24 horas modificado");
     driver.findElement(By.id("f_inicio_tratamiento")).click();
     driver.findElement(By.linkText("10")).click();
     driver.findElement(By.id("f_fin_tratamiento")).click();
     driver.findElement(By.linkText("31")).click();
     driver.findElement(By.xpath("//button[@type='submit']")).click();
+    
+    assertEquals(tratamientoService.findTratamientoById(1).get().getMedicamento(),"ibuprofenoModificado");
+    assertEquals(tratamientoService.findTratamientoById(1).get().getDosis(),"1 pastilla cada 24 horas modificado");
+    assertEquals(tratamientoService.findTratamientoById(1).get().getF_inicio_tratamiento(),LocalDate.parse("2020-03-10"));
+    assertEquals(tratamientoService.findTratamientoById(1).get().getF_fin_tratamiento(),LocalDate.parse("2020-12-31"));
+
   }
   
   @Test
