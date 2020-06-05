@@ -86,8 +86,8 @@ class HU06Diagnosis extends Simulation {
 
 
 	setUp(
-	getPacientesPersonalesScn.inject(rampUsers(2000) during (15 seconds)),
-	getNoPacientesPersonalesScn.inject(rampUsers(2000) during (15 seconds))
+	getPacientesPersonalesScn.inject(rampUsers(2000) during (100 seconds)),
+	getNoPacientesPersonalesScn.inject(rampUsers(2000) during (100 seconds))
 ).protocols(httpProtocol)	
 .assertions(
 	global.responseTime.max.lt(5000),
