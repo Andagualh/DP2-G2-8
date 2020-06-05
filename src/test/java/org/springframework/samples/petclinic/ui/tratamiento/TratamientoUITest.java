@@ -109,10 +109,10 @@ public class TratamientoUITest {
     driver.findElement(By.linkText("Ver Informe")).click();
     driver.findElement(By.linkText("Crear Tratamiento")).click();
     driver.findElement(By.xpath("//button[@type='submit']")).click();
-    Assert.assertEquals("must not be empty", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div/div")).getText());
-    Assert.assertEquals("must not be empty", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[2]/div")).getText());
-    Assert.assertEquals("must not be null", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[3]/div")).getText());
-    Assert.assertEquals("must not be null", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[4]/div")).getText());
+    Assert.assertEquals("no puede estar vacío", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div/div")).getText());
+    Assert.assertEquals("no puede estar vacío", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[2]/div")).getText());
+    Assert.assertEquals("no puede ser null", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[3]/div")).getText());
+    Assert.assertEquals("no puede ser null", this.driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[4]/div")).getText());
   }
   
   @Test
@@ -231,22 +231,22 @@ public class TratamientoUITest {
     driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div[2]/div")).click();
     driver.findElement(By.xpath("//button[@type='submit']")).click();
     try {
-      assertEquals("must not be empty", driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div/div/span[2]")).getText());
+      assertEquals("no puede estar vacío", driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div/div/span[2]")).getText());
     } catch (Error e) {
       verificationErrors.append(e.toString());
     }
     try {
-      assertEquals("must not be empty", driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[2]/div/span[2]")).getText());
+      assertEquals("no puede estar vacío", driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[2]/div/span[2]")).getText());
     } catch (Error e) {
       verificationErrors.append(e.toString());
     }
     try {
-      assertEquals("must not be null", driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[3]/div/span[2]")).getText());
+      assertEquals("no puede ser null", driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[3]/div/span[2]")).getText());
     } catch (Error e) {
       verificationErrors.append(e.toString());
     }
     try {
-      assertEquals("must not be null", driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[4]/div/span[2]")).getText());
+      assertEquals("no puede ser null", driver.findElement(By.xpath("//form[@id='add-tratamiento-form']/div/div[4]/div/span[2]")).getText());
     } catch (Error e) {
       verificationErrors.append(e.toString());
     }

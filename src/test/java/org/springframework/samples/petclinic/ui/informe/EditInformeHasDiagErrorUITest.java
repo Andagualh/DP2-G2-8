@@ -21,10 +21,12 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext
 
 public class EditInformeHasDiagErrorUITest {
     
@@ -63,7 +65,7 @@ public class EditInformeHasDiagErrorUITest {
     driver.findElement(By.xpath("//form[@id='add-informe-form']/div[2]/div")).click();
     driver.findElement(By.xpath("//button[@type='submit']")).click();
     driver.findElement(By.xpath("//form[@id='add-informe-form']/div/div[2]/div")).click();
-    assertEquals("must not be empty", driver.findElement(By.xpath("//form[@id='add-informe-form']/div/div[2]/div/span[2]")).getText());  
+    assertEquals("no puede estar vacío", driver.findElement(By.xpath("//form[@id='add-informe-form']/div/div[2]/div/span[2]")).getText());  
   }
 
   @AfterEach

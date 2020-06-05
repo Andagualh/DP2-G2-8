@@ -49,7 +49,7 @@ public class FindCitaWithWrongFechaUITest {
 		  driver.get("http://localhost:" + this.port);
 		    driver.findElement(By.xpath("//div[@id='main-navbar']/ul[2]/li/a")).click();
 		    driver.findElement(By.id("username")).clear();
-		    driver.findElement(By.id("username")).sendKeys("andresMedico");
+		    driver.findElement(By.id("username")).sendKeys("pabloMedico");
 		    driver.findElement(By.id("password")).clear();
 		    driver.findElement(By.id("password")).sendKeys("entrar");
 		    driver.findElement(By.xpath("//button[@type='submit']")).click();

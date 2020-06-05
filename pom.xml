@@ -38,7 +38,7 @@
             <sonar.projectKey>Andagualh_DP2-G2-8</sonar.projectKey>
             <sonar.organization>andagualh</sonar.organization>
             <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-            <sonar.login>1ca9a70eb0db9c3e8ee461482e91395c2f93b0ab</sonar.login>
+            <sonar.login>9d6c7f8de06d13e697e33b7b8054f2b65473b71d</sonar.login>
           
 
     </properties>
@@ -283,7 +283,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <excludes>
-                       <exclude>**/*UITest.java</exclude> 
+                      <!-- <exclude>**/*UITest.java</exclude> --> 
                     <exclude>**/*APITest.java</exclude>
                      <exclude>**/*ControllerIntegrationTest*</exclude>
                     </excludes>
