@@ -337,6 +337,56 @@ class CitaControllerTests{
         .andExpect(view().name("redirect:/citas")
         );
     }
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testBorrarCitaWithFechaNull() throws Exception{
+
+        Cita cita = new Cita();
+        cita.setLugar("Lugar");
+        cita.setPaciente(this.javier);
+        cita.setFecha(null);
+        cita.setId(9090);
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+        given(this.citaService.findCitaById(BDDMockito.anyInt())).willReturn(Optional.of(cita));
+
+        mockMvc.perform(get("/citas/delete/{citaId}", 9090))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/citas")
+        );
+    }
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testBorrarCitaFechaPresente() throws Exception{
+        Cita cita = new Cita();
+        cita.setLugar("Lugar");
+        cita.setPaciente(this.javier);
+        cita.setFecha(LocalDate.now());
+        cita.setId(9090);
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+        given(this.citaService.findCitaById(BDDMockito.anyInt())).willReturn(Optional.of(cita));
+
+        mockMvc.perform(get("/citas/delete/{citaId}", 9090))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/citas"));
+    }
+
+    @WithMockUser(value = "spring")
+        @Test
+    void testBorrarCitaFechaPasado() throws Exception{
+        Cita cita = new Cita();
+        cita.setLugar("Lugar");
+        cita.setPaciente(this.javier);
+        cita.setFecha(LocalDate.now().minusDays(1));
+        cita.setId(9090);
+        given(this.userService.getCurrentMedico()).willReturn(this.medico1);
+        given(this.citaService.findCitaById(BDDMockito.anyInt())).willReturn(Optional.of(cita));
+
+        mockMvc.perform(get("/citas/delete/{citaId}", 9090))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/citas"));
+    }
     
     @WithMockUser(value = "spring")
         @Test
@@ -457,5 +507,6 @@ class CitaControllerTests{
             .andExpect(status().is3xxRedirection())
             .andExpect(view().name("redirect:/")
         );
-    }    
+    }
+    
 }
