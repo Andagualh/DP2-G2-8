@@ -126,8 +126,6 @@ public class CreatePacienteUITest {
 		driver.findElement(By.id("f_nacimiento")).clear();
 		driver.findElement(By.id("f_nacimiento")).sendKeys("1997/12/22");
 		driver.findElement(By.linkText("22")).click();
-		driver.findElement(By.id("DNI")).click();
-		driver.findElement(By.id("DNI")).clear();
 		driver.findElement(By.id("n_telefono")).click();
 		driver.findElement(By.id("n_telefono")).clear();
 		driver.findElement(By.id("n_telefono")).sendKeys("666123555");
